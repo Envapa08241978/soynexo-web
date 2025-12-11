@@ -1,11 +1,9 @@
-// VERSION FINAL V6 - FILTRO DE SALUDOS ACTIVADO
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Menu, X, Terminal, CheckCircle2, Send, MapPin, Eye, Building2, Search, AlertTriangle 
 } from 'lucide-react';
 
 // --- VERIFICACIÓN DE URL ---
-// Asegúrate de que esta sea la dirección EXACTA que sale en tu panel de Render
 const API_URL = "https://soynexo-servidor-final.onrender.com/api/audit";
 
 // --- COMPONENTE MAPA ---
@@ -45,7 +43,7 @@ function App() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
     { 
-      text: "👋 Hola, soy la IA de Soy Nexo.\n\nEscribe el nombre de tu negocio y ciudad para auditar cuánto dinero estás perdiendo por no tener presencia digital.", 
+      text: "Iniciando Protocolo de Auditoría Real.\n\nSoy el Auditor de Integridad de Soy Nexo. Estoy conectado directamente a Google Maps.\n\nEscriba el nombre del negocio y la ciudad (Ej: 'Pizzería Los Arcos en Guadalajara') para iniciar el rastreo.", 
       isBot: true 
     }
   ]);
@@ -66,17 +64,15 @@ function App() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    // --- SOLUCIÓN NUEVA: FILTRO LOCAL (EL "HOLA" SIN SERVIDOR) ---
-    // Esto detecta el saludo en tu teléfono antes de enviarlo a la nube.
+    // --- FILTRO LOCAL (EL "HOLA" SIN SERVIDOR) ---
     const textoUsuario = input.toLowerCase().trim();
     const saludos = ["hola", "buenos dias", "buenas", "que tal", "inicio", "prueba"];
     
-    // Agregamos el mensaje del usuario al chat
     const userMessage = { text: input, isBot: false };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
-    // Si es un saludo, respondemos AQUÍ MISMO (Sin llamar al servidor)
+    // Si es un saludo, respondemos AQUÍ MISMO
     if (saludos.some(s => textoUsuario.includes(s)) && textoUsuario.length < 15) {
         setTimeout(() => {
             setMessages(prev => [...prev, { 
@@ -84,7 +80,7 @@ function App() {
                 isBot: true 
             }]);
         }, 500);
-        return; // ¡IMPORTANTE! Aquí detenemos la función para no ir al servidor.
+        return; 
     }
 
     // --- SI NO ES SALUDO, VAMOS AL SERVIDOR ---
@@ -92,13 +88,11 @@ function App() {
     setMapQuery(null);
 
     try {
-      console.log("📡 Conectando a:", API_URL); // Para ver en consola si la liga está bien
-      
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            businessName: userMessage.text, // Usamos el texto original
+            businessName: userMessage.text,
             city: "Mexico" 
         })
       });
@@ -106,7 +100,6 @@ function App() {
       const data = await res.json();
 
       if (data.success) {
-        // ACTIVAMOS EL MAPA
         if (data.data && data.data.direccion) {
             setMapQuery(data.data.direccion); 
         } else {
@@ -120,7 +113,6 @@ function App() {
         const botMessage = { text: data.ai_analysis, isBot: true, isHtml: true };
         setMessages(prev => [...prev, botMessage]);
       } else {
-        // Si el servidor dice que no encontró nada
         setMessages(prev => [...prev, { 
             text: data.message || "🚫 No pude encontrar ese negocio. Intenta ser más específico (Ej: 'Tacos El Pariente en Navojoa').", 
             isBot: true 
@@ -145,96 +137,119 @@ function App() {
                </div>
                <span className="font-bold text-xl tracking-tight">SOY NEXO</span>
             </div>
+             {/* Menú de escritorio simple */}
+             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+              <a href="#" className="hover:text-[#FF6B00] transition-colors">[ FILOSOFÍA ]</a>
+              <a href="#" className="hover:text-[#FF6B00] transition-colors">[ SOLUCIONES ]</a>
+              <a href="#" className="text-[#FF6B00] border border-[#FF6B00]/50 px-4 py-2 rounded flex items-center gap-2 hover:bg-[#FF6B00]/10 transition-all">
+                <Terminal size={16} /> CONSULTA
+              </a>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-grow pt-20 pb-10 px-4 flex flex-col items-center justify-center">
-        <div className="text-center mb-6 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6B00]/10 text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-4 border border-[#FF6B00]/20">
-            <span className="animate-pulse">●</span> Sistema Online V5.0
-          </div>
-          <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight leading-tight">
-            Consultoría <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] to-[#FF9E00]">Forense</span>
-          </h1>
-          <p className="text-gray-400 text-base md:text-lg px-2">
-            Nuestra IA analiza tus pérdidas financieras en tiempo real.
-          </p>
-        </div>
-
-        {/* CHAT INTERFACE */}
-        <div className="w-full max-w-lg bg-[#0A1625] rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col h-[75vh] md:h-[600px]">
-          <div className="bg-[#0f1f30] p-4 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-ping absolute top-0 right-0"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full relative border-2 border-[#0f1f30]"></div>
+      {/* CONTENIDO PRINCIPAL (ESTRUCTURA ORIGINAL RESTAURADA) */}
+      <main className="flex-grow pt-28 pb-10 px-4 flex items-center">
+        <div className="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-5 gap-8">
+          
+          {/* SIDEBAR (Textos a la izquierda) */}
+          <div className="lg:col-span-2 space-y-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6B00]/10 text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-4 border border-[#FF6B00]/20">
+                <span className="animate-pulse">●</span> INICIAR CONSULTORÍA GRATUITA
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">Auditoría IA</h3>
-                <p className="text-[10px] text-green-400 font-mono">EN LÍNEA • RASTREANDO</p>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight leading-tight">
+                CONSULTORÍA <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] to-[#FF9E00]">TÉCNICA</span>
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed">
+                Utilice esta terminal para verificar la viabilidad de nuestros sistemas en su negocio. Nuestra IA buscará su presencia en Google en tiempo real para generar un reporte forense.
+              </p>
+            </div>
+            
+            <div className="space-y-4 pt-4 border-t border-white/5">
+              <div className="flex items-center gap-3 text-gray-300">
+                <Building2 className="text-[#FF6B00]" size={20} />
+                <span className="text-sm font-medium">Diagnóstico Sector Público/Privado</span>
+              </div>
+              <div className="flex items-center gap-3 text-gray-300">
+                <MapPin className="text-[#FF6B00]" size={20} />
+                <span className="text-sm font-medium">Verificación de Google Maps</span>
               </div>
             </div>
-            <Terminal className="text-white/20 w-5 h-5" />
           </div>
 
-          {/* MENSAJES */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-[#FF6B00]/20 scrollbar-track-transparent">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}>
-                <div className={`
-                  max-w-[85%] rounded-2xl p-4 text-base leading-relaxed shadow-sm
-                  ${msg.isBot 
-                    ? 'bg-[#132335] text-gray-200 border border-white/5 rounded-tl-none' 
-                    : 'bg-[#FF6B00] text-white font-medium rounded-tr-none shadow-lg shadow-[#FF6B00]/20'}
-                `}>
-                  {msg.isHtml ? (
-                      <div dangerouslySetInnerHTML={{ __html: msg.text }} />
-                  ) : (
-                      <div className="whitespace-pre-line">{msg.text}</div>
-                  )}
+          {/* CHAT INTERFACE (A la derecha) */}
+          <div className="lg:col-span-3">
+            <div className="w-full bg-[#0A1625] rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col h-[600px]">
+              <div className="bg-[#0f1f30] p-4 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-ping absolute top-0 right-0"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full relative border-2 border-[#0f1f30]"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Auditoría Técnica (REAL)</h3>
+                    <p className="text-[10px] text-green-400 font-mono">● CONECTADO A GOOGLE PLACES</p>
+                  </div>
                 </div>
+                <Terminal className="text-white/20 w-5 h-5" />
               </div>
-            ))}
-            {mapQuery && <MapVisualizer query={mapQuery} realLink={mapLink} />}
-            {loading && (
-              <div className="flex justify-start animate-pulse">
-                <div className="bg-[#132335] rounded-2xl p-4 text-gray-400 text-sm flex items-center gap-2">
-                  <Search className="w-4 h-4 animate-spin" />
-                  Analizando...
-                </div>
+
+              {/* MENSAJES */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-[#FF6B00]/20 scrollbar-track-transparent">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}>
+                    <div className={`
+                      max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm
+                      ${msg.isBot 
+                        ? 'bg-[#132335] text-gray-200 border border-white/5 rounded-tl-none' 
+                        : 'bg-[#FF6B00] text-white font-medium rounded-tr-none shadow-lg shadow-[#FF6B00]/20'}
+                    `}>
+                      {msg.isHtml ? (
+                          <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+                      ) : (
+                          <div className="whitespace-pre-line">{msg.text}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {mapQuery && <MapVisualizer query={mapQuery} realLink={mapLink} />}
+                {loading && (
+                  <div className="flex justify-start animate-pulse">
+                    <div className="bg-[#132335] rounded-2xl p-4 text-gray-400 text-sm flex items-center gap-2">
+                      <Search className="w-4 h-4 animate-spin" />
+                      Rastreando en la red...
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
               </div>
-            )}
-            <div ref={messagesEndRef} />
+
+              {/* INPUT */}
+              <div className="p-4 bg-[#0f1f30] border-t border-white/5">
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ej: Tacos El Pariente en Navojoa..."
+                    className="flex-1 bg-[#020B14] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#FF6B00] transition-colors placeholder:text-gray-600 font-mono"
+                  />
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="bg-[#FF6B00] hover:bg-[#FF8533] text-white p-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#FF6B00]/20 active:scale-95 flex items-center justify-center"
+                  >
+                    {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={20} />}
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
 
-          {/* INPUT */}
-          <div className="p-4 bg-[#0f1f30] border-t border-white/5">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ej: Tacos El Pariente en Navojoa..."
-                className="flex-1 bg-[#020B14] border border-white/10 rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-[#FF6B00] transition-colors placeholder:text-gray-600"
-                style={{ fontSize: '16px' }} 
-              />
-              <button 
-                type="submit"
-                disabled={loading}
-                className="bg-[#FF6B00] hover:bg-[#FF8533] text-white p-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#FF6B00]/20 active:scale-95 flex items-center justify-center"
-              >
-                {loading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={24} />}
-              </button>
-            </form>
-          </div>
         </div>
       </main>
-      
-      <footer className="py-6 text-center text-gray-600 text-xs">
-        <p>© 2025 Soy Nexo | Ingeniería de Cierre</p>
-      </footer>
     </div>
   );
 }
