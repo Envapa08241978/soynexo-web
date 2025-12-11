@@ -134,7 +134,7 @@ const SalesTerminal = ({ context }) => {
 
   useEffect(() => {
     if (!hasInitialized.current) {
-        let intro = "Iniciando Protocolo de Auditoría Real.\n\nSoy el Auditor de Integridad de Soy Nexo. Estoy conectado directamente a Google Maps.\n\nEscriba el nombre del negocio y la ciudad (Ej: 'Pizzería Los Arcos en Navojoa') para iniciar el rastreo.";
+        let intro = "Iniciando Protocolo de Auditoría Real.\n\nSoy el Auditor de Integridad de Soy Nexo. Estoy conectado directamente a Google Maps.\n\nEscriba el nombre del negocio y la ciudad (Ej: 'Pizzería Los Arcos en Guadalajara') para iniciar el rastreo.";
         
         if (context && context.includes("Interés")) {
              intro = `Iniciando análisis específico para: ${context.replace("Interés en: ", "")}.\n\nIndique el nombre del negocio y la ciudad para auditar.`;
