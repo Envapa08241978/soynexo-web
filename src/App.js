@@ -1,3 +1,4 @@
+// VERSION FINAL V6 - FILTRO DE SALUDOS ACTIVADO
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Menu, X, Terminal, CheckCircle2, Send, MapPin, Eye, Building2, Search, AlertTriangle 
