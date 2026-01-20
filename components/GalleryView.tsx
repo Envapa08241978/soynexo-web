@@ -77,8 +77,8 @@ export default function GalleryView({ eventSlug }: GalleryViewProps) {
                 timestamp: doc.data().timestamp?.toMillis() || Date.now()
             }))
 
-            // Combine Firebase media with demo for now
-            setMedia([...firebaseMedia, ...DEMO_MEDIA])
+            // Show only Firebase media
+            setMedia(firebaseMedia)
             setIsLoading(false)
         }, (error) => {
             console.error('Firebase sync error:', error)
