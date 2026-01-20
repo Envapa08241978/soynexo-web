@@ -64,6 +64,9 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://www.soynexo.com',
     },
+    verification: {
+        google: '8QaIAp7fpIEYkVzlGdSuCRtsQ4P9gCerwi3VtHOPCqQ',
+    },
     category: 'technology',
 }
 
