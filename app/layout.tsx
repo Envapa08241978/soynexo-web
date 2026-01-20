@@ -11,19 +11,39 @@ export const metadata: Metadata = {
         default: 'Soy Nexo | Álbum Digital para Eventos - Fotos en Tiempo Real',
         template: '%s | Soy Nexo'
     },
-    description: 'Crea un álbum colaborativo para tu boda, quinceañera o fiesta. Tus invitados suben fotos con código QR y aparecen en pantalla al instante. ¡Descarga gratis todas las fotos!',
+    description: 'Álbum digital colaborativo para bodas, quinceañeras y fiestas en Navojoa, Sonora y todo México. Tus invitados suben fotos desde su celular y aparecen al instante. Complemento perfecto para tu fotógrafo profesional. ¡Descarga gratis todas las fotos!',
     keywords: [
+        // Servicio principal
         'álbum digital evento',
-        'fotos boda tiempo real',
-        'galería fotos quinceañera',
+        'álbum colaborativo boda',
+        'galería fotos invitados',
         'muro de fotos fiesta',
-        'álbum colaborativo',
-        'fotos invitados evento',
-        'pantalla fotos boda',
-        'código QR fotos evento',
-        'galería interactiva',
+        'fotos tiempo real evento',
+        'código QR fotos boda',
+        // Complemento fotógrafo
+        'complemento fotógrafo boda',
+        'fotos invitados boda',
+        'álbum fotos invitados',
+        'todas las fotos de mi boda',
+        'recopilar fotos evento',
+        // Local - Navojoa/Sonora
+        'fotógrafo navojoa',
+        'fotos boda navojoa',
+        'evento navojoa sonora',
+        'quinceañera navojoa',
+        'bodas navojoa',
+        'fotógrafo sonora',
+        'eventos sonora méxico',
+        // Tipos de evento
+        'fotos quinceañera',
+        'álbum XV años',
+        'fotos cumpleaños',
+        'fotos baby shower',
+        'fotos graduación',
+        'evento corporativo fotos',
+        // Marca
         'soy nexo',
-        'fotos en vivo evento'
+        'soynexo'
     ],
     authors: [{ name: 'Soy Nexo' }],
     creator: 'Soy Nexo',
@@ -44,8 +64,8 @@ export const metadata: Metadata = {
         locale: 'es_MX',
         url: 'https://www.soynexo.com',
         siteName: 'Soy Nexo',
-        title: 'Soy Nexo | Álbum Digital para Eventos - Fotos en Tiempo Real',
-        description: 'Crea un álbum colaborativo para tu boda, quinceañera o fiesta. Tus invitados suben fotos y aparecen en pantalla al instante.',
+        title: 'Soy Nexo | Álbum Digital para Eventos en Navojoa, Sonora',
+        description: 'Álbum colaborativo para bodas, quinceañeras y fiestas en Navojoa y Sonora. Complemento perfecto para tu fotógrafo. Los invitados suben fotos y aparecen al instante.',
         images: [
             {
                 url: '/og-image.png',
@@ -87,7 +107,7 @@ export default function RootLayout({
                     '@type': 'ImageObject',
                     url: 'https://www.soynexo.com/og-image.png',
                 },
-                description: 'Plataforma de álbum digital colaborativo para eventos. Tus invitados suben fotos y aparecen en tiempo real.',
+                description: 'Álbum digital colaborativo para bodas, quinceañeras y eventos en Navojoa, Sonora y todo México. Complemento perfecto para fotógrafos profesionales.',
                 contactPoint: {
                     '@type': 'ContactPoint',
                     telephone: '+52-642-160-0559',
@@ -111,11 +131,25 @@ export default function RootLayout({
                 provider: {
                     '@id': 'https://www.soynexo.com/#organization',
                 },
-                description: 'Servicio de álbum fotográfico digital colaborativo para bodas, quinceañeras, cumpleaños y eventos corporativos.',
-                areaServed: {
-                    '@type': 'Country',
-                    name: 'México',
-                },
+                description: 'Servicio de álbum fotográfico digital colaborativo para bodas, quinceañeras, cumpleaños y eventos corporativos. Complemento ideal para fotógrafos profesionales en Navojoa, Sonora.',
+                areaServed: [
+                    {
+                        '@type': 'City',
+                        name: 'Navojoa',
+                        containedInPlace: {
+                            '@type': 'State',
+                            name: 'Sonora'
+                        }
+                    },
+                    {
+                        '@type': 'State',
+                        name: 'Sonora'
+                    },
+                    {
+                        '@type': 'Country',
+                        name: 'México'
+                    }
+                ],
                 serviceType: 'Álbum Digital de Fotos para Eventos',
             },
         ],
