@@ -89,19 +89,30 @@ export default function RubenRusso70Page() {
     }, [selectedIndex, filteredMedia.length])
 
     const downloadFile = async (item: MediaItem) => {
-        try {
-            const response = await fetch(item.url)
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `ruben-russo-70-${item.id}.${item.type === 'video' ? 'mp4' : 'jpg'}`
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            window.URL.revokeObjectURL(url)
-        } catch (error) {
-            console.error('Download failed:', error)
+        // Detect iOS devices
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+
+        if (isIOS) {
+            // iOS Safari: Open in new tab, user can long-press to save
+            window.open(item.url, '_blank')
+        } else {
+            // Android/Desktop: Use fetch + blob method
+            try {
+                const response = await fetch(item.url)
+                const blob = await response.blob()
+                const url = window.URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `ruben-russo-70-${item.id}.${item.type === 'video' ? 'mp4' : 'jpg'}`
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                window.URL.revokeObjectURL(url)
+            } catch (error) {
+                console.error('Download failed:', error)
+                // Fallback: open in new tab
+                window.open(item.url, '_blank')
+            }
         }
     }
 
