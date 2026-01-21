@@ -134,6 +134,29 @@ export default function GravityWall({ eventSlug }: GravityWallProps) {
         }
     }, [createPhotoBody, preloadImage]);
 
+    // Scale existing photos when photoSize changes
+    useEffect(() => {
+        if (!worldRef.current || photoBodiesRef.current.size === 0) return;
+
+        const sizeMultiplier = photoSize / 100;
+
+        photoBodiesRef.current.forEach((body) => {
+            // Calculate new scale based on photoSize
+            const currentSprite = body.render?.sprite;
+            if (currentSprite) {
+                // Base size is around 100px, scale proportionally
+                const baseScale = 0.25; // Base scale when photoSize is 100
+                currentSprite.xScale = baseScale * sizeMultiplier;
+                currentSprite.yScale = baseScale * sizeMultiplier;
+            }
+
+            // Also scale the body vertices for accurate physics
+            const scaleFactor = sizeMultiplier;
+            Matter.Body.scale(body, scaleFactor / (body as any)._lastScale || 1, scaleFactor / (body as any)._lastScale || 1);
+            (body as any)._lastScale = scaleFactor;
+        });
+    }, [photoSize]);
+
     // Initialize Matter.js
     useEffect(() => {
         if (!canvasRef.current) return;
