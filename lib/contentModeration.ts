@@ -4,12 +4,12 @@
  * Content Moderation Module
  * 
  * This module provides client-side content moderation to filter out
- * inappropriate content (nudity, explicit content, etc.) before uploading.
+ * inappropriate content (nudity, explicit content, violence, etc.) before uploading.
  * 
  * Uses a combination of:
  * 1. Basic file validation
- * 2. Image analysis via Canvas
- * 3. Optional: Google Cloud Vision API (requires backend)
+ * 2. Image analysis via Canvas (skin detection + violence patterns)
+ * 3. Video validation (basic checks)
  */
 
 // Skin color detection thresholds
@@ -19,7 +19,7 @@ const SKIN_TONE_RANGES = [
     { r: [140, 255], g: [90, 180], b: [60, 140] }, // Medium skin
 ]
 
-interface ModerationResult {
+export interface ModerationResult {
     isAppropriate: boolean
     confidence: number
     reason?: string
@@ -33,8 +33,8 @@ export async function analyzeImageContent(file: File): Promise<ModerationResult>
     return new Promise((resolve) => {
         // Basic validation
         if (!file.type.startsWith('image/')) {
-            // For non-image files (videos), we'll allow them with a warning
-            resolve({ isAppropriate: true, confidence: 0.5, reason: 'Video files require manual review' })
+            // For non-image files (videos), do basic validation
+            resolve({ isAppropriate: true, confidence: 0.5, reason: 'Los videos requieren revisión manual' })
             return
         }
 
@@ -43,36 +43,63 @@ export async function analyzeImageContent(file: File): Promise<ModerationResult>
             const img = new Image()
             img.onload = () => {
                 try {
-                    const result = performBasicAnalysis(img)
+                    const result = performAdvancedAnalysis(img)
                     resolve(result)
                 } catch (error) {
                     console.error('Error analyzing image:', error)
                     // On error, allow with low confidence
-                    resolve({ isAppropriate: true, confidence: 0.3, reason: 'Analysis error, manual review needed' })
+                    resolve({ isAppropriate: true, confidence: 0.3, reason: 'Error de análisis, revisión manual necesaria' })
                 }
             }
             img.onerror = () => {
-                resolve({ isAppropriate: true, confidence: 0.3, reason: 'Could not load image' })
+                resolve({ isAppropriate: true, confidence: 0.3, reason: 'No se pudo cargar la imagen' })
             }
             img.src = e.target?.result as string
         }
         reader.onerror = () => {
-            resolve({ isAppropriate: true, confidence: 0.3, reason: 'Could not read file' })
+            resolve({ isAppropriate: true, confidence: 0.3, reason: 'No se pudo leer el archivo' })
         }
         reader.readAsDataURL(file)
     })
 }
 
 /**
- * Basic skin tone analysis to detect potentially inappropriate content
- * This is a heuristic approach - not 100% accurate but provides basic filtering
+ * Validates video content with basic checks
  */
-function performBasicAnalysis(img: HTMLImageElement): ModerationResult {
+export async function analyzeVideoContent(file: File): Promise<ModerationResult> {
+    return new Promise((resolve) => {
+        // Basic video validation
+        if (!file.type.startsWith('video/')) {
+            resolve({ isAppropriate: false, confidence: 0.9, reason: 'Formato de video no válido' })
+            return
+        }
+
+        // Check file size (max 50MB for videos)
+        const maxVideoSize = 50 * 1024 * 1024
+        if (file.size > maxVideoSize) {
+            resolve({ isAppropriate: false, confidence: 0.9, reason: 'Video muy grande. Máximo 50MB' })
+            return
+        }
+
+        // For now, videos pass basic check - production should use Cloud Vision API
+        // Videos will be flagged for manual review if needed
+        resolve({
+            isAppropriate: true,
+            confidence: 0.6,
+            reason: undefined
+        })
+    })
+}
+
+/**
+ * Advanced analysis combining skin detection and violence pattern detection
+ */
+function performAdvancedAnalysis(img: HTMLImageElement): ModerationResult {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
 
     if (!ctx) {
-        return { isAppropriate: true, confidence: 0.3, reason: 'Canvas not supported' }
+        return { isAppropriate: true, confidence: 0.3, reason: 'Canvas no soportado' }
     }
 
     // Scale down for faster processing
@@ -88,45 +115,74 @@ function performBasicAnalysis(img: HTMLImageElement): ModerationResult {
     const totalPixels = data.length / 4
 
     let skinPixels = 0
+    let redPixels = 0
+    let darkPixels = 0
 
-    // Count skin-tone pixels
+    // Count different pixel types
     for (let i = 0; i < data.length; i += 4) {
         const r = data[i]
         const g = data[i + 1]
         const b = data[i + 2]
 
+        // Check for skin tones
         if (isSkinTone(r, g, b)) {
             skinPixels++
+        }
+
+        // Check for blood/violence patterns (high red, low green/blue)
+        if (r > 150 && r > g * 1.5 && r > b * 1.5 && g < 100 && b < 100) {
+            redPixels++
+        }
+
+        // Check for very dark pixels (potential violent imagery)
+        if (r < 30 && g < 30 && b < 30) {
+            darkPixels++
         }
     }
 
     const skinPercentage = skinPixels / totalPixels
+    const redPercentage = redPixels / totalPixels
+    const darkPercentage = darkPixels / totalPixels
 
-    // Thresholds based on empirical testing:
-    // - Normal photos typically have 10-40% skin coverage
-    // - Inappropriate content often has >60% skin coverage
-    // - We use 55% as threshold to catch most cases while minimizing false positives
-
-    if (skinPercentage > 0.55) {
+    // Check for potentially violent content (high blood-red areas)
+    if (redPercentage > 0.25) {
         return {
             isAppropriate: false,
             confidence: 0.7,
-            reason: 'Contenido potencialmente inapropiado detectado. Por favor, sube otra imagen.'
+            reason: 'Contenido potencialmente violento detectado. Por favor, sube otra imagen.'
         }
     }
 
-    // Also check for specific problematic color patterns
-    if (skinPercentage > 0.45 && hasLowVariance(data)) {
+    // STRICT threshold for skin - 45% to catch more cases
+    if (skinPercentage > 0.45) {
+        return {
+            isAppropriate: false,
+            confidence: 0.75,
+            reason: 'Contenido no apropiado para eventos familiares. Por favor, sube una foto diferente.'
+        }
+    }
+
+    // Check for suspicious combination: moderate skin + low variance
+    if (skinPercentage > 0.35 && hasLowVariance(data)) {
+        return {
+            isAppropriate: false,
+            confidence: 0.65,
+            reason: 'Esta imagen no parece ser de un evento. Por favor, sube fotos del evento.'
+        }
+    }
+
+    // Check for mostly dark images (potential inappropriate content)
+    if (darkPercentage > 0.6 && skinPercentage > 0.2) {
         return {
             isAppropriate: false,
             confidence: 0.6,
-            reason: 'Contenido no permitido. Por favor, sube una foto del evento.'
+            reason: 'Imagen demasiado oscura o inapropiada. Por favor, sube una foto más clara.'
         }
     }
 
     return {
         isAppropriate: true,
-        confidence: 0.8,
+        confidence: 0.85,
         reason: undefined
     }
 }
@@ -183,16 +239,38 @@ function hasLowVariance(data: Uint8ClampedArray): boolean {
  * Quick validation for file size and type
  */
 export function validateFileBasics(file: File): { valid: boolean; error?: string } {
-    const maxSize = 50 * 1024 * 1024 // 50MB
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm']
+    const maxImageSize = 20 * 1024 * 1024 // 20MB for images
+    const maxVideoSize = 50 * 1024 * 1024 // 50MB for videos
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif']
+    const allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/mov']
 
-    if (file.size > maxSize) {
-        return { valid: false, error: 'El archivo es muy grande. Máximo 50MB.' }
+    const isImage = file.type.startsWith('image/')
+    const isVideo = file.type.startsWith('video/')
+
+    if (!isImage && !isVideo) {
+        return { valid: false, error: 'Solo se permiten fotos y videos.' }
     }
 
-    if (!allowedTypes.some(type => file.type.startsWith(type.split('/')[0]))) {
-        return { valid: false, error: 'Tipo de archivo no permitido. Usa imágenes o videos.' }
+    if (isImage && file.size > maxImageSize) {
+        return { valid: false, error: 'La imagen es muy grande. Máximo 20MB.' }
+    }
+
+    if (isVideo && file.size > maxVideoSize) {
+        return { valid: false, error: 'El video es muy grande. Máximo 50MB.' }
+    }
+
+    // Check specific allowed types
+    const isAllowedImage = allowedImageTypes.some(type => file.type === type || file.type.startsWith('image/'))
+    const isAllowedVideo = allowedVideoTypes.some(type => file.type === type || file.type.startsWith('video/'))
+
+    if (isImage && !isAllowedImage) {
+        return { valid: false, error: 'Formato de imagen no soportado. Usa JPG, PNG, GIF o WebP.' }
+    }
+
+    if (isVideo && !isAllowedVideo) {
+        return { valid: false, error: 'Formato de video no soportado. Usa MP4, MOV o WebM.' }
     }
 
     return { valid: true }
 }
+

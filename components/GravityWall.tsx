@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Matter from 'matter-js'
-// Uncomment when Firebase is configured:
-// import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore'
-// import { db } from '@/lib/firebase'
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface Photo {
     id: string
@@ -253,66 +252,68 @@ export default function GravityWall({ eventSlug }: GravityWallProps) {
         };
     }, []);
 
-    // Demo photos - Add some sample photos for testing
+    // Firebase sync - Load photos from Firestore in real-time
     useEffect(() => {
         if (isLoading) return;
 
-        let photoIndex = 0;
+        const photosRef = collection(db, 'events', eventSlug, 'media')
+        const q = query(photosRef, orderBy('timestamp', 'desc'), limit(50))
 
-        // Add initial batch of photos with staggered timing
-        const addInitialPhotos = async () => {
-            for (let i = 0; i < 5; i++) {
-                const photo: Photo = {
-                    id: `demo-${i}`,
-                    url: DEMO_PHOTO_URLS[i % DEMO_PHOTO_URLS.length],
-                    timestamp: Date.now()
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                // No Firebase data - show demo photos as fallback
+                let photoIndex = 0;
+                const addDemoPhotos = async () => {
+                    for (let i = 0; i < 5; i++) {
+                        const photo: Photo = {
+                            id: `demo-${i}`,
+                            url: DEMO_PHOTO_URLS[i % DEMO_PHOTO_URLS.length],
+                            timestamp: Date.now()
+                        };
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                        addPhoto(photo);
+                    }
                 };
-                await new Promise(resolve => setTimeout(resolve, 600));
-                addPhoto(photo);
+                addDemoPhotos();
+                return;
             }
-        };
 
-        addInitialPhotos();
-
-        // Add more photos periodically for demo effect
-        const interval = setInterval(() => {
-            photoIndex++;
-            const photo: Photo = {
-                id: `demo-interval-${photoIndex}`,
-                url: DEMO_PHOTO_URLS[photoIndex % DEMO_PHOTO_URLS.length],
-                timestamp: Date.now()
+            // Add new photos from Firebase
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const data = change.doc.data()
+                    // Only add images (photos), not videos
+                    if (data.type === 'photo' || !data.type) {
+                        const photo: Photo = {
+                            id: change.doc.id,
+                            url: data.url,
+                            timestamp: data.timestamp?.toMillis() || Date.now()
+                        }
+                        addPhoto(photo)
+                    }
+                }
+            })
+        }, (error) => {
+            console.error('GravityWall Firebase sync error:', error)
+            // Fallback to demo photos on error
+            const addDemoPhotos = async () => {
+                for (let i = 0; i < 5; i++) {
+                    const photo: Photo = {
+                        id: `demo-${i}`,
+                        url: DEMO_PHOTO_URLS[i % DEMO_PHOTO_URLS.length],
+                        timestamp: Date.now()
+                    };
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    addPhoto(photo);
+                }
             };
-            addPhoto(photo);
-        }, 4000); // New photo every 4 seconds
-
-        return () => clearInterval(interval);
-    }, [isLoading, addPhoto]);
-
-    // Uncomment this to enable real Firebase listening:
-    /*
-    useEffect(() => {
-      if (isLoading) return
-  
-      const photosRef = collection(db, 'events', eventSlug, 'photos')
-      const q = query(photosRef, orderBy('timestamp', 'desc'), limit(50))
-  
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
-            const data = change.doc.data()
-            const photo: Photo = {
-              id: change.doc.id,
-              url: data.url,
-              timestamp: data.timestamp?.toMillis() || Date.now()
-            }
-            addPhoto(photo)
-          }
+            addDemoPhotos();
         })
-      })
-  
-      return () => unsubscribe()
-    }, [isLoading, eventSlug, addPhoto])
-    */
+
+        return () => unsubscribe()
+    }, [isLoading, eventSlug, addPhoto]);
+
+    // Firebase sync is now active above - the old commented code has been removed
 
     return (
         <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-purple-950 to-slate-900">
