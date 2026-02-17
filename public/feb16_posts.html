@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soy Nexo - Lunes 16 Feb · Educativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #050505;
+            color: white;
+        }
+
+        /* =============== POST 1: IG/FB CARRUSEL EDUCATIVO =============== */
+        .post-ig {
+            width: 1080px;
+            height: 1080px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, #0c0a1d 50%, #000000 100%);
+            border: 1px solid #333;
+        }
+
+        .post-ig .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .post-ig .glow-primary {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            top: -100px;
+            left: -150px;
+            z-index: 0;
+        }
+
+        .post-ig .glow-accent {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            z-index: 0;
+        }
+
+        .post-ig .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* =============== POST 2: TIKTOK/REELS VERTICAL =============== */
+        .post-tt {
+            width: 1080px;
+            height: 1920px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 30%, #1e1b4b 0%, #0c0a1d 50%, #000000 100%);
+            border: 1px solid #333;
+        }
+
+        .post-tt .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .post-tt .glow-primary {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        .post-tt .glow-accent {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        /* =============== POST 3: GMB HORIZONTAL =============== */
+        .post-gmb {
+            width: 1200px;
+            height: 900px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: radial-gradient(ellipse at 70% 30%, #1e1b4b 0%, #0c0a1d 50%, #000000 100%);
+            border: 1px solid #333;
+        }
+
+        .post-gmb .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .post-gmb .glow-primary {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            z-index: 0;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid currentColor;
+            opacity: 0.4;
+            animation: pulse 2.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        .float-anim {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#a855f7',
+                        accent: '#0ea5e9',
+                        success: '#22c55e'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="p-10 flex flex-col items-center min-h-screen gap-16">
+
+    <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand to-accent">
+        📱 Lunes 16 de Febrero · Contenido Educativo
+    </h1>
+    <p class="text-gray-500 text-xl -mt-8 mb-4">Haz clic en "Descargar Imagen" debajo de cada post</p>
+
+    <!-- ====================== POST 1: IG/FB - 3 RAZONES ====================== -->
+    <div class="flex flex-col items-center gap-4">
+        <h2 class="text-2xl font-bold text-brand"><i class="fa-brands fa-instagram mr-2"></i><i
+                class="fa-brands fa-facebook mr-4"></i>Post 1 — Instagram & Facebook (1080×1080)</h2>
+        <p class="text-gray-400 text-lg mb-2">Educativo: "3 razones para usar un álbum digital en tu evento"</p>
+
+        <div class="post-ig" id="post-1">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img src="/social/event_photo_2.jpg" class="w-full h-full object-cover opacity-50 mix-blend-overlay">
+                <div class="absolute inset-0 bg-black/40"></div>
+            </div>
+            <div class="grid-bg"></div>
+            <div class="glow-primary"></div>
+            <div class="glow-accent"></div>
+
+            <div class="z-10 flex flex-col items-center text-center px-16 w-full">
+
+                <!-- Top Badge -->
+                <div class="flex items-center gap-3 bg-brand/20 border border-brand/30 px-8 py-3 rounded-full mb-10">
+                    <i class="fa-solid fa-graduation-cap text-brand text-2xl"></i>
+                    <span class="text-brand text-2xl font-semibold tracking-widest uppercase">Educativo</span>
+                </div>
+
+                <!-- Logo -->
+                <div class="relative mb-10">
+                    <div
+                        class="absolute -inset-4 bg-gradient-to-r from-brand to-accent rounded-full blur-xl opacity-30">
+                    </div>
+                    <img src="/logo.png" alt="Soy Nexo" class="relative w-32 h-auto drop-shadow-2xl">
+                </div>
+
+                <!-- Headline -->
+                <h1 class="text-7xl font-black tracking-tight mb-3">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400">3
+                        RAZONES</span>
+                </h1>
+                <h2 class="text-4xl font-light text-gray-300 mb-10">para usar un álbum digital en tu evento</h2>
+
+                <div class="w-24 h-1 bg-gradient-to-r from-brand to-accent rounded-full mb-10"></div>
+
+                <!-- 3 Reasons -->
+                <div class="w-full max-w-3xl flex flex-col gap-5">
+                    <!-- Reason 1 -->
+                    <div class="glass-card flex items-center gap-6 px-8 py-6 rounded-2xl text-left">
+                        <div class="w-16 h-16 bg-brand/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-image text-brand text-3xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-white">Fotos en alta calidad</p>
+                            <p class="text-xl text-gray-400 mt-1">Sin compresión de WhatsApp ni redes sociales</p>
+                        </div>
+                    </div>
+                    <!-- Reason 2 -->
+                    <div class="glass-card flex items-center gap-6 px-8 py-6 rounded-2xl text-left">
+                        <div class="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-bolt text-accent text-3xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-white">Todas las fotos en un solo lugar</p>
+                            <p class="text-xl text-gray-400 mt-1">No más perseguir a los invitados por sus fotos</p>
+                        </div>
+                    </div>
+                    <!-- Reason 3 -->
+                    <div class="glass-card flex items-center gap-6 px-8 py-6 rounded-2xl text-left">
+                        <div class="w-16 h-16 bg-success/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-download text-success text-3xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-white">Descarga instantánea</p>
+                            <p class="text-xl text-gray-400 mt-1">Obtén todas las fotos al finalizar el evento</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="absolute bottom-0 w-full p-8 flex justify-between items-center opacity-50 z-10">
+                <span class="text-xl tracking-widest uppercase">www.soynexo.com</span>
+                <span class="text-xl">@soynexo</span>
+            </div>
+        </div>
+
+        <button onclick="downloadPost('post-1', 'SoyNexo_IG_Feb16_3Razones')"
+            class="bg-brand hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl flex items-center gap-3 transition-transform hover:scale-105">
+            <i class="fa-solid fa-camera"></i> Descargar Imagen
+        </button>
+
+        <!-- Copy -->
+        <div class="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-8 mt-2">
+            <h4 class="text-brand text-sm font-bold uppercase tracking-widest mb-4"><i
+                    class="fa-solid fa-copy mr-2"></i>Texto para copiar</h4>
+            <p class="text-gray-300 leading-relaxed whitespace-pre-wrap" id="copy-1">📸 3 razones por las que necesitas
+                un álbum digital en tu evento:
+
+                1️⃣ 𝗙𝗼𝘁𝗼𝘀 𝗲𝗻 𝗮𝗹𝘁𝗮 𝗰𝗮𝗹𝗶𝗱𝗮𝗱 — Sin la compresión de WhatsApp. Cada recuerdo se guarda
+                como merece. 🖼️
+
+                2️⃣ 𝗧𝗼𝗱𝗮𝘀 𝗹𝗮𝘀 𝗳𝗼𝘁𝗼𝘀 𝗲𝗻 𝘂𝗻 𝘀𝗼𝗹𝗼 𝗹𝘂𝗴𝗮𝗿 — Olvídate de perseguir a tus invitados.
+                Todos suben sus fotos al instante con un QR. 📱
+
+                3️⃣ 𝗗𝗲𝘀𝗰𝗮𝗿𝗴𝗮 𝗶𝗻𝘀𝘁𝗮𝗻𝘁á𝗻𝗲𝗮 — Al finalizar, descarga TODO el álbum completo. Así de
+                fácil. ⬇️
+
+                ¿Ya tienes fecha para tu evento? 🎉
+                👉 Cotiza en www.soynexo.com
+
+                #SoyNexo #AlbumDigital #Boda2026 #XVAños #EventosMexico #Navojoa #WeddingTech #FotosDeEvento</p>
+            <button onclick="copyText('copy-1', this)"
+                class="mt-4 bg-gray-800 hover:bg-brand text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-copy"></i> Copiar Texto
+            </button>
+        </div>
+    </div>
+
+    <hr class="border-gray-800 w-full max-w-4xl my-6">
+
+    <!-- ====================== POST 2: TIKTOK/REELS - CÓMO FUNCIONA ====================== -->
+    <div class="flex flex-col items-center gap-4">
+        <h2 class="text-2xl font-bold text-accent"><i class="fa-brands fa-tiktok mr-2"></i><i
+                class="fa-brands fa-instagram mr-4"></i>Post 2 — TikTok / Reels (1080×1920)</h2>
+        <p class="text-gray-400 text-lg mb-2">Tutorial: "Así de fácil funciona Soy Nexo" — 3 pasos</p>
+
+        <div class="post-tt" id="post-2">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img src="/social/event_photo_3.jpg"
+                    class="w-full h-full object-cover opacity-60 mix-blend-overlay grayscale-[30%]">
+                <div class="absolute inset-0 bg-black/60"></div>
+            </div>
+            <div class="grid-bg"></div>
+            <div class="glow-primary"></div>
+            <div class="glow-accent"></div>
+
+            <div class="z-10 flex flex-col items-center text-center w-full px-16">
+
+                <!-- Top -->
+                <div class="flex items-center gap-3 bg-white/10 border border-white/20 px-8 py-4 rounded-full mb-12">
+                    <i class="fa-solid fa-play text-brand text-xl"></i>
+                    <span class="text-white text-2xl font-semibold tracking-wide">ASÍ DE FÁCIL FUNCIONA</span>
+                </div>
+
+                <!-- Logo -->
+                <div class="relative mb-14">
+                    <div
+                        class="absolute -inset-6 bg-gradient-to-r from-brand to-accent rounded-full blur-2xl opacity-30">
+                    </div>
+                    <img src="/logo.png" alt="Soy Nexo" class="relative w-56 h-auto drop-shadow-2xl float-anim">
+                </div>
+
+                <!-- Step 1 -->
+                <div class="w-full max-w-3xl mb-10">
+                    <div class="flex items-center gap-6 bg-white/5 border border-white/10 rounded-3xl p-8">
+                        <div
+                            class="w-24 h-24 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                            <div class="pulse-ring text-brand"></div>
+                            <i class="fa-solid fa-qrcode text-brand text-5xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-brand text-xl font-bold uppercase tracking-widest">Paso 1</p>
+                            <p class="text-5xl font-black text-white">ESCANEA</p>
+                            <p class="text-2xl text-gray-400 mt-1">Solo apunta tu cámara al QR</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="w-full max-w-3xl mb-10">
+                    <div class="flex items-center gap-6 bg-white/5 border border-white/10 rounded-3xl p-8">
+                        <div
+                            class="w-24 h-24 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                            <div class="pulse-ring text-accent" style="animation-delay:0.5s"></div>
+                            <i class="fa-solid fa-camera text-accent text-5xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-accent text-xl font-bold uppercase tracking-widest">Paso 2</p>
+                            <p class="text-5xl font-black text-white">TOMA Y SUBE</p>
+                            <p class="text-2xl text-gray-400 mt-1">Elige de tu galería o toma una nueva</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="w-full max-w-3xl mb-14">
+                    <div class="flex items-center gap-6 bg-white/5 border border-white/10 rounded-3xl p-8">
+                        <div
+                            class="w-24 h-24 bg-success/20 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                            <div class="pulse-ring text-success" style="animation-delay:1s"></div>
+                            <i class="fa-solid fa-tv text-success text-5xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-success text-xl font-bold uppercase tracking-widest">Paso 3</p>
+                            <p class="text-5xl font-black text-white">¡DISFRUTA!</p>
+                            <p class="text-2xl text-gray-400 mt-1">Tu foto aparece en la pantalla del evento</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="bg-gradient-to-r from-brand to-accent px-12 py-5 rounded-full">
+                    <span class="text-3xl font-bold text-white tracking-wide">Sin apps · Sin complicaciones</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="absolute bottom-0 w-full p-10 flex justify-between items-center z-10">
+                <div class="flex items-center gap-4">
+                    <img src="/logo.png" alt="Soy Nexo" class="w-14 h-14 drop-shadow-lg">
+                    <span class="text-2xl font-bold text-white/60">@soynexo</span>
+                </div>
+                <span class="text-xl text-white/40 tracking-widest uppercase">soynexo.com</span>
+            </div>
+        </div>
+
+        <button onclick="downloadPost('post-2', 'SoyNexo_TikTok_Feb16_ComoFunciona')"
+            class="bg-accent hover:bg-sky-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl flex items-center gap-3 transition-transform hover:scale-105">
+            <i class="fa-solid fa-camera"></i> Descargar Imagen
+        </button>
+
+        <!-- Copy -->
+        <div class="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-8 mt-2">
+            <h4 class="text-accent text-sm font-bold uppercase tracking-widest mb-4"><i
+                    class="fa-solid fa-copy mr-2"></i>Texto para copiar</h4>
+            <p class="text-gray-300 leading-relaxed whitespace-pre-wrap" id="copy-2">¿Qué tan difícil es usar Soy Nexo?
+                🤔
+
+                𝟏. Escanea el QR 📱
+                𝟐. Toma o elige una foto 📸
+                𝟑. ¡LISTO! Aparece en la pantalla del evento 🎉
+
+                Sin descargar apps. Sin complicaciones. Solo diversión. ✨
+
+                ¿Lo quieres para tu evento? 👇
+                🔗 Link en bio | www.soynexo.com
+
+                #SoyNexo #AlbumDigital #Tutorial #Boda #XVAños #EventosMexico #QRCode #Navojoa #Sonora #WeddingTech</p>
+            <button onclick="copyText('copy-2', this)"
+                class="mt-4 bg-gray-800 hover:bg-accent text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-copy"></i> Copiar Texto
+            </button>
+        </div>
+
+        <!-- CapCut Tip -->
+        <div
+            class="w-full max-w-2xl bg-gradient-to-r from-brand/10 to-accent/10 border border-brand/30 rounded-2xl p-8">
+            <h4 class="text-brand text-lg font-bold mb-3"><i class="fa-solid fa-film mr-2"></i>Guía para Reel/TikTok con
+                CapCut Premium</h4>
+            <ul class="text-gray-300 space-y-2 text-base">
+                <li>✦ Usa esta imagen como portada del video</li>
+                <li>✦ Graba tu pantalla escaneando un QR real de soynexo.com</li>
+                <li>✦ Divide en 3 clips: Escanea → Sube → Aparece en pantalla</li>
+                <li>✦ Agrega texto animado con efecto "Typewriter" o "Bounce"</li>
+                <li>✦ Música: busca "tech" o "modern reveal" en CapCut</li>
+                <li>✦ Duración ideal: 10-15 segundos</li>
+                <li>✦ Cierra con logo + efecto "Glitch" o "Neon Glow"</li>
+            </ul>
+        </div>
+    </div>
+
+    <hr class="border-gray-800 w-full max-w-4xl my-6">
+
+    <!-- ====================== POST 3: GMB - GOOGLE MY BUSINESS ====================== -->
+    <div class="flex flex-col items-center gap-4">
+        <h2 class="text-2xl font-bold text-success"><i class="fa-brands fa-google mr-4"></i>Post 3 — Google My Business
+            (1200×900)</h2>
+        <p class="text-gray-400 text-lg mb-2">Actualización educativa: Cómo funciona el servicio</p>
+
+        <div class="post-gmb" id="post-3">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img src="/social/event_photo_1.jpg" class="w-full h-full object-cover opacity-40 mix-blend-soft-light">
+                <div class="absolute inset-0 bg-gradient-to-r from-[#1e1b4b] to-black/80"></div>
+            </div>
+            <div class="grid-bg"></div>
+            <div class="glow-primary"></div>
+
+            <!-- Left Content -->
+            <div class="z-10 flex-1 pl-16 pr-8 py-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-5 mb-10">
+                    <div class="relative">
+                        <div
+                            class="absolute -inset-2 bg-gradient-to-r from-brand to-accent rounded-full blur-lg opacity-30">
+                        </div>
+                        <img src="/logo.png" alt="Soy Nexo" class="relative w-20 h-auto drop-shadow-xl">
+                    </div>
+                    <span
+                        class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand to-accent">Soy
+                        Nexo</span>
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-6xl font-black text-white leading-tight mb-6">
+                    Tu álbum digital<br>para eventos
+                </h1>
+
+                <p class="text-2xl text-gray-400 mb-10 leading-relaxed max-w-xl">
+                    Tus invitados escanean un QR, suben fotos, y aparecen en la pantalla del evento al instante.
+                </p>
+
+                <!-- Features -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-brand/20 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-mobile-screen text-brand text-2xl"></i>
+                        </div>
+                        <span class="text-2xl text-gray-200 font-medium">Sin descargar aplicaciones</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-bolt text-accent text-2xl"></i>
+                        </div>
+                        <span class="text-2xl text-gray-200 font-medium">Fotos en tiempo real en pantalla</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-success/20 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-cloud-arrow-down text-success text-2xl"></i>
+                        </div>
+                        <span class="text-2xl text-gray-200 font-medium">Descarga completa del álbum</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Phone Mockup -->
+            <div class="z-10 pr-16 flex flex-col items-center">
+                <div
+                    class="w-72 h-[500px] bg-gray-900 rounded-[40px] border-4 border-gray-700 relative overflow-hidden shadow-2xl shadow-brand/20">
+                    <!-- Notch -->
+                    <div class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20"></div>
+                    <!-- Screen Content -->
+                    <div
+                        class="w-full h-full bg-gradient-to-b from-gray-800 to-gray-900 flex flex-col items-center justify-center p-8">
+                        <i class="fa-solid fa-qrcode text-8xl text-brand/60 mb-6"></i>
+                        <p class="text-xl text-gray-400 text-center font-medium">Escanea para ver<br>un álbum de demo
+                        </p>
+                        <div class="mt-6 w-20 h-1 bg-gradient-to-r from-brand to-accent rounded-full"></div>
+                        <img src="/logo.png" alt="Soy Nexo" class="w-12 h-12 mt-6 opacity-50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="absolute bottom-0 w-full p-8 flex justify-between items-center opacity-40 z-10">
+                <span class="text-lg tracking-widest uppercase">www.soynexo.com</span>
+                <span class="text-lg">Navojoa, Sonora · <i class="fa-solid fa-location-dot text-red-400"></i></span>
+            </div>
+        </div>
+
+        <button onclick="downloadPost('post-3', 'SoyNexo_GMB_Feb16_AlbumDigital')"
+            class="bg-success hover:bg-green-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl flex items-center gap-3 transition-transform hover:scale-105">
+            <i class="fa-solid fa-camera"></i> Descargar Imagen
+        </button>
+
+        <!-- Copy -->
+        <div class="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-8 mt-2">
+            <h4 class="text-success text-sm font-bold uppercase tracking-widest mb-4"><i
+                    class="fa-solid fa-copy mr-2"></i>Texto para Google My Business</h4>
+            <p class="text-gray-300 leading-relaxed whitespace-pre-wrap" id="copy-3">📸 ¿Organizas un evento
+                próximamente?
+
+                Soy Nexo es tu álbum digital interactivo. Tus invitados solo escanean un código QR para compartir sus
+                fotos al instante — ¡sin descargar ninguna app!
+
+                ✅ Fotos proyectadas en pantalla en tiempo real
+                ✅ Álbum completo descargable al finalizar
+                ✅ Ideal para bodas, XV años, corporativos y más
+
+                🌐 Conoce más en soynexo.com
+                📍 Servicio disponible en Navojoa y todo México</p>
+            <button onclick="copyText('copy-3', this)"
+                class="mt-4 bg-gray-800 hover:bg-success text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-copy"></i> Copiar Texto
+            </button>
+        </div>
+    </div>
+
+    <hr class="border-gray-800 w-full max-w-4xl my-6">
+
+    <!-- Download All -->
+    <button onclick="downloadAll()"
+        class="bg-gradient-to-r from-brand to-accent hover:from-purple-600 hover:to-sky-600 text-white font-black py-6 px-14 rounded-full shadow-2xl text-2xl flex items-center gap-4 transition-transform hover:scale-105 mb-20">
+        <i class="fa-solid fa-download"></i> DESCARGAR LAS 3 IMÁGENES
+    </button>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        async function downloadPost(id, filename) {
+            const node = document.getElementById(id);
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(node, { scale: 1, backgroundColor: null, useCORS: true });
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = filename + '.png';
+                link.href = image;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                console.error(err);
+                alert('Error al generar la imagen');
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Listo!';
+            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 3000);
+        }
+
+        async function downloadAll() {
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descargando 1/3...';
+
+            await downloadPostSilent('post-1', 'SoyNexo_IG_Feb16_3Razones');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descargando 2/3...';
+            await wait(500);
+            await downloadPostSilent('post-2', 'SoyNexo_TikTok_Feb16_ComoFunciona');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descargando 3/3...';
+            await wait(500);
+            await downloadPostSilent('post-3', 'SoyNexo_GMB_Feb16_AlbumDigital');
+
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Las 3 descargadas!';
+            setTimeout(() => { btn.innerHTML = originalText; }, 4000);
+        }
+
+        async function downloadPostSilent(id, filename) {
+            const node = document.getElementById(id);
+            const canvas = await html2canvas(node, { scale: 1, backgroundColor: null, useCORS: true });
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.download = filename + '.png';
+            link.href = image;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function copyText(id, btn) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+                setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar Texto'; }, 2000);
+            });
+        }
+
+        function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+
+</html>

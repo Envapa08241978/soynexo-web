@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soy Nexo - Day 2 Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap');
+        
+        body { font-family: 'Outfit', sans-serif; background-color: #050505; color: white; }
+        
+        .post-container {
+            width: 1080px;
+            height: 1350px; /* 4:5 Aspect Ratio (Optimized for FB/IG Canvas) */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #000000 70%);
+            border: 1px solid #333;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168,85,247,0.4) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            opacity: 0.6;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: absolute;
+            inset: 0;
+            opacity: 0.2;
+            z-index: 0;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#a855f7',
+                        accent: '#0ea5e9'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-10 flex flex-col items-center min-h-screen justify-center gap-10">
+
+    <!-- POST DESIGN: BRAND REVEAL -->
+    <div class="post-container" id="day2-post">
+        <!-- Background Elements -->
+        <div class="grid-bg"></div>
+        <div class="glow-effect"></div>
+        
+        <!-- Content -->
+        <div class="z-10 flex flex-col items-center text-center p-12 w-full max-w-4xl">
+            
+            <!-- Main Logo Large -->
+            <div class="relative mb-12 group">
+                <div class="absolute -inset-4 bg-gradient-to-r from-brand to-accent rounded-full blur-xl opacity-40 group-hover:opacity-60 transition duration-500"></div>
+                <img src="/logo.png" alt="Soy Nexo Logo" class="relative w-96 h-auto drop-shadow-2xl transform transition duration-500 hover:scale-105">
+            </div>
+
+            <!-- Headline -->
+            <h1 class="text-7xl font-extrabold tracking-tight mb-6">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
+                    INNOVACIÓN
+                </span>
+                <br>
+                <span class="text-5xl font-light text-gray-300">EN TUS EVENTOS</span>
+            </h1>
+
+            <div class="w-24 h-1 bg-brand rounded-full mb-8"></div>
+
+            <!-- Subtext / Copy -->
+            <div class="glass-card px-10 py-8 rounded-3xl mb-12 max-w-2xl">
+                <p class="text-3xl text-gray-200 leading-relaxed font-light">
+                    "Olvídate de las fotos borrosas. Conecta a tus invitados en tiempo real."
+                </p>
+                <div class="mt-6 flex justify-center gap-4 text-brand">
+                    <i class="fa-solid fa-qrcode text-3xl"></i>
+                    <i class="fa-solid fa-bolt text-3xl"></i>
+                    <i class="fa-solid fa-download text-3xl"></i>
+                </div>
+            </div>
+
+            <!-- Location Badge -->
+            <div class="flex items-center gap-3 bg-white/10 px-6 py-3 rounded-full border border-white/20">
+                <i class="fa-solid fa-location-dot text-red-500 text-2xl"></i>
+                <span class="text-2xl font-medium tracking-wide">Navojoa, Sonora</span>
+            </div>
+
+        </div>
+
+        <!-- Footer Overlay -->
+        <div class="absolute bottom-0 w-full p-8 flex justify-between items-center opacity-60">
+            <span class="text-xl tracking-widest uppercase">www.soynexo.com</span>
+            <span class="text-xl">@soynexo</span>
+        </div>
+    </div>
+
+    <!-- Generator Controls -->
+    <div class="fixed bottom-10 right-10 flex gap-4 z-50">
+        <button onclick="downloadPost()" class="bg-brand hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-2xl flex items-center gap-3 transition-transform hover:scale-105">
+            <i class="fa-solid fa-camera"></i> Descargar Imagen
+        </button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        async function downloadPost() {
+            const node = document.getElementById('day2-post');
+            const btn = document.querySelector('button');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(node, {
+                    scale: 1, 
+                    backgroundColor: null,
+                    useCORS: true
+                });
+                
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement('a');
+                link.download = 'soynexo-dia2-brand.png';
+                link.href = image;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+            } catch (err) {
+                console.error(err);
+                alert('Error al generar la imagen');
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Listo!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

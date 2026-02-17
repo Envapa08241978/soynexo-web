@@ -26,24 +26,7 @@ export default function Home() {
                 <div className="container mx-auto px-6 py-4 flex items-center justify-between">
                     {/* Logo */}
                     <div className="flex items-center gap-3">
-                        <svg
-                            className="w-10 h-10 text-accent-500"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <circle cx="12" cy="12" r="3" fill="currentColor" />
-                            <circle cx="4" cy="8" r="2" fill="currentColor" opacity="0.7" />
-                            <circle cx="20" cy="8" r="2" fill="currentColor" opacity="0.7" />
-                            <circle cx="4" cy="16" r="2" fill="currentColor" opacity="0.7" />
-                            <circle cx="20" cy="16" r="2" fill="currentColor" opacity="0.7" />
-                            <path
-                                d="M12 12L4 8M12 12L20 8M12 12L4 16M12 12L20 16"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                opacity="0.5"
-                            />
-                        </svg>
+<img src="/logo.png" alt="Soy Nexo Logo" className="w-10 h-10 object-contain" />
                         <span className="text-2xl font-bold gradient-text">Soy Nexo</span>
                     </div>
 
@@ -487,23 +470,7 @@ export default function Home() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
-                            <svg
-                                className="w-8 h-8 text-accent-500"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                            >
-                                <circle cx="12" cy="12" r="3" fill="currentColor" />
-                                <circle cx="4" cy="8" r="2" fill="currentColor" opacity="0.7" />
-                                <circle cx="20" cy="8" r="2" fill="currentColor" opacity="0.7" />
-                                <circle cx="4" cy="16" r="2" fill="currentColor" opacity="0.7" />
-                                <circle cx="20" cy="16" r="2" fill="currentColor" opacity="0.7" />
-                                <path
-                                    d="M12 12L4 8M12 12L20 8M12 12L4 16M12 12L20 16"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    opacity="0.5"
-                                />
-                            </svg>
+    <img src="/logo.png" alt="Soy Nexo Logo" className="w-8 h-8 object-contain" />
                             <span className="text-xl font-bold gradient-text">Soy Nexo</span>
                         </div>
 

@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema RH - Municipio de Navojoa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" href="data:,">
+    <style>
+        :root {
+            --navojoa-tinto: #79242F;
+            --navojoa-dorado: #C5911E;
+            --navojoa-gris: #333333;
+            --navojoa-perla: #f4f6f9;
+        }
+
+        body {
+            background-color: var(--navojoa-perla);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .header-nav {
+            background: linear-gradient(90deg, var(--navojoa-tinto) 0%, #5a1a23 100%);
+            color: white;
+            padding: 15px 25px;
+            border-bottom: 4px solid var(--navojoa-dorado);
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .card-expediente {
+            border-top: 5px solid var(--navojoa-dorado);
+        }
+
+        .card-gestion {
+            border-top: 5px solid var(--navojoa-tinto);
+            min-height: 850px;
+        }
+
+        .dato-valor {
+            font-weight: 700;
+            color: var(--navojoa-tinto);
+            background-color: #fff;
+            border-bottom: 2px solid #e3e6f0;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            padding: 4px 8px;
+            display: block;
+            width: 100%;
+            font-size: 0.95em;
+            white-space: normal;
+            word-wrap: break-word;
+            min-height: 25px;
+        }
+
+        .etiqueta {
+            font-size: 0.7rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+            display: block;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--navojoa-tinto);
+            border-bottom: 3px solid var(--navojoa-dorado);
+            background: transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--navojoa-tinto);
+            border-color: var(--navojoa-tinto);
+        }
+
+        .badge-base {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            display: block;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        .estatus-activo {
+            background-color: #198754;
+            color: white;
+            border-left: 5px solid #0f5132;
+        }
+
+        .estatus-baja {
+            background-color: #dc3545;
+            color: white;
+            border-left: 5px solid #842029;
+        }
+
+        .estatus-incapacidad {
+            background-color: #ffc107;
+            color: #000;
+            border: 2px solid #e0a800;
+            animation: pulso 1.5s infinite;
+        }
+
+        .estatus-vacaciones {
+            background-color: #0dcaf0;
+            color: #000;
+            border: 2px solid #0aa2c0;
+            font-weight: bold;
+        }
+
+        .estatus-permiso {
+            background-color: #6f42c1;
+            color: white;
+            border-left: 5px solid #4c2f83;
+        }
+
+        .estatus-comision {
+            background-color: #20c997;
+            color: white;
+        }
+
+        @keyframes pulso {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn-scan {
+            position: relative;
+            width: 100%;
+            border: 2px dashed #a0aec0;
+            background-color: #f8f9fa;
+            color: var(--navojoa-tinto);
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .btn-scan:hover {
+            background-color: #e2e6ea;
+            border-color: var(--navojoa-tinto);
+        }
+
+        .btn-scan.archivo-cargado {
+            background-color: #d1e7dd;
+            border-color: #198754;
+            color: #146c43;
+            border-style: solid;
+        }
+
+        .saldo-box {
+            background-color: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+            margin-bottom: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .saldo-titulo {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: block;
+            color: #858796;
+        }
+
+        .saldo-numero {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--navojoa-tinto);
+        }
+
+        .fila-nueva {
+            animation: highlightRow 1.5s ease-out;
+            background-color: #d1e7dd !important;
+        }
+
+        @keyframes highlightRow {
+            0% {
+                background-color: #ffc107;
+            }
+
+            100% {
+                background-color: #d1e7dd;
+            }
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .required-label::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form-section-header {
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #495057;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            margin-top: 15px;
+        }
+
+        .table-responsive {
+            scrollbar-width: thin;
+            scrollbar-color: var(--navojoa-tinto) #f1f1f1;
+        }
+
+        .seccion-titulo {
+            background-color: var(--navojoa-tinto);
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-file-oculto {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;"></div>
+        <div class="mt-2 fw-bold text-dark" id="loaderText">Conectando...</div>
+    </div>
+
+    <div class="header-nav d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="logo-navojoa.png" alt="Escudo Navojoa" style="height: 55px; margin-right: 15px;">
+            <div>
+                <h4 class="m-0 fw-bold">MUNICIPIO DE NAVOJOA</h4><small>DIRECCIÓN DE RECURSOS HUMANOS</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end d-none d-md-block">
+                <span class="d-block fw-bold" id="fechaSistema"></span>
+                <span class="badge bg-warning text-dark border border-white">SISTEMA v87.0 (CORREGIDO)</span>
+            </div>
+            <button class="btn btn-outline-light rounded-circle" onclick="location.reload()" title="Recargar"><i
+                    class="bi bi-arrow-clockwise"></i></button>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="input-group mb-3 shadow-sm position-relative">
+                    <span class="input-group-text border-0 bg-white"><i class="bi bi-search text-danger"></i></span>
+                    <input type="text" class="form-control border-0" id="txtBuscarID" list="listaSugerencias"
+                        placeholder="Buscar por Nombre o ID..." oninput="buscarPredictivo()"
+                        onkeydown="if(event.key==='Enter') seleccionarSugerencia()">
+                    <datalist id="listaSugerencias"></datalist>
+                    <button class="btn btn-primary" onclick="seleccionarSugerencia()">CONSULTAR</button>
+                </div>
+                <div class="card card-expediente h-100">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="foto-perfil"><i class="bi bi-person-fill fs-1 text-secondary"></i></div>
+                            <h5 class="fw-bold text-dark mb-1" id="lblNombre">---</h5>
+                            <div class="mb-2 d-flex flex-column align-items-center gap-1">
+                                <span class="badge bg-dark fs-6" id="lblID">ID: ---</span>
+                                <span class="badge bg-secondary" id="lblArchivoFisico">ARCH: ---</span>
+                            </div>
+                            <div id="btnVerContratoContainer" class="mt-2"></div>
+                            <div id="contenedorEstatus" class="mt-3">
+                                <span class="badge-base estatus-activo" id="lblStatusDinamico">ACTIVO</span>
+                            </div>
+                        </div>
+                        <div class="seccion-titulo">DATOS PRINCIPALES</div>
+                        <div class="row g-2">
+                            <div class="col-12"><label class="etiqueta">Departamento</label><span class="dato-valor"
+                                    id="txtDepto">-</span></div>
+                            <div class="col-12"><label class="etiqueta">Puesto</label><span class="dato-valor"
+                                    id="txtPuesto">-</span></div>
+                            <div class="col-6"><label class="etiqueta">Fecha Alta</label><span class="dato-valor"
+                                    id="txtAlta">-</span></div>
+                            <div class="col-6"><label class="etiqueta">Antigüedad</label><span class="dato-valor"
+                                    style="color: var(--navojoa-dorado);" id="txtAntiguedad">-</span></div>
+                            <div class="col-6"><label class="etiqueta">Nómina</label><span class="dato-valor"
+                                    id="txtEmpresa">-</span></div>
+                            <div class="col-6"><label class="etiqueta">Tipo</label><span class="dato-valor"
+                                    id="txtTipo">-</span></div>
+                        </div>
+                        <div class="seccion-titulo">DATOS PERSONALES</div>
+                        <div class="row g-2">
+                            <div class="col-6"><label class="etiqueta">CURP</label><span class="dato-valor"
+                                    id="txtCurp">-</span></div>
+                            <div class="col-6"><label class="etiqueta">Teléfono</label><span class="dato-valor"
+                                    id="txtTel">-</span></div>
+                            <div class="col-12"><label class="etiqueta">Dirección</label><span class="dato-valor"
+                                    id="txtDireccion">-</span></div>
+                        </div>
+                        <div class="seccion-titulo">SEGURIDAD SOCIAL</div>
+                        <div class="row g-2">
+                            <div class="col-6"><label class="etiqueta">Institución</label><span class="dato-valor"
+                                    id="txtSeguro">-</span></div>
+                            <div class="col-6"><label class="etiqueta">No. Póliza</label><span
+                                    class="dato-valor text-danger" id="txtPoliza">-</span></div>
+                        </div>
+                        <div class="seccion-titulo">DATOS BANCARIOS</div>
+                        <div class="row g-2">
+                            <div class="col-4"><label class="etiqueta">Banco</label><span class="dato-valor"
+                                    id="txtBanco">-</span></div>
+                            <div class="col-8"><label class="etiqueta">Cuenta</label><span class="dato-valor"
+                                    id="txtCuenta">-</span></div>
+                            <div class="col-12"><label class="etiqueta">Clabe Interbancaria</label><span
+                                    class="dato-valor" id="txtClabe">-</span></div>
+                        </div>
+                        <div class="seccion-titulo">TABLERO DE CONTROL (ANUAL)</div>
+                        <div class="row g-1 bg-light p-2 rounded text-center">
+                            <div class="col-6">
+                                <div class="saldo-box" style="border-left: 3px solid var(--navojoa-tinto);"><span
+                                        class="saldo-titulo">VACACIONES</span><span class="saldo-numero"
+                                        id="lblSaldoVac">0</span><span class="saldo-sub" id="lblDerechoVac">Der: 0
+                                        /sem</span></div>
+                            </div>
+                            <div class="col-6">
+                                <div class="saldo-box" style="border-left: 3px solid var(--navojoa-dorado);"><span
+                                        class="saldo-titulo">DÍAS ECON.</span><span class="saldo-numero"
+                                        id="lblSaldoEcon">0</span><span class="saldo-sub">Max: 2</span></div>
+                            </div>
+                            <div class="col-3">
+                                <div class="saldo-box"><span class="saldo-titulo">P.S.G.</span><span
+                                        class="saldo-numero" id="lblSaldoPSG">0</span></div>
+                            </div>
+                            <div class="col-3">
+                                <div class="saldo-box"><span class="saldo-titulo">INCAP.</span><span
+                                        class="saldo-numero" id="lblSaldoIncap">0</span></div>
+                            </div>
+                            <div class="col-3">
+                                <div class="saldo-box"><span class="saldo-titulo">LUTO</span><span class="saldo-numero"
+                                        id="lblAcumLuto">0</span></div>
+                            </div>
+                            <div class="col-3">
+                                <div class="saldo-box" style="background-color: #e3f2fd;"><span
+                                        class="saldo-titulo text-primary">COMISIÓN</span><span
+                                        class="saldo-numero text-primary" id="lblAcumComisiones">0</span></div>
+                            </div>
+                            <div class="col-6 mt-1">
+                                <div class="saldo-box bg-white"><span class="saldo-titulo text-secondary">FALTAS
+                                        JUSTIF.</span><span class="saldo-numero text-dark" id="lblAcumFaltas">0</span>
+                                </div>
+                            </div>
+                            <div class="col-6 mt-1">
+                                <div class="saldo-box bg-white"><span class="saldo-titulo text-secondary">RETARDOS
+                                        JUSTIF.</span><span class="saldo-numero text-dark" id="lblAcumRetardos">0</span>
+                                </div>
+                            </div>
+                            <!-- PRIMA VACACIONAL PAGADA -->
+                            <div class="col-6 mt-1">
+                                <div class="saldo-box"
+                                    style="background-color: #d4edda; border-left: 3px solid #198754;">
+                                    <span class="saldo-titulo text-success">PRIMA 1er SEM</span>
+                                    <span class="saldo-numero text-success" id="lblPrima1erSem"
+                                        style="font-size: 0.85rem;">-</span>
+                                </div>
+                            </div>
+                            <div class="col-6 mt-1">
+                                <div class="saldo-box"
+                                    style="background-color: #d4edda; border-left: 3px solid #198754;">
+                                    <span class="saldo-titulo text-success">PRIMA 2do SEM</span>
+                                    <span class="saldo-numero text-success" id="lblPrima2doSem"
+                                        style="font-size: 0.85rem;">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 mb-4">
+                <div class="card card-gestion">
+                    <div class="card-header bg-white">
+                        <ul class="nav nav-tabs card-header-tabs" id="myTab">
+                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab"
+                                    data-bs-target="#incidencias">Incidencias</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#extras">Extras</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#alta">Alta</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#datos">Datos</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#reportes">Reportes</button></li>
+                            <li class="nav-item ms-auto"><button class="nav-link text-danger fw-bold"
+                                    data-bs-toggle="tab" data-bs-target="#baja">ESTATUS</button></li>
+                        </ul>
+                    </div>
+                    <div class="card-body bg-white">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="incidencias">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border shadow-sm p-3">
+                                            <div class="fw-bold mb-2 text-danger">VACACIONES</div>
+                                            <select class="form-select form-select-sm mb-2" id="cmbTipoVac">
+                                                <option>DISFRUTE</option>
+                                                <option>PAGO</option>
+                                                <option>CANCELACION</option>
+                                            </select>
+                                            <input type="number" class="form-control form-control-sm mb-2"
+                                                id="txtDiasVac" placeholder="Días" oninput="calcFechas('Vac','H')">
+                                            <div class="row g-1">
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm" id="txtFechaVac"
+                                                        onchange="calcFechas('Vac','H')"></div>
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm input-calc"
+                                                        id="txtFechaFinVac" readonly></div>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                id="txtNumOficioVac" placeholder="No. Oficio">
+                                            <div class="btn-scan mt-2" id="btnScanVac" onclick="triggerFile('Vac')"><i
+                                                    class="bi bi-paperclip"></i> <span id="lblScanVac">Adjuntar
+                                                    Oficio</span></div>
+                                            <input type="file" id="fileVac" style="display:none" accept="image/*,.pdf"
+                                                onchange="fileSelected('Vac')">
+                                            <button class="btn btn-primary btn-sm w-100 mt-3"
+                                                onclick="guardarVacaciones()">GUARDAR</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border shadow-sm p-3">
+                                            <div class="fw-bold mb-2 text-warning">INCAPACIDAD</div>
+                                            <select class="form-select form-select-sm mb-2" id="cmbTipoIncap">
+                                                <option>ENFERMEDAD GENERAL</option>
+                                                <option>RIESGO TRABAJO</option>
+                                                <option>MATERNIDAD</option>
+                                            </select>
+                                            <input type="number" class="form-control form-control-sm mb-2"
+                                                id="txtDiasIncap" placeholder="Días" oninput="calcFechas('Incap','N')">
+                                            <div class="row g-1">
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm" id="txtFechaIncap"
+                                                        onchange="calcFechas('Incap','N')"></div>
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm input-calc"
+                                                        id="txtFechaFinIncap" readonly></div>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                id="txtNumOficioIncap" placeholder="No. Oficio">
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                id="txtFolioIncap" placeholder="Folio Médico">
+                                            <div class="btn-scan mt-2" id="btnScanIncap" onclick="triggerFile('Incap')">
+                                                <i class="bi bi-paperclip"></i> <span id="lblScanIncap">Adjuntar
+                                                    Incap.</span>
+                                            </div>
+                                            <input type="file" id="fileIncap" style="display:none" accept="image/*,.pdf"
+                                                onchange="fileSelected('Incap')">
+                                            <button class="btn btn-warning btn-sm w-100 mt-3"
+                                                onclick="guardarIncapacidad()">GUARDAR</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border shadow-sm p-3">
+                                            <div class="fw-bold mb-2 text-primary">PERMISOS</div>
+                                            <select class="form-select form-select-sm mb-2" id="cmbTipoPermiso">
+                                                <option value="PCG_ECONOMICO">PCG - Económico</option>
+                                                <option value="PCG_LUTO">PCG - Luto</option>
+                                                <option value="PSG">PSG - Sin Goce</option>
+                                                <option value="COMISION">COMISIÓN OFICIAL</option>
+                                                <option value="JUSTIFICANTE_FALTA">JUSTIFICANTE FALTA</option>
+                                                <option value="JUSTIFICANTE_RETARDO">JUSTIFICANTE RETARDO</option>
+                                            </select>
+                                            <input type="number" class="form-control form-control-sm mb-2"
+                                                id="txtDiasPermiso" placeholder="Días"
+                                                oninput="calcFechas('Permiso','H')">
+                                            <div class="row g-1">
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm" id="txtFechaPermiso"
+                                                        onchange="calcFechas('Permiso','H')"></div>
+                                                <div class="col-6"><input type="date"
+                                                        class="form-control form-control-sm input-calc"
+                                                        id="txtFechaFinPermiso" readonly></div>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                id="txtNumOficioPermiso" placeholder="No. Oficio">
+                                            <input type="text" class="form-control form-control-sm mt-2"
+                                                id="txtMotivoPermiso" placeholder="Motivo">
+                                            <div class="btn-scan mt-2" id="btnScanPermiso"
+                                                onclick="triggerFile('Permiso')"><i class="bi bi-paperclip"></i> <span
+                                                    id="lblScanPermiso">Adjuntar Justif.</span></div>
+                                            <input type="file" id="filePermiso" style="display:none"
+                                                accept="image/*,.pdf" onchange="fileSelected('Permiso')">
+                                            <button class="btn btn-dark btn-sm w-100 mt-3"
+                                                onclick="guardarPermiso()">GUARDAR</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Segunda fila: Prima Vacacional -->
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border shadow-sm p-3"
+                                            style="border-left: 4px solid #198754 !important;">
+                                            <div class="fw-bold mb-2 text-success"><i
+                                                    class="bi bi-cash-coin me-1"></i>PRIMA VACACIONAL</div>
+                                            <p class="text-muted small mb-2">Solicitud de pago de prima vacacional</p>
+                                            <label class="etiqueta">Fecha de Solicitud</label>
+                                            <input type="date" class="form-control form-control-sm mb-2"
+                                                id="txtFechaPrima">
+                                            <label class="etiqueta">Observaciones (opcional)</label>
+                                            <input type="text" class="form-control form-control-sm mb-2"
+                                                id="txtObservacionesPrima" placeholder="Observaciones...">
+                                            <button class="btn btn-success btn-sm w-100 mt-3"
+                                                onclick="guardarPrimaVacacional()">
+                                                <i class="bi bi-check-circle me-1"></i>SOLICITAR PRIMA
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Captura de Pago de Prima (Nómina) -->
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border shadow-sm p-3"
+                                            style="border-left: 4px solid #0d6efd !important;">
+                                            <div class="fw-bold mb-2 text-primary"><i
+                                                    class="bi bi-wallet2 me-1"></i>REGISTRAR PAGO PRIMA</div>
+                                            <p class="text-muted small mb-2">Captura después del pago por Nómina</p>
+                                            <label class="etiqueta">Semestre</label>
+                                            <select class="form-select form-select-sm mb-2" id="cmbSemestrePrimaPago">
+                                                <option value="1">1er Semestre</option>
+                                                <option value="2">2do Semestre</option>
+                                            </select>
+                                            <label class="etiqueta">Fecha de Pago</label>
+                                            <input type="date" class="form-control form-control-sm mb-2"
+                                                id="txtFechaPagoPrima">
+                                            <button class="btn btn-primary btn-sm w-100 mt-3"
+                                                onclick="registrarPagoPrima()">
+                                                <i class="bi bi-cash-stack me-1"></i>REGISTRAR PAGO
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="extras">
+                                <div class="row justify-content-center pt-4">
+                                    <div class="col-md-8 text-center">
+                                        <div class="card border-0 shadow-sm p-4">
+                                            <i class="bi bi-stopwatch fs-1 text-info mb-3"></i>
+                                            <h4 class="fw-bold" style="color: var(--navojoa-tinto);">Calculadora de
+                                                Turnos</h4>
+                                            <div class="row mb-3 align-items-end">
+                                                <div class="col-8"><label class="etiqueta text-start w-100">Horas
+                                                        Laboradas</label><input type="number" class="form-control"
+                                                        id="txtHorasLaboradas" placeholder="Ej: 9.5"
+                                                        oninput="calcularTurnos()"></div>
+                                                <div class="col-4"><input type="text"
+                                                        class="form-control fw-bold text-center" id="txtDiasExtra"
+                                                        readonly style="background-color: #d1e7dd; color: #0f5132;">
+                                                </div>
+                                            </div>
+                                            <div class="text-start row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3"><label class="etiqueta text-dark fs-6 mb-1">NO.
+                                                            OFICIO / MEMORÁNDUM</label><input type="text"
+                                                            class="form-control" id="txtNumOficioExtra"></div>
+                                                </div>
+                                                <div class="col-md-6"><label class="etiqueta text-dark fs-6 mb-1">LISTA
+                                                        DE RAYA</label>
+                                                    <div class="btn-scan" id="btnScanExtra"
+                                                        onclick="triggerFile('Extra')"><i
+                                                            class="bi bi-camera-fill fs-5 d-block"></i><span
+                                                            id="lblScanExtra">Escanear</span></div><input type="file"
+                                                        id="fileExtra" class="input-file-oculto" accept=".pdf,image/*"
+                                                        onchange="fileSelected('Extra')">
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-success w-100 fw-bold mt-4"
+                                                onclick="guardarHorasExtra()">REGISTRAR PAGO EXTRA</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="alta">
+                                <div class="card border-0 p-3">
+                                    <form id="formAlta">
+                                        <div class="form-section-header">DATOS PERSONALES</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-3"><input type="text" class="form-control" id="altaID"
+                                                    placeholder="ID *"></div>
+                                            <div class="col-6"><input type="text" class="form-control" id="altaNombre"
+                                                    placeholder="Nombre Completo *"></div>
+                                            <div class="col-3"><input type="date" class="form-control" id="altaFecha">
+                                            </div>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6"><input type="text" class="form-control"
+                                                    id="altaDireccion" placeholder="Dirección"></div>
+                                            <div class="col-3"><input type="text" class="form-control" id="altaTel"
+                                                    placeholder="Teléfono"></div>
+                                            <div class="col-3"><input type="text" class="form-control" id="altaCurp"
+                                                    placeholder="CURP"></div>
+                                        </div>
+                                        <div class="form-section-header">DATOS LABORALES</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><select id="altaDepto" class="form-select">
+                                                    <option>PRESIDENCIA</option>
+                                                    <option>ORGANO DE CONTROL Y EVALUACION GUVERNAMENTAL</option>
+                                                    <option>SINDICATURA</option>
+                                                    <option>SECRETARIA DEL H. AYUNTAMIENTO</option>
+                                                    <option>DIRECCION DE ARCHIVO MUNICIPAL - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>COORDINACION MUNICIPAL DE TRANSPORTE - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>PROFECO - SECRETARIA DEL H. AYUNTAMIENTO</option>
+                                                    <option>DIRECCION DE ASUNTOS RELIGIOSOS - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>JUECES CALIFICADORES - SECRETARIA DEL H. AYUNTAMIENTO
+                                                    </option>
+                                                    <option>TESORERIA MUNICIPAL</option>
+                                                    <option>SECRETARIA DE PROGRAMACION DEL GASTO</option>
+                                                    <option>DIRECCION DE PROGRAMACION DE PRESUPUESTO - SECRETARIA DE
+                                                        PROGRAMACION DEL GASTO</option>
+                                                    <option>DIRECCION DE PLANEACION - SECRETARIA DE PROGRAMACION DEL
+                                                        GASTO</option>
+                                                    <option>DIRECCION DE BIENES Y SERVICIOS - SECRETARIA DE PROGRAMACION
+                                                        DEL GASTO</option>
+                                                    <option>DIRECCION DE RECURSOS HUMANOS - SECRETARIA DE PROGRAMACION
+                                                        DEL GASTO</option>
+                                                    <option>DIRECCION DE INFORMATICA - SECRETARIA DE PROGRAMACION DEL
+                                                        GASTO</option>
+                                                    <option>SECRETARIA DE SERCIVIOS PUBLICOS</option>
+                                                    <option>SECRETARIA DE INFRAESTRUCTURA URBANA</option>
+                                                    <option>DIRECCION DE OBRAS PUBLICAS - SECRETARIA DE INFRAESTRUCTURA
+                                                        URBANA</option>
+                                                    <option>DIRECCION DE DESARROLLO URBANO - SECRETARIA DE
+                                                        INFRAESTRUCTURA URBANA</option>
+                                                    <option>DIRECCION DE ECOLOGIA - SECRETARIA DE INFRAESTRUCTURA URBANA
+                                                    </option>
+                                                    <option>SECRETARIA DE SEGURIDAD PUBLICA</option>
+                                                    <option>SECRETARIA DE DESARROLLO ECONOMICO</option>
+                                                    <option>SECRETARIA DE DESARROLLO SOCIAL</option>
+                                                    <option>DIRECCION DE ATENCION CIUDADANA</option>
+                                                    <option>DIRECCION DE ATENCION A LA MUJER</option>
+                                                    <option>DIRECCION DE COMUNICACIÓN SOCIAL</option>
+                                                    <option>DIRECCION MUNICIPAL DEL DEPORTE</option>
+                                                    <option>DIRECCION DE COMUNIDADES RURALES</option>
+                                                    <option>DIRECCION DE SALUD MUNICIPAL</option>
+                                                    <option>DIRECCION DE EDUCACION Y CULTURA</option>
+                                                    <option>INSTITUTO NAVOJOENSE DE LA JUVENTUD</option>
+                                                    <option>C.M.C.O.P.</option>
+                                                    <option>DIF MUNICIPAL</option>
+                                                    <option>RASTRO MUNICIPAL</option>
+                                                    <option>CUERPO DE BOMBEROS</option>
+                                                    <option>IMPLAN</option>
+                                                    <option>CABILDO</option>
+                                                    <option>RELACIONES EXTERIORES</option>
+                                                    <option>JUBILADOS Y PENSIONADOS</option>
+                                                    <option>TRANSPARENCIA</option>
+                                                </select></div>
+                                            <div class="col-4"><input type="text" class="form-control" id="altaPuesto"
+                                                    placeholder="Puesto"></div>
+                                            <div class="col-4"><select id="altaTipo" class="form-select">
+                                                    <option>CONFIANZA</option>
+                                                    <option>SINDICALIZADO</option>
+                                                    <option>EVENTUAL</option>
+                                                </select></div>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><input type="text" class="form-control"
+                                                    id="txtNumOficioAlta" placeholder="Nombramiento *"></div>
+                                            <div class="col-4"><select id="altaEmpresa" class="form-select">
+                                                    <option>AYTO</option>
+                                                    <option>DIF MUNICIPAL</option>
+                                                    <option>RASTRO</option>
+                                                    <option>IMPLAN</option>
+                                                    <option>CMCOP</option>
+                                                    <option>PENSIONES</option>
+                                                    <option>SEG PUB</option>
+                                                    <option>TEMPORAL</option>
+                                                </select></div>
+                                            <div class="col-4"><input type="text" class="form-control"
+                                                    id="altaNumArchivo" placeholder="Archivo Físico"></div>
+                                        </div>
+                                        <div class="form-section-header">BANCARIOS Y SS</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><select id="altaSeguro" class="form-select">
+                                                    <option>ISSSTESON</option>
+                                                    <option>REDBENEFIT</option>
+                                                </select></div>
+                                            <div class="col-4"><input type="text" class="form-control" id="altaPoliza"
+                                                    placeholder="Póliza"></div>
+                                            <div class="col-4"><input type="text" class="form-control" id="altaBanco"
+                                                    placeholder="Banco"></div>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6"><input type="text" class="form-control" id="altaCuenta"
+                                                    placeholder="Cuenta"></div>
+                                            <div class="col-6"><input type="text" class="form-control" id="altaClabe"
+                                                    placeholder="Clabe"></div>
+                                        </div>
+                                        <div class="mt-3 p-3 bg-light border rounded"><label
+                                                class="etiqueta text-danger fw-bold">CONTRATO / NOMBRAMIENTO (PDF/FOTO)
+                                                *</label>
+                                            <div class="btn-scan" id="btnScanAlta" onclick="triggerFile('Alta')"><i
+                                                    class="bi bi-cloud-arrow-up"></i> <span id="lblScanAlta">Seleccionar
+                                                    Archivo</span></div><input type="file" id="fileAlta"
+                                                style="display:none" onchange="fileSelected('Alta')">
+                                        </div>
+                                        <button type="button" class="btn btn-success fw-bold px-5 mt-4 w-100"
+                                            onclick="registrarAlta()">REGISTRAR ALTA</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="datos">
+                                <div class="card border-0 p-3">
+                                    <form id="formEdicion">
+                                        <div class="form-section-header">IDENTIFICACIÓN (PROTEGIDO)</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-3"><label class="etiqueta">ID</label><input type="text"
+                                                    class="form-control input-calc" id="editID" readonly></div>
+                                            <div class="col-6"><label class="etiqueta">Nombre</label><input type="text"
+                                                    class="form-control input-calc" id="editNombre" readonly></div>
+                                            <div class="col-3"><label class="etiqueta">F. Alta</label><input type="date"
+                                                    class="form-control input-calc" id="editFechaAlta" readonly></div>
+                                        </div>
+                                        <div class="form-section-header">DATOS GENERALES</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6"><label class="etiqueta">Dirección</label><input
+                                                    type="text" class="form-control" id="editDireccion"></div>
+                                            <div class="col-3"><label class="etiqueta">Teléfono</label><input
+                                                    type="text" class="form-control" id="editTel"></div>
+                                            <div class="col-3"><label class="etiqueta">CURP</label><input type="text"
+                                                    class="form-control" id="editCurp"></div>
+                                        </div>
+                                        <div class="form-section-header">DATOS LABORALES</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><label class="etiqueta">Depto</label><select
+                                                    id="editDepto" class="form-select">
+                                                    <option>PRESIDENCIA</option>
+                                                    <option>ORGANO DE CONTROL Y EVALUACION GUVERNAMENTAL</option>
+                                                    <option>SINDICATURA</option>
+                                                    <option>SECRETARIA DEL H. AYUNTAMIENTO</option>
+                                                    <option>DIRECCION DE ARCHIVO MUNICIPAL - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>COORDINACION MUNICIPAL DE TRANSPORTE - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>PROFECO - SECRETARIA DEL H. AYUNTAMIENTO</option>
+                                                    <option>DIRECCION DE ASUNTOS RELIGIOSOS - SECRETARIA DEL H.
+                                                        AYUNTAMIENTO</option>
+                                                    <option>JUECES CALIFICADORES - SECRETARIA DEL H. AYUNTAMIENTO
+                                                    </option>
+                                                    <option>TESORERIA MUNICIPAL</option>
+                                                    <option>SECRETARIA DE PROGRAMACION DEL GASTO</option>
+                                                    <option>DIRECCION DE PROGRAMACION DE PRESUPUESTO - SECRETARIA DE
+                                                        PROGRAMACION DEL GASTO</option>
+                                                    <option>DIRECCION DE PLANEACION - SECRETARIA DE PROGRAMACION DEL
+                                                        GASTO</option>
+                                                    <option>DIRECCION DE BIENES Y SERVICIOS - SECRETARIA DE PROGRAMACION
+                                                        DEL GASTO</option>
+                                                    <option>DIRECCION DE RECURSOS HUMANOS - SECRETARIA DE PROGRAMACION
+                                                        DEL GASTO</option>
+                                                    <option>DIRECCION DE INFORMATICA - SECRETARIA DE PROGRAMACION DEL
+                                                        GASTO</option>
+                                                    <option>SECRETARIA DE SERCIVIOS PUBLICOS</option>
+                                                    <option>SECRETARIA DE INFRAESTRUCTURA URBANA</option>
+                                                    <option>DIRECCION DE OBRAS PUBLICAS - SECRETARIA DE INFRAESTRUCTURA
+                                                        URBANA</option>
+                                                    <option>DIRECCION DE DESARROLLO URBANO - SECRETARIA DE
+                                                        INFRAESTRUCTURA URBANA</option>
+                                                    <option>DIRECCION DE ECOLOGIA - SECRETARIA DE INFRAESTRUCTURA URBANA
+                                                    </option>
+                                                    <option>SECRETARIA DE SEGURIDAD PUBLICA</option>
+                                                    <option>SECRETARIA DE DESARROLLO ECONOMICO</option>
+                                                    <option>SECRETARIA DE DESARROLLO SOCIAL</option>
+                                                    <option>DIRECCION DE ATENCION CIUDADANA</option>
+                                                    <option>DIRECCION DE ATENCION A LA MUJER</option>
+                                                    <option>DIRECCION DE COMUNICACIÓN SOCIAL</option>
+                                                    <option>DIRECCION MUNICIPAL DEL DEPORTE</option>
+                                                    <option>DIRECCION DE COMUNIDADES RURALES</option>
+                                                    <option>DIRECCION DE SALUD MUNICIPAL</option>
+                                                    <option>DIRECCION DE EDUCACION Y CULTURA</option>
+                                                    <option>INSTITUTO NAVOJOENSE DE LA JUVENTUD</option>
+                                                    <option>C.M.C.O.P.</option>
+                                                    <option>DIF MUNICIPAL</option>
+                                                    <option>RASTRO MUNICIPAL</option>
+                                                    <option>CUERPO DE BOMBEROS</option>
+                                                    <option>IMPLAN</option>
+                                                    <option>CABILDO</option>
+                                                    <option>RELACIONES EXTERIORES</option>
+                                                    <option>JUBILADOS Y PENSIONADOS</option>
+                                                    <option>TRANSPARENCIA</option>
+                                                </select></div>
+                                            <div class="col-4"><label class="etiqueta">Puesto</label><input type="text"
+                                                    class="form-control" id="editPuesto"></div>
+                                            <div class="col-4"><label class="etiqueta">Tipo</label><select id="editTipo"
+                                                    class="form-select">
+                                                    <option>CONFIANZA</option>
+                                                    <option>SINDICALIZADO</option>
+                                                    <option>EVENTUAL</option>
+                                                </select></div>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><label class="etiqueta">Nombramiento</label><input
+                                                    type="text" class="form-control" id="editNombramiento"></div>
+                                            <div class="col-4"><label class="etiqueta">Empresa</label><select
+                                                    id="editEmpresa" class="form-select">
+                                                    <option>AYTO</option>
+                                                    <option>DIF MUNICIPAL</option>
+                                                    <option>RASTRO</option>
+                                                    <option>IMPLAN</option>
+                                                    <option>CMCOP</option>
+                                                    <option>PENSIONES</option>
+                                                    <option>SEG PUB</option>
+                                                    <option>TEMPORAL</option>
+                                                </select></div>
+                                            <div class="col-4"><label class="etiqueta">Archivo</label><input type="text"
+                                                    class="form-control" id="editArchivo"></div>
+                                        </div>
+                                        <div class="form-section-header">BANCARIOS Y SS</div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-4"><label class="etiqueta">Seguro</label><select
+                                                    id="editSeguro" class="form-select">
+                                                    <option>ISSSTESON</option>
+                                                    <option>REDBENEFIT</option>
+                                                </select></div>
+                                            <div class="col-4"><label class="etiqueta">Póliza</label><input type="text"
+                                                    class="form-control" id="editPoliza"></div>
+                                            <div class="col-4"><label class="etiqueta">Banco</label><input type="text"
+                                                    class="form-control" id="editBanco"></div>
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6"><label class="etiqueta">Cuenta</label><input type="text"
+                                                    class="form-control" id="editCuenta"></div>
+                                            <div class="col-6"><label class="etiqueta">Clabe</label><input type="text"
+                                                    class="form-control" id="editClabe"></div>
+                                        </div>
+                                        <div class="mt-3 p-3 bg-light border rounded">
+                                            <label class="etiqueta text-primary fw-bold">ACTUALIZAR
+                                                CONTRATO/NOMBRAMIENTO</label>
+                                            <div class="btn-scan" id="btnScanEdit" onclick="triggerFile('Edit')"><i
+                                                    class="bi bi-cloud-arrow-up"></i> <span id="lblScanEdit">Subir Nuevo
+                                                    Archivo</span></div>
+                                            <input type="file" id="fileEdit" style="display:none"
+                                                onchange="fileSelected('Edit')">
+                                        </div>
+                                        <button type="button" class="btn btn-primary w-100 mt-3"
+                                            onclick="actualizarDatos()">GUARDAR CAMBIOS</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="reportes">
+                                <div class="card border-0 p-3">
+                                    <div class="row g-2">
+                                        <div class="col-3"><input type="date" class="form-control" id="repFechaIni">
+                                        </div>
+                                        <div class="col-3"><input type="date" class="form-control" id="repFechaFin">
+                                        </div>
+                                        <div class="col-3"><input type="text" class="form-control" id="repEmpleado"
+                                                placeholder="Nombre/ID (Opcional)"></div>
+                                        <div class="col-3"><label class="etiqueta">Tipo</label><select
+                                                class="form-select" id="repTipo">
+                                                <option value="TODOS">TODOS</option>
+                                                <option value="VACACIONES">VACACIONES</option>
+                                                <option value="INCAPACIDAD">INCAPACIDAD</option>
+                                                <option value="PERMISOS">PERMISOS (Todos)</option>
+                                                <option value="HORAS_EXTRA">HORAS EXTRA</option>
+                                                <option value="ALTA">ALTAS</option>
+                                                <option value="BAJA">BAJAS</option>
+                                                <option value="PRIMA_VACACIONAL">PRIMA SOLICITUDES</option>
+                                                <option value="PAGO_PRIMA">PRIMA PAGADAS</option>
+                                            </select></div>
+                                    </div>
+                                    <div class="d-grid gap-2 mt-3"><button class="btn btn-primary"
+                                            onclick="generarReporte()">🔍 BUSCAR EN BASE DE DATOS</button></div>
+                                    <div class="d-flex justify-content-between mt-3 align-items-center"><span
+                                            id="repContador" class="fw-bold text-muted">Resultados: 0</span><button
+                                            class="btn btn-success btn-sm" onclick="descargarExcel()"><i
+                                                class="bi bi-file-earmark-excel"></i> DESCARGAR EXCEL COMPLETO</button>
+                                    </div>
+                                    <div class="table-responsive mt-2" style="max-height: 400px; overflow-y: auto;">
+                                        <table class="table table-sm table-striped table-hover">
+                                            <thead class="table-dark sticky-top">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Fin</th>
+                                                    <th>Empleado</th>
+                                                    <th>Tipo</th>
+                                                    <th>Días</th>
+                                                    <th>Oficio</th>
+                                                    <th>Detalle</th>
+                                                    <th>Link</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tablaReportesBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="baja">
+                                <div class="p-4 text-center">
+                                    <h5>Gestión de Estatus</h5>
+                                    <select class="form-select mb-3 w-50 mx-auto" id="cmbNuevoEstatus">
+                                        <option>BAJA</option>
+                                        <option>JUBILADO</option>
+                                        <option>PENSIONADO</option>
+                                        <option>SUSPENDIDO</option>
+                                        <option>ACTIVO</option>
+                                    </select>
+                                    <div class="btn-scan w-50 mx-auto mb-3" id="btnScanBaja"
+                                        onclick="triggerFile('Baja')"><span>Adjuntar Renuncia/Acta</span></div>
+                                    <input type="file" id="fileBaja" style="display:none"
+                                        onchange="fileSelected('Baja')">
+                                    <button class="btn btn-dark w-50" onclick="actualizarEstatus()">APLICAR
+                                        CAMBIO</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow mt-3">
+                    <div class="card-header py-1 bg-dark text-white"><small>HISTORIAL (Últimos 10)</small></div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm mb-0 text-center">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Días</th>
+                                    <th>Oficio</th>
+                                    <th>Evidencia</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorial"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

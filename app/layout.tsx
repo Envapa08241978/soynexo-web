@@ -45,6 +45,10 @@ export const metadata: Metadata = {
         'soy nexo',
         'soynexo'
     ],
+    icons: {
+        icon: '/logo.png',
+        apple: '/logo.png',
+    },
     authors: [{ name: 'Soy Nexo' }],
     creator: 'Soy Nexo',
     publisher: 'Soy Nexo',
@@ -105,7 +109,7 @@ export default function RootLayout({
                 url: 'https://www.soynexo.com',
                 logo: {
                     '@type': 'ImageObject',
-                    url: 'https://www.soynexo.com/og-image.png',
+                    url: 'https://www.soynexo.com/logo.png',
                 },
                 description: 'Álbum digital colaborativo para bodas, quinceañeras y eventos en Navojoa, Sonora y todo México. Complemento perfecto para fotógrafos profesionales.',
                 contactPoint: {
