@@ -700,9 +700,8 @@ export default function DashboardPage() {
                             rows={5}
                             className="w-full px-3 py-2.5 rounded-lg text-sm outline-none text-white placeholder-white/15 resize-none"
                             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                        <div className="mt-2">
                             <span className="text-[0.55rem] text-white/30">💡 Usa <strong className="text-white/50">{'{nombre}'}</strong> para incluir el nombre de cada persona</span>
-                            <span className="text-[0.55rem] text-white/30">🖼️ El link del evento se agrega automáticamente (WhatsApp muestra la imagen)</span>
                         </div>
                     </div>
 
@@ -752,12 +751,10 @@ export default function DashboardPage() {
                                     {broadcastContacts.map(c => {
                                         const isSent = sentContacts.has(c.id)
                                         const firstName = c.name.split(' ')[0]
-                                        const eventPageUrl = `https://soynexo.com/c/${slug}`
-                                        const rawMsg = broadcastMsg
+                                        const finalMsg = broadcastMsg
                                             ? broadcastMsg.replace(/\{nombre\}/gi, firstName)
                                             : `¡Hola ${firstName}! 👋 Te invitamos a nuestro próximo evento. ¡Te esperamos!`
-                                        const fullMsg = `${rawMsg}\n\n👉 ${eventPageUrl}`
-                                        const waUrl = `https://wa.me/52${c.phone}?text=${encodeURIComponent(fullMsg)}`
+                                        const waUrl = `https://wa.me/52${c.phone}?text=${encodeURIComponent(finalMsg)}`
 
                                         return (
                                             <div key={c.id} className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all"
