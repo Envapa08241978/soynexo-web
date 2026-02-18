@@ -41,6 +41,7 @@ interface PoliticianConfig {
     dashboardPassword: string
     accentColor: string
     backgroundColor: string
+    textColor: string
     activeEventId?: string
 }
 
@@ -65,7 +66,7 @@ export default function DashboardPage() {
     const [events, setEvents] = useState<EventItem[]>([])
     const [config, setConfig] = useState<PoliticianConfig>({
         name: 'Lic. Juan Pérez', title: 'Candidato', party: '', phone: '6421600559',
-        photo: '', dashboardPassword: 'admin123', accentColor: '#8B1A2B', backgroundColor: '#1a0f14',
+        photo: '', dashboardPassword: 'admin123', accentColor: '#8B1A2B', backgroundColor: '#1a0f14', textColor: '#FFFFFF',
     })
 
     // --- Filters ---
@@ -260,6 +261,7 @@ export default function DashboardPage() {
 
     const accent = config.accentColor || '#8B1A2B'
     const bgColor = config.backgroundColor || '#1a0f14'
+    const textColor = config.textColor || '#FFFFFF'
 
     /* ================================================================
        LOGIN SCREEN
@@ -296,7 +298,7 @@ export default function DashboardPage() {
        DASHBOARD
        ================================================================ */
     return (
-        <div className="min-h-screen" style={{ background: bgColor }}>
+        <div className="min-h-screen" style={{ background: bgColor, color: textColor }}>
             {/* Header */}
             <header className="px-4 py-4 flex items-center justify-between"
                 style={{ background: 'rgba(26,15,20,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
@@ -629,11 +631,12 @@ export default function DashboardPage() {
                                 { key: 'photo', label: 'URL de foto de perfil', placeholder: 'https://...' },
                                 { key: 'accentColor', label: 'Color de acento', placeholder: '#8B1A2B' },
                                 { key: 'backgroundColor', label: 'Color de fondo', placeholder: '#1a0f14' },
+                                { key: 'textColor', label: 'Color de texto', placeholder: '#FFFFFF' },
                                 { key: 'dashboardPassword', label: 'Contraseña del dashboard', placeholder: '...' },
                             ].map(field => (
                                 <div key={field.key}>
                                     <label className="text-[0.6rem] text-white/30 font-bold uppercase tracking-wider mb-0.5 block">{field.label}</label>
-                                    <input type={field.key === 'dashboardPassword' ? 'password' : (field.key === 'accentColor' || field.key === 'backgroundColor') ? 'color' : 'text'}
+                                    <input type={field.key === 'dashboardPassword' ? 'password' : (field.key === 'accentColor' || field.key === 'backgroundColor' || field.key === 'textColor') ? 'color' : 'text'}
                                         value={(configForm as any)[field.key] || ''}
                                         onChange={(e) => setConfigForm(prev => ({ ...prev, [field.key]: e.target.value }))}
                                         disabled={!isEditingConfig}

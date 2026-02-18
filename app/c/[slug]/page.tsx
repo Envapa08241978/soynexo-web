@@ -21,6 +21,7 @@ interface PoliticianConfig {
     dashboardPassword: string
     accentColor: string
     backgroundColor: string
+    textColor: string
     activeEventId?: string
 }
 
@@ -65,6 +66,7 @@ const DEFAULT_CONFIG: PoliticianConfig = {
     dashboardPassword: 'admin123',
     accentColor: '#8B1A2B',
     backgroundColor: '#1a0f14',
+    textColor: '#FFFFFF',
 }
 
 const DEFAULT_EVENT: EventConfig = {
@@ -234,6 +236,7 @@ export default function CitizenEventPage() {
     /* ---- Color shorthands ---- */
     const accent = config.accentColor || '#8B1A2B'
     const bgColor = config.backgroundColor || '#1a0f14'
+    const textColor = config.textColor || '#FFFFFF'
 
     /* ---- Download ---- */
     const downloadFile = async (item: MediaItem) => {
@@ -379,7 +382,7 @@ export default function CitizenEventPage() {
     }
 
     return (
-        <div className="min-h-screen" style={{ background: bgColor, fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
+        <div className="min-h-screen" style={{ background: bgColor, color: textColor, fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
 
             {/* ==========================================
                 SECTION 1: HERO
