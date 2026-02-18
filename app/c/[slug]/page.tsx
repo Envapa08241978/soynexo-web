@@ -438,25 +438,6 @@ export default function CitizenEventPage() {
                     </div>
                 </div>
 
-                {/* Countdown */}
-                <div className="px-4 py-5" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                    <p className="text-[0.65rem] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: accent }}>🕐 Evento en curso</p>
-                    <div className="flex justify-center gap-4 sm:gap-6">
-                        {[
-                            { value: countdown.days, label: 'Días' },
-                            { value: countdown.hours, label: 'Hrs' },
-                            { value: countdown.minutes, label: 'Min' },
-                            { value: countdown.seconds, label: 'Seg' },
-                        ].map((u, i) => (
-                            <div key={i} className="flex flex-col items-center">
-                                <span className="text-2xl sm:text-3xl font-black tabular-nums text-white" style={{ minWidth: '2.5rem', textAlign: 'center' }}>
-                                    {String(u.value).padStart(2, '0')}
-                                </span>
-                                <span className="text-[0.55rem] font-bold tracking-wider uppercase mt-0.5 text-white/30">{u.label}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
                 {/* Action Buttons */}
                 <div className="px-4 py-5 flex flex-col items-center gap-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
