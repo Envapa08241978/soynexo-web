@@ -313,7 +313,7 @@ export default function CitizenEventPage() {
         finally { setIsDeleting(false) }
     }
 
-    /* ---- RSVP: Register attendance + save contact ---- */
+    /* ---- RSVP: Register attendance + open WhatsApp ---- */
     const handleRSVPSubmit = async () => {
         if (!rsvpName.trim() || !rsvpPhone.trim()) return
 
@@ -332,6 +332,7 @@ export default function CitizenEventPage() {
                 timestamp: serverTimestamp(),
             })
 
+            const confirmedName = rsvpName.trim()
             setShowRSVP(false)
             setRsvpName('')
             setRsvpPhone('')
@@ -339,22 +340,14 @@ export default function CitizenEventPage() {
             setRsvpSuccess(true)
             setTimeout(() => setRsvpSuccess(false), 5000)
 
-            // Show vCard prompt and auto-download
-            setShowVCardPrompt(true)
-            triggerVCardDownload()
+            // Open WhatsApp with pre-filled message
+            const politicianPhone = config.phone.replace(/\D/g, '')
+            const msg = encodeURIComponent(`¡Ya estoy aquí! 🎉\n📋 ${confirmedName}\n🏛️ ${event.name}`)
+            window.open(`https://wa.me/52${politicianPhone}?text=${msg}`, '_blank')
         } catch (err) {
             console.error('RSVP error:', err)
             setUploadError('Error al registrar. Intenta de nuevo.')
         } finally { setIsSubmittingRSVP(false) }
-    }
-
-    const triggerVCardDownload = () => {
-        const a = document.createElement('a')
-        a.href = `/api/vcard/${slug}`
-        a.download = `${slug}.vcf`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
     }
 
     /* ---- Format phone display ---- */
@@ -724,32 +717,6 @@ export default function CitizenEventPage() {
                 </div>
             )}
 
-            {/* ==========================================
-                VCARD DOWNLOAD MODAL
-                ========================================== */}
-            {showVCardPrompt && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)' }}
-                    onClick={() => setShowVCardPrompt(false)}>
-                    <div className="rounded-2xl p-6 w-full max-w-sm text-center" style={{ background: '#1e1f2e', border: '1px solid rgba(255,255,255,0.1)' }}
-                        onClick={(e) => e.stopPropagation()}>
-                        <div className="text-4xl mb-3">📲</div>
-                        <h3 className="text-lg font-bold text-white mb-2">¡Guarda este contacto!</h3>
-                        <p className="text-sm text-white/50 mb-5">
-                            Para recibir información de próximos eventos, guarda el contacto de <strong className="text-white/80">{config.name}</strong> en tu teléfono.
-                        </p>
-                        <p className="text-xs text-white/30 mb-5">Si no se descargó automáticamente, presiona el botón:</p>
-                        <button onClick={triggerVCardDownload}
-                            className="w-full py-3.5 rounded-xl text-sm font-bold text-white mb-3 transition-all active:scale-95"
-                            style={{ background: accent }}>
-                            📥 Descargar Contacto
-                        </button>
-                        <button onClick={() => setShowVCardPrompt(false)}
-                            className="w-full py-2.5 rounded-xl text-xs text-white/40">
-                            Ya lo guardé ✓
-                        </button>
-                    </div>
-                </div>
-            )}
 
             {/* ==========================================
                 FULL-SCREEN VIEWER
