@@ -68,11 +68,32 @@ export default function Patty50Page() {
     const [rsvpSuccess, setRsvpSuccess] = useState(false)
     const rsvpFileRef = useRef<HTMLInputElement>(null)
 
+    // --- Countdown state ---
+    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+
     const [uploadUrl, setUploadUrl] = useState('')
     useEffect(() => {
         if (typeof window !== 'undefined') {
             setUploadUrl(`${window.location.origin}/${EVENT_SLUG}`)
         }
+    }, [])
+
+    /* ---- Countdown timer to Feb 28, 2026 7PM MST ---- */
+    useEffect(() => {
+        const eventDate = new Date('2026-02-28T19:00:00-07:00').getTime()
+        const tick = () => {
+            const now = Date.now()
+            const diff = Math.max(0, eventDate - now)
+            setCountdown({
+                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((diff / (1000 * 60)) % 60),
+                seconds: Math.floor((diff / 1000) % 60),
+            })
+        }
+        tick()
+        const id = setInterval(tick, 1000)
+        return () => clearInterval(id)
     }, [])
 
     /* ---- Firebase: Media real-time sync ---- */
@@ -278,66 +299,61 @@ export default function Patty50Page() {
         <div className="min-h-screen" style={{ background: '#F5F0E8', fontFamily: "'Georgia', 'Times New Roman', serif" }}>
 
             {/* ==========================================
-                SECTION 1: HERO / INVITATION
+                SECTION 1: HERO — ORIGINAL INVITATION IMAGE
                 ========================================== */}
-            <section className="relative px-4 pt-10 pb-8 text-center overflow-hidden">
+            <section className="relative text-center">
                 {/* Powered by */}
-                <Link href="https://soynexo.com" target="_blank"
-                    className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full text-xs"
-                    style={{ color: '#8B7332', background: 'rgba(197,165,90,0.12)', border: '1px solid rgba(197,165,90,0.2)' }}>
-                    Powered by <strong>Soy Nexo</strong>
-                </Link>
-
-                {/* Title Block */}
-                <div className="max-w-sm mx-auto">
-                    <p className="text-lg italic mb-2" style={{ color: '#777' }}>Celebra con nosotros</p>
-
-                    <h1 className="leading-none" style={{
-                        fontSize: 'clamp(3rem, 12vw, 5rem)', fontWeight: 900, letterSpacing: '0.06em',
-                        background: 'linear-gradient(180deg, #D4AF37 0%, #8B7332 50%, #D4AF37 100%)',
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                    }}>PATTY</h1>
-
-                    <h2 className="leading-none my-1" style={{
-                        fontSize: 'clamp(3.5rem, 15vw, 6.5rem)', fontWeight: 900, letterSpacing: '0.04em',
-                        background: 'linear-gradient(180deg, #C5A55A 0%, #8B7332 40%, #C5A55A 100%)',
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                    }}>50TH</h2>
-
-                    <h3 className="leading-none" style={{
-                        fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: 900, letterSpacing: '0.1em',
-                        background: 'linear-gradient(180deg, #D4AF37 0%, #8B7332 50%, #D4AF37 100%)',
-                        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                    }}>BIRTHDAY</h3>
+                <div className="pt-3 pb-2">
+                    <Link href="https://soynexo.com" target="_blank"
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs"
+                        style={{ color: '#8B7332', background: 'rgba(197,165,90,0.12)', border: '1px solid rgba(197,165,90,0.2)' }}>
+                        Powered by <strong>Soy Nexo</strong>
+                    </Link>
                 </div>
 
-                {/* Decorative sparkles */}
-                <div className="absolute top-12 left-4 text-xl opacity-30" style={{ color: '#8B7332' }}>✦</div>
-                <div className="absolute top-20 right-6 text-sm opacity-25" style={{ color: '#8B7332' }}>✦</div>
-                <div className="absolute top-40 left-8 text-base opacity-20" style={{ color: '#8B7332' }}>✦</div>
-                <div className="absolute bottom-20 right-10 text-lg opacity-25" style={{ color: '#8B7332' }}>✦</div>
-                <div className="absolute bottom-32 left-6 text-sm opacity-20" style={{ color: '#8B7332' }}>✦</div>
+                {/* Original invitation image */}
+                <img
+                    src="/PATTY 50.jpeg"
+                    alt="Patty 50th Birthday — Celebra con nosotros — Sábado 28 de Febrero, Calle Corregidora, 7PM"
+                    className="w-full max-w-md mx-auto"
+                    style={{ display: 'block' }}
+                />
 
-                {/* Disco Ball decorations - CSS */}
-                <div className="absolute top-6 right-3 w-16 h-16 md:w-24 md:h-24 rounded-full opacity-60"
-                    style={{ background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(200,200,200,0.3) 60%, rgba(180,180,180,0.5))', boxShadow: '0 0 20px rgba(255,255,255,0.15)' }} />
-                <div className="absolute bottom-10 left-2 w-12 h-12 md:w-20 md:h-20 rounded-full opacity-50"
-                    style={{ background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(200,200,200,0.3) 60%, rgba(180,180,180,0.5))', boxShadow: '0 0 15px rgba(255,255,255,0.1)' }} />
-
-                {/* Event Details */}
-                <div className="mt-8 space-y-1" style={{ color: '#444' }}>
-                    <p className="text-sm font-bold tracking-[0.2em] uppercase">Sábado 28 de Febrero</p>
-                    <p className="text-sm font-bold tracking-[0.2em] uppercase">Calle Corregidora</p>
-                    <p className="text-lg font-black tracking-wider">7PM</p>
-                    <p className="text-xs font-bold tracking-[0.2em] uppercase mt-2" style={{ color: '#8B7332' }}>Lleva tu bebida</p>
+                {/* Countdown Timer */}
+                <div className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.06)' }}>
+                    <p className="text-xs font-bold tracking-[0.15em] uppercase mb-3" style={{ color: '#8B7332' }}>⏳ Faltan</p>
+                    <div className="flex justify-center gap-3 sm:gap-5">
+                        {[
+                            { value: countdown.days, label: 'Días' },
+                            { value: countdown.hours, label: 'Hrs' },
+                            { value: countdown.minutes, label: 'Min' },
+                            { value: countdown.seconds, label: 'Seg' },
+                        ].map((unit, i) => (
+                            <div key={i} className="flex flex-col items-center">
+                                <span className="text-2xl sm:text-3xl font-black tabular-nums" style={{
+                                    color: '#8B7332',
+                                    minWidth: '2.5rem',
+                                    textAlign: 'center',
+                                }}>{String(unit.value).padStart(2, '0')}</span>
+                                <span className="text-[0.6rem] font-bold tracking-wider uppercase mt-0.5" style={{ color: '#999' }}>{unit.label}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                {/* RSVP Button */}
-                <button onClick={() => setShowRSVP(true)}
-                    className="mt-8 px-8 py-3.5 rounded-full text-sm font-bold tracking-wider transition-all active:scale-95"
-                    style={{ background: 'linear-gradient(135deg, #C5A55A, #8B7332)', color: '#FFF', boxShadow: '0 6px 20px rgba(139,115,50,0.3)' }}>
-                    ✅ CONFIRMAR ASISTENCIA
-                </button>
+                {/* Action Buttons */}
+                <div className="px-4 py-5 flex flex-col items-center gap-3">
+                    <button onClick={() => setShowRSVP(true)}
+                        className="w-full max-w-xs px-8 py-3.5 rounded-full text-sm font-bold tracking-wider transition-all active:scale-95"
+                        style={{ background: 'linear-gradient(135deg, #C5A55A, #8B7332)', color: '#FFF', boxShadow: '0 6px 20px rgba(139,115,50,0.3)' }}>
+                        ✅ CONFIRMAR ASISTENCIA
+                    </button>
+                    <a href="https://www.google.com/maps?q=27.082254,-109.457556" target="_blank" rel="noopener noreferrer"
+                        className="w-full max-w-xs px-8 py-3 rounded-full text-sm font-bold tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2"
+                        style={{ background: 'rgba(139,115,50,0.1)', color: '#8B7332', border: '1px solid rgba(139,115,50,0.25)' }}>
+                        📍 CÓMO LLEGAR
+                    </a>
+                </div>
             </section>
 
             {/* ==========================================
@@ -380,6 +396,39 @@ export default function Patty50Page() {
                         </div>
                     ))}
                 </div>
+            </section>
+
+            {/* ==========================================
+                SECTION 3.5: MAP / LOCATION
+                ========================================== */}
+            <section className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.04)' }}>
+                <p className="text-center text-xs font-bold tracking-[0.15em] uppercase mb-3" style={{ color: '#8B7332' }}>📍 Ubicación</p>
+                <a href="https://www.google.com/maps?q=27.082254,-109.457556" target="_blank" rel="noopener noreferrer"
+                    className="block max-w-md mx-auto rounded-xl overflow-hidden" style={{ border: '1px solid rgba(139,115,50,0.15)' }}>
+                    <img
+                        src={`https://maps.googleapis.com/maps/api/staticmap?center=27.082254,-109.457556&zoom=16&size=600x200&scale=2&markers=color:0x8B7332%7C27.082254,-109.457556&style=feature:all%7Celement:geometry%7Ccolor:0xf5f0e8&style=feature:road%7Celement:geometry%7Ccolor:0xe0d8c8&style=feature:water%7Celement:geometry%7Ccolor:0xc5d5e0&key=`}
+                        alt="Ubicación del evento"
+                        className="w-full h-32 sm:h-40 object-cover"
+                        onError={(e) => {
+                            // Fallback if no API key: show OpenStreetMap embed
+                            (e.target as HTMLImageElement).style.display = 'none'
+                            const parent = (e.target as HTMLImageElement).parentElement
+                            if (parent) {
+                                const iframe = document.createElement('iframe')
+                                iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-109.461,-109.454,27.080,27.085&layer=mapnik&marker=27.082254,-109.457556'
+                                iframe.style.cssText = 'width:100%;height:160px;border:none;'
+                                parent.appendChild(iframe)
+                            }
+                        }}
+                    />
+                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'rgba(139,115,50,0.06)' }}>
+                        <div>
+                            <p className="text-xs font-bold" style={{ color: '#333' }}>Calle Corregidora</p>
+                            <p className="text-[0.6rem]" style={{ color: '#888' }}>Toca para abrir en Google Maps</p>
+                        </div>
+                        <span className="text-lg">🗺️</span>
+                    </div>
+                </a>
             </section>
 
             {/* ==========================================
