@@ -237,6 +237,22 @@ export default function CitizenEventPage() {
     const accent = config.accentColor || '#8B1A2B'
     const bgColor = config.backgroundColor || '#1a0f14'
     const textColor = config.textColor || '#FFFFFF'
+    const tcR = parseInt(textColor.slice(1, 3), 16) || 255
+    const tcG = parseInt(textColor.slice(3, 5), 16) || 255
+    const tcB = parseInt(textColor.slice(5, 7), 16) || 255
+    const themeCSS = `
+      .tpc .text-white{color:rgb(${tcR} ${tcG} ${tcB})!important}
+      .tpc .text-white\/80{color:rgba(${tcR},${tcG},${tcB},0.8)!important}
+      .tpc .text-white\/60{color:rgba(${tcR},${tcG},${tcB},0.6)!important}
+      .tpc .text-white\/50{color:rgba(${tcR},${tcG},${tcB},0.5)!important}
+      .tpc .text-white\/40{color:rgba(${tcR},${tcG},${tcB},0.4)!important}
+      .tpc .text-white\/30{color:rgba(${tcR},${tcG},${tcB},0.3)!important}
+      .tpc .text-white\/20{color:rgba(${tcR},${tcG},${tcB},0.2)!important}
+      .tpc .text-white\/15{color:rgba(${tcR},${tcG},${tcB},0.15)!important}
+      .tpc .placeholder-white\/20::placeholder{color:rgba(${tcR},${tcG},${tcB},0.2)!important}
+      .tpc .placeholder-white\/15::placeholder{color:rgba(${tcR},${tcG},${tcB},0.15)!important}
+      .tpc [data-btn]{color:#fff!important}
+    `
 
     /* ---- Download ---- */
     const downloadFile = async (item: MediaItem) => {
@@ -382,7 +398,8 @@ export default function CitizenEventPage() {
     }
 
     return (
-        <div className="min-h-screen" style={{ background: bgColor, color: textColor, fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
+        <div className="min-h-screen tpc" style={{ background: bgColor, color: textColor, fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
+            <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
 
             {/* ==========================================
                 SECTION 1: HERO
@@ -447,7 +464,7 @@ export default function CitizenEventPage() {
 
                 {/* Action Buttons */}
                 <div className="px-4 py-5 flex flex-col items-center gap-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                    <button onClick={() => setShowRSVP(true)}
+                    <button onClick={() => setShowRSVP(true)} data-btn
                         className="w-full max-w-xs px-8 py-4 rounded-xl text-sm font-bold tracking-wider text-white transition-all active:scale-95"
                         style={{ background: accent, boxShadow: `0 8px 25px ${accent}44` }}>
                         📋 YA ESTOY AQUÍ
@@ -694,7 +711,7 @@ export default function CitizenEventPage() {
                                 style={{ background: 'rgba(255,255,255,0.05)' }}>
                                 Cancelar
                             </button>
-                            <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || rsvpPhone.replace(/\D/g, '').length !== 10}
+                            <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || rsvpPhone.replace(/\D/g, '').length !== 10} data-btn
                                 className="flex-1 py-3 rounded-xl text-xs font-bold text-white disabled:opacity-30 transition-all"
                                 style={{ background: accent }}>
                                 {isSubmittingRSVP ? 'Registrando...' : '¡Registrarme! ✅'}
