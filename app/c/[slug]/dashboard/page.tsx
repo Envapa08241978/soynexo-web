@@ -40,6 +40,7 @@ interface PoliticianConfig {
     photo: string
     dashboardPassword: string
     accentColor: string
+    backgroundColor: string
     activeEventId?: string
 }
 
@@ -64,7 +65,7 @@ export default function DashboardPage() {
     const [events, setEvents] = useState<EventItem[]>([])
     const [config, setConfig] = useState<PoliticianConfig>({
         name: 'Lic. Juan Pérez', title: 'Candidato', party: '', phone: '6421600559',
-        photo: '', dashboardPassword: 'admin123', accentColor: '#8B1A2B',
+        photo: '', dashboardPassword: 'admin123', accentColor: '#8B1A2B', backgroundColor: '#1a0f14',
     })
 
     // --- Filters ---
@@ -258,13 +259,14 @@ export default function DashboardPage() {
     }
 
     const accent = config.accentColor || '#8B1A2B'
+    const bgColor = config.backgroundColor || '#1a0f14'
 
     /* ================================================================
        LOGIN SCREEN
        ================================================================ */
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#1a0f14' }}>
+            <div className="min-h-screen flex items-center justify-center px-4" style={{ background: bgColor }}>
                 <div className="w-full max-w-sm text-center">
                     <div className="text-4xl mb-4">🏛️</div>
                     <h1 className="text-xl font-bold text-white mb-1">Dashboard</h1>
@@ -294,7 +296,7 @@ export default function DashboardPage() {
        DASHBOARD
        ================================================================ */
     return (
-        <div className="min-h-screen" style={{ background: '#1a0f14' }}>
+        <div className="min-h-screen" style={{ background: bgColor }}>
             {/* Header */}
             <header className="px-4 py-4 flex items-center justify-between"
                 style={{ background: 'rgba(26,15,20,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
@@ -625,12 +627,13 @@ export default function DashboardPage() {
                                 { key: 'party', label: 'Partido/Movimiento', placeholder: 'Ej. Partido X' },
                                 { key: 'phone', label: 'WhatsApp (10 dígitos)', placeholder: '6421234567' },
                                 { key: 'photo', label: 'URL de foto de perfil', placeholder: 'https://...' },
-                                { key: 'accentColor', label: 'Color de acento (hex)', placeholder: '#8B1A2B' },
+                                { key: 'accentColor', label: 'Color de acento', placeholder: '#8B1A2B' },
+                                { key: 'backgroundColor', label: 'Color de fondo', placeholder: '#1a0f14' },
                                 { key: 'dashboardPassword', label: 'Contraseña del dashboard', placeholder: '...' },
                             ].map(field => (
                                 <div key={field.key}>
                                     <label className="text-[0.6rem] text-white/30 font-bold uppercase tracking-wider mb-0.5 block">{field.label}</label>
-                                    <input type={field.key === 'dashboardPassword' ? 'password' : field.key === 'accentColor' ? 'color' : 'text'}
+                                    <input type={field.key === 'dashboardPassword' ? 'password' : (field.key === 'accentColor' || field.key === 'backgroundColor') ? 'color' : 'text'}
                                         value={(configForm as any)[field.key] || ''}
                                         onChange={(e) => setConfigForm(prev => ({ ...prev, [field.key]: e.target.value }))}
                                         disabled={!isEditingConfig}

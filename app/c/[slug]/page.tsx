@@ -20,6 +20,7 @@ interface PoliticianConfig {
     photo: string
     dashboardPassword: string
     accentColor: string
+    backgroundColor: string
     activeEventId?: string
 }
 
@@ -63,6 +64,7 @@ const DEFAULT_CONFIG: PoliticianConfig = {
     photo: '',
     dashboardPassword: 'admin123',
     accentColor: '#8B1A2B',
+    backgroundColor: '#1a0f14',
 }
 
 const DEFAULT_EVENT: EventConfig = {
@@ -229,8 +231,9 @@ export default function CitizenEventPage() {
         return () => window.removeEventListener('keydown', handleKey)
     }, [selectedIndex, filteredMedia.length])
 
-    /* ---- Accent color shorthand ---- */
+    /* ---- Color shorthands ---- */
     const accent = config.accentColor || '#8B1A2B'
+    const bgColor = config.backgroundColor || '#1a0f14'
 
     /* ---- Download ---- */
     const downloadFile = async (item: MediaItem) => {
@@ -366,7 +369,7 @@ export default function CitizenEventPage() {
        ================================================================ */
     if (!configLoaded) {
         return (
-            <div className="min-h-screen flex items-center justify-center" style={{ background: '#1a0f14' }}>
+            <div className="min-h-screen flex items-center justify-center" style={{ background: bgColor }}>
                 <div className="text-center">
                     <div className="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-3" style={{ borderColor: accent, borderTopColor: 'transparent' }} />
                     <p className="text-white/50 text-sm">Cargando evento...</p>
@@ -376,7 +379,7 @@ export default function CitizenEventPage() {
     }
 
     return (
-        <div className="min-h-screen" style={{ background: '#1a0f14', fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
+        <div className="min-h-screen" style={{ background: bgColor, fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
 
             {/* ==========================================
                 SECTION 1: HERO
