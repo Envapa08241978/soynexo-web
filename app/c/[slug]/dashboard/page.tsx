@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { db, storage } from '@/lib/firebase'
 import Link from 'next/link'
 
 /* ================================================================
@@ -78,6 +79,9 @@ export default function DashboardPage() {
     })
     const [editingEventId, setEditingEventId] = useState<string | null>(null)
     const [isSaving, setIsSaving] = useState(false)
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // --- Config edit ---
     const [isEditingConfig, setIsEditingConfig] = useState(false)
@@ -174,6 +178,43 @@ export default function DashboardPage() {
             setEditingEventId(null)
         } catch (err) { console.error('Save event error:', err) }
         finally { setIsSaving(false) }
+    }
+
+    /* ---- Upload event image ---- */
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) { alert('Solo se permiten imágenes'); return }
+        if (file.size > 5 * 1024 * 1024) { alert('La imagen no debe exceder 5MB'); return }
+
+        setIsUploadingImage(true)
+        setUploadProgress(0)
+
+        try {
+            const fileName = `${Date.now()}_${file.name}`
+            const storageRef = ref(storage, `events/${slug}/${fileName}`)
+            const uploadTask = uploadBytesResumable(storageRef, file)
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+                    setUploadProgress(progress)
+                },
+                (error) => {
+                    console.error('Upload error:', error)
+                    setIsUploadingImage(false)
+                },
+                async () => {
+                    const url = await getDownloadURL(uploadTask.snapshot.ref)
+                    setEventForm(prev => ({ ...prev, image: url }))
+                    setIsUploadingImage(false)
+                }
+            )
+        } catch (err) {
+            console.error('Upload error:', err)
+            setIsUploadingImage(false)
+        }
     }
 
     const setActiveEvent = async (eventId: string) => {
@@ -495,7 +536,6 @@ export default function DashboardPage() {
                                         { key: 'time', label: 'Hora (texto)', placeholder: 'Ej. 6:00 PM', type: 'text' },
                                         { key: 'location', label: 'Ubicación', placeholder: 'Ej. Plaza Principal, Navojoa', type: 'text' },
                                         { key: 'coords', label: 'Coordenadas Google Maps', placeholder: 'Ej. 27.082254,-109.457556', type: 'text' },
-                                        { key: 'image', label: 'URL de imagen del evento', placeholder: 'https://...', type: 'text' },
                                         { key: 'description', label: 'Descripción', placeholder: 'Breve descripción del evento', type: 'text' },
                                     ].map(field => (
                                         <div key={field.key}>
@@ -507,6 +547,48 @@ export default function DashboardPage() {
                                                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
                                         </div>
                                     ))}
+
+                                    {/* Image Upload */}
+                                    <div>
+                                        <label className="text-[0.6rem] text-white/30 font-bold uppercase tracking-wider mb-1.5 block">Imagen del evento</label>
+
+                                        {/* Preview */}
+                                        {eventForm.image && (
+                                            <div className="relative mb-2 rounded-lg overflow-hidden">
+                                                <img src={eventForm.image} alt="Preview" className="w-full h-32 object-cover" />
+                                                <button onClick={() => setEventForm(prev => ({ ...prev, image: '' }))}
+                                                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white"
+                                                    style={{ background: 'rgba(0,0,0,0.7)' }}>
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Upload button */}
+                                        {!eventForm.image && (
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={isUploadingImage}
+                                                className="w-full py-6 rounded-lg text-sm text-white/30 flex flex-col items-center gap-1.5 transition-all hover:text-white/50 disabled:opacity-50"
+                                                style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)' }}>
+                                                {isUploadingImage ? (
+                                                    <>
+                                                        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: accent, borderTopColor: 'transparent' }} />
+                                                        <span className="text-xs">Subiendo... {uploadProgress}%</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="text-2xl">🖼️</span>
+                                                        <span>Subir imagen</span>
+                                                        <span className="text-[0.6rem] text-white/15">JPG, PNG • Máx 5MB</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+
+                                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
+                                            onChange={handleImageUpload} />
+                                    </div>
                                 </div>
                                 <div className="flex gap-2 mt-5">
                                     <button onClick={() => setShowEventForm(false)}
