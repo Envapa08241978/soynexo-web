@@ -64,7 +64,7 @@ export default function DashboardPage() {
     const [events, setEvents] = useState<EventItem[]>([])
     const [config, setConfig] = useState<PoliticianConfig>({
         name: 'Lic. Juan Pérez', title: 'Candidato', party: '', phone: '6421600559',
-        photo: '', dashboardPassword: 'admin123', accentColor: '#1a56db',
+        photo: '', dashboardPassword: 'admin123', accentColor: '#8B1A2B',
     })
 
     // --- Filters ---
@@ -257,7 +257,7 @@ export default function DashboardPage() {
         catch (err) { console.error('Delete contact error:', err) }
     }
 
-    const accent = config.accentColor || '#1a56db'
+    const accent = config.accentColor || '#8B1A2B'
 
     /* ================================================================
        LOGIN SCREEN
@@ -625,7 +625,7 @@ export default function DashboardPage() {
                                 { key: 'party', label: 'Partido/Movimiento', placeholder: 'Ej. Partido X' },
                                 { key: 'phone', label: 'WhatsApp (10 dígitos)', placeholder: '6421234567' },
                                 { key: 'photo', label: 'URL de foto de perfil', placeholder: 'https://...' },
-                                { key: 'accentColor', label: 'Color de acento (hex)', placeholder: '#1a56db' },
+                                { key: 'accentColor', label: 'Color de acento (hex)', placeholder: '#8B1A2B' },
                                 { key: 'dashboardPassword', label: 'Contraseña del dashboard', placeholder: '...' },
                             ].map(field => (
                                 <div key={field.key}>

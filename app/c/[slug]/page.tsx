@@ -62,7 +62,7 @@ const DEFAULT_CONFIG: PoliticianConfig = {
     phone: '6421600559',
     photo: '',
     dashboardPassword: 'admin123',
-    accentColor: '#1a56db',
+    accentColor: '#8B1A2B',
 }
 
 const DEFAULT_EVENT: EventConfig = {
@@ -230,7 +230,7 @@ export default function CitizenEventPage() {
     }, [selectedIndex, filteredMedia.length])
 
     /* ---- Accent color shorthand ---- */
-    const accent = config.accentColor || '#1a56db'
+    const accent = config.accentColor || '#8B1A2B'
 
     /* ---- Download ---- */
     const downloadFile = async (item: MediaItem) => {
