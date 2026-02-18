@@ -264,7 +264,7 @@ export default function DashboardPage() {
        ================================================================ */
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#0f1117' }}>
+            <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#1a0f14' }}>
                 <div className="w-full max-w-sm text-center">
                     <div className="text-4xl mb-4">🏛️</div>
                     <h1 className="text-xl font-bold text-white mb-1">Dashboard</h1>
@@ -294,10 +294,10 @@ export default function DashboardPage() {
        DASHBOARD
        ================================================================ */
     return (
-        <div className="min-h-screen" style={{ background: '#0f1117' }}>
+        <div className="min-h-screen" style={{ background: '#1a0f14' }}>
             {/* Header */}
             <header className="px-4 py-4 flex items-center justify-between"
-                style={{ background: 'rgba(15,17,23,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
+                style={{ background: 'rgba(26,15,20,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)' }}>
                 <div>
                     <h1 className="text-white font-bold text-lg">📊 Dashboard</h1>
                     <p className="text-white/30 text-xs">{config.name}</p>
@@ -530,7 +530,7 @@ export default function DashboardPage() {
                     {showEventForm && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)' }}
                             onClick={() => setShowEventForm(false)}>
-                            <div className="rounded-2xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto" style={{ background: '#1e1f2e', border: '1px solid rgba(255,255,255,0.1)' }}
+                            <div className="rounded-2xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto" style={{ background: '#2a1520', border: '1px solid rgba(255,255,255,0.1)' }}
                                 onClick={(e) => e.stopPropagation()}>
                                 <h3 className="text-lg font-bold text-white mb-4">
                                     {editingEventId ? '✏️ Editar Evento' : '➕ Nuevo Evento'}

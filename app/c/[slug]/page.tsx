@@ -366,7 +366,7 @@ export default function CitizenEventPage() {
        ================================================================ */
     if (!configLoaded) {
         return (
-            <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f1117' }}>
+            <div className="min-h-screen flex items-center justify-center" style={{ background: '#1a0f14' }}>
                 <div className="text-center">
                     <div className="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-3" style={{ borderColor: accent, borderTopColor: 'transparent' }} />
                     <p className="text-white/50 text-sm">Cargando evento...</p>
@@ -376,7 +376,7 @@ export default function CitizenEventPage() {
     }
 
     return (
-        <div className="min-h-screen" style={{ background: '#0f1117', fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
+        <div className="min-h-screen" style={{ background: '#1a0f14', fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
 
             {/* ==========================================
                 SECTION 1: HERO
@@ -595,7 +595,7 @@ export default function CitizenEventPage() {
 
                 {showUploadOptions && (
                     <div className="absolute bottom-16 right-0 rounded-xl p-2 mb-1 flex flex-col gap-0.5 min-w-[160px] shadow-xl"
-                        style={{ background: '#1e1f2e', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        style={{ background: '#2a1520', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <button onClick={() => { fileInputRef.current?.click(); setShowUploadOptions(false) }}
                             className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5">📸 Foto</button>
                         <button onClick={() => { videoInputRef.current?.click(); setShowUploadOptions(false) }}
@@ -653,7 +653,7 @@ export default function CitizenEventPage() {
             {showRSVP && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)' }}
                     onClick={() => setShowRSVP(false)}>
-                    <div className="rounded-2xl p-5 w-full max-w-sm" style={{ background: '#1e1f2e', border: '1px solid rgba(255,255,255,0.1)' }}
+                    <div className="rounded-2xl p-5 w-full max-w-sm" style={{ background: '#2a1520', border: '1px solid rgba(255,255,255,0.1)' }}
                         onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-lg font-bold text-white mb-0.5">📋 Registro de Asistencia</h3>
                         <p className="text-xs text-white/40 mb-5">Registra tu presencia en el evento</p>
@@ -760,7 +760,7 @@ export default function CitizenEventPage() {
             {showDeleteModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}
                     onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}>
-                    <div className="rounded-2xl p-5 w-full max-w-xs" style={{ background: '#1e1f2e' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="rounded-2xl p-5 w-full max-w-xs" style={{ background: '#2a1520' }} onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-lg font-bold text-white mb-1">🗑️ Eliminar</h3>
                         <p className="text-xs text-white/40 mb-3">Ingresa la contraseña</p>
                         <input type="password" value={deletePassword}
@@ -788,7 +788,7 @@ export default function CitizenEventPage() {
             {showQR && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)' }}
                     onClick={() => setShowQR(false)}>
-                    <div className="rounded-2xl p-6 w-full max-w-xs text-center relative" style={{ background: '#1e1f2e', border: '1px solid rgba(255,255,255,0.1)' }}
+                    <div className="rounded-2xl p-6 w-full max-w-xs text-center relative" style={{ background: '#2a1520', border: '1px solid rgba(255,255,255,0.1)' }}
                         onClick={(e) => e.stopPropagation()}>
                         <button onClick={() => setShowQR(false)}
                             className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-white/40"
@@ -796,7 +796,7 @@ export default function CitizenEventPage() {
                         <h2 className="text-lg font-bold text-white mb-1">📸 ¡Comparte!</h2>
                         <p className="text-xs text-white/40 mb-4">Escanea para subir fotos del evento</p>
                         <div className="bg-white p-4 rounded-xl inline-block mb-4">
-                            <QRCodeSVG value={uploadUrl} size={180} level="H" fgColor="#1e1f2e" />
+                            <QRCodeSVG value={uploadUrl} size={180} level="H" fgColor="#2a1520" />
                         </div>
                         <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
                             <p className="font-mono text-xs break-all text-white/60">{uploadUrl}</p>
