@@ -399,39 +399,6 @@ export default function Patty50Page() {
             </section>
 
             {/* ==========================================
-                SECTION 3.5: MAP / LOCATION
-                ========================================== */}
-            <section className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.04)' }}>
-                <p className="text-center text-xs font-bold tracking-[0.15em] uppercase mb-3" style={{ color: '#8B7332' }}>📍 Ubicación</p>
-                <a href="https://www.google.com/maps?q=27.082254,-109.457556" target="_blank" rel="noopener noreferrer"
-                    className="block max-w-md mx-auto rounded-xl overflow-hidden" style={{ border: '1px solid rgba(139,115,50,0.15)' }}>
-                    <img
-                        src={`https://maps.googleapis.com/maps/api/staticmap?center=27.082254,-109.457556&zoom=16&size=600x200&scale=2&markers=color:0x8B7332%7C27.082254,-109.457556&style=feature:all%7Celement:geometry%7Ccolor:0xf5f0e8&style=feature:road%7Celement:geometry%7Ccolor:0xe0d8c8&style=feature:water%7Celement:geometry%7Ccolor:0xc5d5e0&key=`}
-                        alt="Ubicación del evento"
-                        className="w-full h-32 sm:h-40 object-cover"
-                        onError={(e) => {
-                            // Fallback if no API key: show OpenStreetMap embed
-                            (e.target as HTMLImageElement).style.display = 'none'
-                            const parent = (e.target as HTMLImageElement).parentElement
-                            if (parent) {
-                                const iframe = document.createElement('iframe')
-                                iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-109.461,-109.454,27.080,27.085&layer=mapnik&marker=27.082254,-109.457556'
-                                iframe.style.cssText = 'width:100%;height:160px;border:none;'
-                                parent.appendChild(iframe)
-                            }
-                        }}
-                    />
-                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'rgba(139,115,50,0.06)' }}>
-                        <div>
-                            <p className="text-xs font-bold" style={{ color: '#333' }}>Calle Corregidora</p>
-                            <p className="text-[0.6rem]" style={{ color: '#888' }}>Toca para abrir en Google Maps</p>
-                        </div>
-                        <span className="text-lg">🗺️</span>
-                    </div>
-                </a>
-            </section>
-
-            {/* ==========================================
                 SECTION 4: ALBUM HEADER
                 ========================================== */}
             <section className="sticky top-0 z-40 border-b px-4 py-3"
