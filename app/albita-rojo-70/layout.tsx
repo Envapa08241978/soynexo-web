@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         siteName: 'Soy Nexo',
     },
     twitter: {
-        card: 'summary_large_image',
+        card: 'summary',
         title: '🎂 Mis Setenta — Albita Rojo',
         description: 'Viernes 20 de Febrero · 18 Hrs · ¡Comparte tus fotos!',
         images: ['/invitacion albita rojo mis 70.jpeg'],
