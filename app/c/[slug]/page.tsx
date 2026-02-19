@@ -365,7 +365,8 @@ export default function CitizenEventPage() {
             // Open WhatsApp with pre-filled message
             const politicianPhone = config.phone.replace(/\D/g, '')
             const msg = encodeURIComponent(`¡Ya estoy aquí! 🎉\n📋 ${confirmedName}\n🏛️ ${event.name}`)
-            window.open(`https://wa.me/52${politicianPhone}?text=${msg}`, '_blank')
+            // Use location.href instead of window.open to avoid iOS popup blockers after async operations
+            window.location.href = `https://wa.me/52${politicianPhone}?text=${msg}`
         } catch (err) {
             console.error('RSVP error:', err)
             setUploadError('Error al registrar. Intenta de nuevo.')
