@@ -228,17 +228,18 @@ export default function AlbitaRojo70Page() {
                     </Link>
                 </div>
 
-                {/* Original invitation image — cropped to show only "Mis setenta / Albita / Rojo / Febrero Viernes 20 18 HRS" */}
-                <div className="relative w-full max-w-md mx-auto overflow-hidden" style={{ maxHeight: '70vh' }}>
+                {/* Original invitation image — show everything up to the date, fade out venue/phone info at bottom */}
+                <div className="relative w-full max-w-md mx-auto overflow-hidden">
                     <img
                         src="/invitacion albita rojo mis 70.jpeg"
                         alt="Mis setenta — Albita Rojo — Viernes 20 de Febrero, 18 Hrs"
                         className="w-full"
-                        style={{ display: 'block', objectFit: 'cover', objectPosition: 'top' }}
+                        style={{ display: 'block' }}
                     />
-                    {/* Gradient fade to hide bottom content (salon, address, phones) */}
-                    <div className="absolute bottom-0 left-0 right-0 h-40" style={{
-                        background: 'linear-gradient(to top, #F5F0EA 30%, transparent 100%)'
+                    {/* Small gradient to fade out only the last part (salon, address, phones) */}
+                    <div className="absolute bottom-0 left-0 right-0" style={{
+                        height: '28%',
+                        background: 'linear-gradient(to top, #F5F0EA 20%, rgba(245,240,234,0.85) 50%, transparent 100%)'
                     }} />
                 </div>
             </section>
