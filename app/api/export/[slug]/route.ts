@@ -32,15 +32,25 @@ export async function GET(
 
         if (format === 'google') {
             // Google Contacts CSV format
-            const header = 'Name,Phone 1 - Value,Phone 1 - Type,Organization 1 - Name,Notes'
+            // Google Contacts CSV format
+            // Key behavior: 'Group Membership' -> '* myContacts' ensures they appear in main list on mobile
+            const header = 'Name,Phone 1 - Value,Phone 1 - Type,Organization 1 - Name,Notes,Group Membership'
             const rows = contacts.map(c => {
-                const phone = c.phone?.startsWith('+') ? c.phone : `+52${c.phone}`
+                if (!c.phone) return ''
+                const cleanPhone = c.phone.replace(/\D/g, '')
+                const phone = cleanPhone.length === 10 ? `+52${cleanPhone}` : c.phone
+
                 const notes = [
                     c.eventName ? `Evento: ${c.eventName}` : '',
                     c.colonia ? `Colonia: ${c.colonia}` : '',
                 ].filter(Boolean).join(' | ')
-                return `"${c.name || ''}","${phone}","Mobile","${c.eventName || ''}","${notes}"`
-            })
+
+                // Escape quotes in name/notes if necessary (simple approach)
+                const safeName = (c.name || '').replace(/"/g, '""')
+                const safeEvent = (c.eventName || '').replace(/"/g, '""')
+
+                return `"${safeName}","${phone}","Mobile","${safeEvent}","${notes}","* myContacts"`
+            }).filter(Boolean)
             const csv = [header, ...rows].join('\r\n')
 
             return new NextResponse(csv, {
