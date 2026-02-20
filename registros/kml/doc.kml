@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>casssilllas.kmz</name>
+	<Style id="failed">
+	</Style>
+	<Style id="failed0">
+	</Style>
+	<StyleMap id="failed1">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#failed7</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="failed2">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed5</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#failed6</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="failed3">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed0</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#failed4</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="failed4">
+	</Style>
+	<Style id="failed5">
+	</Style>
+	<Style id="failed6">
+	</Style>
+	<Style id="failed7">
+	</Style>
+	<StyleMap id="mfailed">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin0</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="mfailed0">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed0</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin1</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="mfailed1">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#failed5</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.2</scale>
+		</IconStyle>
+	</Style>
+	<Style id="sh_ylw-pushpin0">
+		<IconStyle>
+			<scale>1.2</scale>
+		</IconStyle>
+	</Style>
+	<Style id="sh_ylw-pushpin1">
+		<IconStyle>
+			<scale>1.2</scale>
+		</IconStyle>
+	</Style>
+	<Folder>
+		<name>casssilllas</name>
+		<open>1</open>
+		<Placemark>
+			<name>1230</name>
+			<description>AVENIDA GENERAL ROMÁN YOCUPICIO, SIN NÚMERO, COLONIA TETANCHOPO, 85827, NAVOJOA, SONORA</description>
+			<styleUrl>#failed1</styleUrl>
+			<Point>
+				<coordinates>-109.4711944444444,27.07975,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1231</name>
+			<description>MARIANO ESCOBEDO, SIN NÚMERO, COLONIA CONSTITUCIÓN, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed</styleUrl>
+			<Point>
+				<coordinates>-109.4593333333333,27.07705555555555,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1232</name>
+			<description>CUAUHTÉMOC, NÚMERO 101, COLONIA CONSTITUCIÓN, 85830, NAVOJOA, SONORA</description>
+			<styleUrl>#failed2</styleUrl>
+			<Point>
+				<coordinates>-109.4538333333333,27.08066666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1233 y 1233S</name>
+			<description>BOULEVARD ÁLVARO OBREGÓN, SIN NÚMERO, COLONIA REFORMA, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4485,27.08136111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1234</name>
+			<description>BOULEVARD NO REELECCIÓN, SIN NÚMERO, COLONIA REFORMA, 85233, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4461666666667,27.08133333333334,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1235</name>
+			<description>FRANCISCO I. MADERO, SIN NÚMERO, COLONIA HIDALGO, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.43525,27.08897222222222,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1236</name>
+			<description>AVENIDA SOBARZO, NÚMERO 131, COLONIA ROSALES, 85850, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4334722222222,27.087,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1237</name>
+			<description>AVENIDA PALMA, SIN NÚMERO, COLONIA MIRAVALLE, 85850, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4255833333333,27.09072222222222,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1238</name>
+			<description>21 DE MARZO, SIN NÚMERO, COLONIA ALLENDE, 85850, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4232222222222,27.08816666666666,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1239</name>
+			<description>MEZQUITE, NÚMERO 802, COLONIA MOCÚZARIT, 85850, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4268055555556,27.085,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1240</name>
+			<description>CRUZ GÁLVEZ, NÚMERO 94, COLONIA ROSALES, 85850, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4355833333333,27.08566666666666,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1241</name>
+			<description>CENTRAL, NÚMERO 414, COLONIA NOGALITOS, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4375277777778,27.08436111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1242</name>
+			<description>INDEPENDENCIA, NÚMERO 7, COLONIA MODERNA, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4388055555556,27.08413888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1243</name>
+			<description>LOURDES, SIN NÚMERO, FRACCIONAMIENTO VILLA LOURDES, 85825, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4799166666667,27.07505555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1244</name>
+			<description>CLUB ACTIVO 20 30, SIN NÚMERO, COLONIA TIERRA BLANCA, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4691666666667,27.07036111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1245</name>
+			<description>IGNACIO LÓPEZ RAYÓN, NÚMERO 110, COLONIA CONSTITUCIÓN, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4623055555556,27.07502777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1246</name>
+			<description>NICOLÁS BRAVO, SIN NÚMERO, COLONIA CONSTITUCIÓN, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4557222222222,27.0735,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1247</name>
+			<description>AVENIDA MANUEL DOBLADO, SIN NÚMERO, COLONIA JUÁREZ, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4469444444444,27.07336111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1248</name>
+			<description>AVENIDA VICENTE GUERRERO, SIN NÚMERO, COLONIA REFORMA, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4468611111111,27.07880555555555,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1249</name>
+			<description>SAHUARIPA, SIN NÚMERO, COLONIA NOGALITOS, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4346388888889,27.08208333333334,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1250</name>
+			<description>BOULEVARD JULIO MARTÍNEZ BRACAMONTES, SIN NÚMERO, COLONIA AVIACIÓN, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4364166666667,27.07438888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1251</name>
+			<description>LÁZARO CÁRDENAS, NÚMERO 702, COLONIA FRANCISCO VILLA, 85880, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4320555555556,27.07411111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1252</name>
+			<description>AVENIDA VÍCAM, NÚMERO 200, COLONIA SOP, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4266944444445,27.06966666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1253</name>
+			<description>HERMOSILLO, SIN NÚMERO, COLONIA SONORA, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4336666666667,27.06886111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1254</name>
+			<description>BOULEVARD NO REELECCIÓN, SIN NÚMERO, COLONIA JUÁREZ, 85870, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4453333333334,27.07013888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1255</name>
+			<description>RODOLFO CAMPODÓNICO, SIN NÚMERO, COLONIA JUÁREZ, 85870, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4492777777778,27.06633333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1256</name>
+			<description>PEDRO MORENO, NÚMERO 301, COLONIA DEPORTIVA, 85860, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4565555555556,27.06486111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1257</name>
+			<description>CLUB DE LEONES, SIN NÚMERO, COLONIA TIERRA BLANCA, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.46325,27.06883333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1258</name>
+			<description>LEONA VICARIO, NÚMERO 613 B, COLONIA TIERRA BLANCA, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4683888888889,27.06691666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1259</name>
+			<description>CORREDOR PERIFÉRICO, SIN NÚMERO, COLONIA AMPLIACIÓN BELTRONES, 85860, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4672222222222,27.05122222222222,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1260</name>
+			<description>AVENIDA TLAXCALA, SIN NÚMERO, COLONIA ITSON, 85860, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4572777777778,27.05480555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1261</name>
+			<description>ANTONIO RINCÓN, NÚMERO 2001, COLONIA JUÁREZ, 85870, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4478055555556,27.06302777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1262</name>
+			<description>NO REELECCIÓN, SIN NÚMERO, COLONIA JUÁREZ, 85870, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4428611111111,27.05861111111112,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1263</name>
+			<description>AVENIDA TECORIPA, NÚMERO 17, COLONIA SONORA, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4326944444445,27.06586111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1264</name>
+			<description>GUAYMAS, NÚMERO 602, COLONIA SOP, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.427,27.06808333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1265</name>
+			<description>BACUSA, SIN NÚMERO, COLONIA SONORA PROGRESISTA, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4234166666667,27.06208333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1266</name>
+			<description>AVENIDA ARIVECHI, SIN NÚMERO, COLONIA SONORA, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.43725,27.05811111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1267</name>
+			<description>CALLEJÓN QUINTO, SIN NÚMERO, COLONIA TEPEYAC, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4263333333333,27.05377777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1268</name>
+			<description>OCUCA, NÚMERO 4, FRACCIONAMIENTO INFONAVIT SONORA, 85890, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4215833333333,27.05913888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1269</name>
+			<description>JAZMÍN, SIN NÚMERO, FRACCIONAMIENTO FOVISSSTE SON, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4660277777778,27.04208333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1270</name>
+			<description>CHIHUAHUA, SIN NÚMERO, LOCALIDAD FUNDICIÓN, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.7379444444445,27.33013888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1271</name>
+			<description>MANUEL RAMOS, SIN NÚMERO, LOCALIDAD EJIDO SAN JOSÉ GUAYPARÍN, 85233, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.7211944444444,27.36233333333334,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1272</name>
+			<description>LICENCIADO VILLANUEVA, NÚMERO 144, LOCALIDAD AGIABAMPO, 85233, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.5415,27.19691666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1273</name>
+			<description>LOCALIDAD TETAPECHE, 85235, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3619166666667,27.20475,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1274</name>
+			<description>LOCALIDAD CAMOA, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.2596666666667,27.22469444444444,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1275</name>
+			<description>LOCALIDAD SANTA MARÍA DEL BUÁRAJE, 85900, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.80125,27.30030555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1276</name>
+			<description>LOCALIDAD EJIDO JOAQUÍN AMARO, 85900, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.7618888888889,27.25841666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1277</name>
+			<description>LOCALIDAD BAHUISES, 85230, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4694166666667,27.11522222222222,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1278</name>
+			<description>COMURIPA, SIN NÚMERO, LOCALIDAD PUEBLO MAYO, 85236, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.5577222222222,27.20427777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1279</name>
+			<description>LOCALIDAD LOMA DEL REFUGIO, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4595,27.12388888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1280</name>
+			<description>LOCALIDAD TIERRA BLANCA TESIA, 85235, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3426111111111,27.18752777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1281</name>
+			<description>LOCALIDAD BARRIO CANTÚA, 85237, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.2363333333333,27.21861111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1282</name>
+			<description>LOCALIDAD TESIA, 85238, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3699166666666,27.165,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1283</name>
+			<description>LOCALIDAD EL MEZQUITAL DE TESIA, 85293, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3954444444445,27.14619444444444,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1284</name>
+			<description>LOCALIDAD ROSALES, 85239, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4376111111111,27.13258333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1285</name>
+			<description>CALLE SIN NOMBRE, SIN NÚMERO, LOCALIDAD RANCHO CAMARGO, 85228, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.5276111111111,27.09875,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1286</name>
+			<description>CALLE PRINCIPAL, SIN NÚMERO, LOCALIDAD EL SIVIRAL, 85229, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.5025277777778,27.10055555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1287</name>
+			<description>LOCALIDAD GUAYMITAS, 85230, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4383611111111,27.11047222222222,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1288</name>
+			<description>HUSIBAMPO, SIN NÚMERO, LOCALIDAD PUEBLO NUEVO, 85810, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4226388888889,27.09430555555555,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1289</name>
+			<description>IGNACIO ALDAMA, SIN NÚMERO, LOCALIDAD PUEBLO VIEJO, 85220, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4396111111111,27.10163888888889,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1290</name>
+			<description>IGNACIO ZARAGOZA, SIN NÚMERO, SAN IGNACIO COHUIRIMPO, 85225, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4952777777778,27.07327777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1291</name>
+			<description>EMILIANO ZAPATA, SIN NÚMERO, SAN IGNACIO COHUIRIMPO, 85225, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4858611111111,27.06958333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1292</name>
+			<description>LOCALIDAD EL RECODO, 85226, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.5278055555556,27.07725,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1293</name>
+			<description>LOCALIDAD SAPOMORA, 85225, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4986666666667,27.04844444444445,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1294</name>
+			<description>LOCALIDAD EL SANEAL, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3906666666667,26.91272222222223,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1295</name>
+			<description>CALLE MIGUEL HIDALGO, SIN NÚMERO, LOCALIDAD CHIRAJOBAMPO, 85224, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4001388888889,26.89455555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1296</name>
+			<description>LOCALIDAD BACABACHI, 85223, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.3936388888889,26.89852777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1297</name>
+			<description>MIGUEL HIDALGO, SIN NÚMERO, LOCALIDAD LOS BUAYUMS, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4333611111111,26.86277777777778,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1298</name>
+			<description>LOCALIDAD TEACHIVE, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.2311666666667,26.78133333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1299</name>
+			<description>AVENIDA PRINCIPAL, SIN NÚMERO, EJIDO SAN JOSÉ MASIACA, 85220, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.2463055555555,26.74525,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1300</name>
+			<description>AVENIDA INSURGENTES, NÚMERO 77, MASIACA, 85220, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.2317222222222,26.76608333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1301</name>
+			<description>ÁLVARO OBREGÓN, SIN NÚMERO, EJIDO GUADALUPE VICTORIA, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.1148055555555,26.55330555555556,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1302</name>
+			<description>JACARANDA, NÚMERO 201, COLONIA AVIACIÓN, 85840, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4329722222222,27.07725,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1304</name>
+			<description>JOSEFA ORTIZ DE DOMÍNGUEZ, SIN NÚMERO, COLONIA CONSTITUCIÓN, 85820, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4531111111111,27.06933333333333,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1305</name>
+			<description>GARCÍA MORALES, NÚMERO 509, COLONIA REFORMA, 85830, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4482222222222,27.08588888888888,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1625</name>
+			<description>HANGAR, SIN NÚMERO, FRACCIONAMIENTO AEROPUERTO, 85874, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4079444444445,27.08025,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1626</name>
+			<description>AQUILES SERDÁN, SIN NÚMERO, COLONIA TIERRA Y LIBERTAD, 85880, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4195555555556,27.07888888888888,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1627</name>
+			<description>CUARTA, SIN NÚMERO, COLONIA TIERRA Y LIBERTAD, 85880, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.4149722222222,27.07869444444444,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1286E</name>
+			<description>LOCALIDAD LOS NACHUQUIS, 85229, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed0</styleUrl>
+			<Point>
+				<coordinates>-109.5433611111111,27.08116666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1292E</name>
+			<description>LOCALIDAD CHINOTAHUECA, 85226, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed0</styleUrl>
+			<Point>
+				<coordinates>-109.5321388888889,27.02461111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1293E</name>
+			<description>AVENIDA JUAN HERNÁNDEZ, SIN NÚMERO, LOCALIDAD EJIDO 5 DE JUNIO, 85800, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed0</styleUrl>
+			<Point>
+				<coordinates>-109.5455555555556,26.98530555555555,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1294E</name>
+			<description>LOCALIDAD EJIDO BATAYAQUI, 85227, NAVOJOA, SONORA</description>
+			<styleUrl>#failed3</styleUrl>
+			<Point>
+				<coordinates>-109.2765555555556,26.97336111111111,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>1298E</name>
+			<description>LOCALIDAD SAN ANTONIO DE LOS IBARRA, 85220, NAVOJOA, SONORA</description>
+			<styleUrl>#mfailed1</styleUrl>
+			<Point>
+				<coordinates>-109.1496388888889,26.86583333333333,0</coordinates>
+			</Point>
+		</Placemark>
+	</Folder>
+</Document>
+</kml>

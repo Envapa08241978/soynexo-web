@@ -1,0 +1,15 @@
+<svg width="1080" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="night" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f2027;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#203a43;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c5364;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#night)" />
+  <circle cx="540" cy="400" r="120" fill="rgba(255,215,0,0.1)" stroke="gold" stroke-width="5" />
+  <text x="540" y="420" font-family="Arial, sans-serif" font-size="150" fill="white" text-anchor="middle">🍷</text>
+  <text x="540" y="600" font-family="Georgia, serif" font-size="90" font-weight="bold" fill="#FFD700" text-anchor="middle">Cena de Gala</text>
+  <text x="540" y="700" font-family="Arial, sans-serif" font-size="50" fill="white" text-anchor="middle" opacity="0.9">Noche de Estrellas</text>
+  <text x="540" y="850" font-family="Arial, sans-serif" font-size="40" fill="white" text-anchor="middle" opacity="0.7">20:00 HRS - Salón Imperial</text>
+</svg>
