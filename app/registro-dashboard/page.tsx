@@ -5,7 +5,7 @@ import { db, storage } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import Link from 'next/link'
-import { GoogleMap, useLoadScript, Polygon } from '@react-google-maps/api'
+import { GoogleMap, useLoadScript, Polygon, Marker, Circle } from '@react-google-maps/api'
 
 /* ================================================================
    TYPES
@@ -517,21 +517,23 @@ export default function RegistroDashboard() {
                                             mapTypeControl: false,
                                         }}
                                     >
-                                        {/* Render Polygons */}
+                                        {/* Render Circles since KML only has Points instead of Polygons */}
                                         {mapData.targets?.map((t: any, idx: number) => {
                                             const isSelected = selectedSector && selectedSector['Sector Comunitario'] === t['Sector Comunitario']
                                             const hasCoords = t.geometry && t.geometry.length > 0
 
                                             if (!hasCoords) return null
+                                            const center = { lat: t.geometry[0].lat, lng: t.geometry[0].lng }
 
-                                            // Determine polygon color based on some criteria (e.g. isSelected)
+                                            // Determine colors
                                             const fillColor = isSelected ? accent : '#3b82f6'
                                             const fillOpacity = isSelected ? 0.6 : 0.2
 
                                             return (
-                                                <Polygon
+                                                <Circle
                                                     key={idx}
-                                                    paths={t.geometry.map((c: any) => ({ lat: c.lat, lng: c.lng }))}
+                                                    center={center}
+                                                    radius={700} // Simulate 700 meters reach
                                                     options={{
                                                         fillColor,
                                                         fillOpacity,
