@@ -5,6 +5,7 @@ import { db, storage } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import Link from 'next/link'
+import { GoogleMap, useLoadScript, Polygon } from '@react-google-maps/api'
 
 /* ================================================================
    TYPES
@@ -62,6 +63,12 @@ export default function RegistroDashboard() {
     // --- Map Data ---
     const [mapData, setMapData] = useState<any>(null)
     const [selectedSector, setSelectedSector] = useState<any>(null)
+
+    const { isLoaded: isMapLoaded } = useLoadScript({
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    })
+
+    const NAVOJOA_CENTER = { lat: 27.0728, lng: -109.4437 } // Central Navojoa
 
     // --- Filters ---
     const [searchQuery, setSearchQuery] = useState('')
@@ -495,26 +502,53 @@ export default function RegistroDashboard() {
                     {/* TAB: MAP */}
                     {activeTab === 'map' && (
                         <div className="flex flex-col md:flex-row min-h-[600px]">
-                            {/* Map Simulation */}
-                            <div className="flex-1 relative bg-gray-100 flex items-center justify-center min-h-[400px]">
-                                {mapData ? (
-                                    <div className="absolute inset-0 z-0">
-                                        <iframe width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                                            src={`https://www.google.com/maps/embed/v1/place?q=Navojoa,Sonora&key=YOUR_API_KEY_HERE`} allowFullScreen>
-                                        </iframe>
-                                        <div className="absolute inset-0 bg-white/80 z-10 flex flex-col items-center justify-center backdrop-blur-sm p-8 text-center rounded-bl-3xl">
-                                            <span className="text-5xl mb-4 drop-shadow-md">🛰️</span>
-                                            <h3 className="font-black text-2xl text-gray-800 tracking-tight">Motor Geoespacial Habilitado</h3>
-                                            <p className="text-gray-600 max-w-sm mt-3 leading-relaxed">Los datos territoriales (KML) y las metas demográficas del archivo Excel han sido pre-cargadas en el cerebro del sistema.</p>
-                                            <div className="mt-6 px-4 py-2 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-lg border border-yellow-200 inline-block shadow-sm">
-                                                Fase 3: Se habilitará visualmente al ingresar Google Maps API Key.
-                                            </div>
-                                        </div>
-                                    </div>
+                            {/* Interactive Google Map */}
+                            <div className="flex-1 relative bg-gray-100 min-h-[400px]">
+                                {isMapLoaded && mapData ? (
+                                    <GoogleMap
+                                        mapContainerStyle={{ width: '100%', height: '100%' }}
+                                        center={NAVOJOA_CENTER}
+                                        zoom={13}
+                                        options={{
+                                            styles: [
+                                                { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+                                            ],
+                                            disableDefaultUI: false,
+                                            mapTypeControl: false,
+                                        }}
+                                    >
+                                        {/* Render Polygons */}
+                                        {mapData.targets?.map((t: any, idx: number) => {
+                                            const isSelected = selectedSector && selectedSector['Sector Comunitario'] === t['Sector Comunitario']
+                                            const hasCoords = t.geometry && t.geometry.length > 0
+
+                                            if (!hasCoords) return null
+
+                                            // Determine polygon color based on some criteria (e.g. isSelected)
+                                            const fillColor = isSelected ? accent : '#3b82f6'
+                                            const fillOpacity = isSelected ? 0.6 : 0.2
+
+                                            return (
+                                                <Polygon
+                                                    key={idx}
+                                                    paths={t.geometry.map((c: any) => ({ lat: c.lat, lng: c.lng }))}
+                                                    options={{
+                                                        fillColor,
+                                                        fillOpacity,
+                                                        strokeColor: isSelected ? accent : '#2563eb',
+                                                        strokeOpacity: 0.8,
+                                                        strokeWeight: isSelected ? 3 : 1,
+                                                        zIndex: isSelected ? 10 : 1
+                                                    }}
+                                                    onClick={() => setSelectedSector(t)}
+                                                />
+                                            )
+                                        })}
+                                    </GoogleMap>
                                 ) : (
-                                    <div className="flex flex-col items-center opacity-50">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-50">
                                         <div className="w-8 h-8 border-4 rounded-full border-t-red-500 animate-spin mb-2"></div>
-                                        <p className="text-sm font-bold">Procesando polígonos KML...</p>
+                                        <p className="text-sm font-bold">Cargando motor geográfico...</p>
                                     </div>
                                 )}
                             </div>
