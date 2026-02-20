@@ -517,23 +517,21 @@ export default function RegistroDashboard() {
                                             mapTypeControl: false,
                                         }}
                                     >
-                                        {/* Render Circles since KML only has Points instead of Polygons */}
+                                        {/* Render Polygons */}
                                         {mapData.targets?.map((t: any, idx: number) => {
                                             const isSelected = selectedSector && selectedSector['Sector Comunitario'] === t['Sector Comunitario']
                                             const hasCoords = t.geometry && t.geometry.length > 0
 
                                             if (!hasCoords) return null
-                                            const center = { lat: t.geometry[0].lat, lng: t.geometry[0].lng }
 
-                                            // Determine colors
+                                            // Determine polygon color based on some criteria (e.g. isSelected)
                                             const fillColor = isSelected ? accent : '#3b82f6'
                                             const fillOpacity = isSelected ? 0.6 : 0.2
 
                                             return (
-                                                <Circle
+                                                <Polygon
                                                     key={idx}
-                                                    center={center}
-                                                    radius={700} // Simulate 700 meters reach
+                                                    paths={t.geometry.map((c: any) => ({ lat: c.lat, lng: c.lng }))}
                                                     options={{
                                                         fillColor,
                                                         fillOpacity,

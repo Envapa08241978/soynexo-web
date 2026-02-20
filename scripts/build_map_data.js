@@ -1,48 +1,56 @@
 const fs = require('fs');
-const xlsx = require('xlsx');
 
 function parseKML() {
     try {
-        const kmlText = fs.readFileSync('C:/Users/ENRIQ/soynexo-web/registros/kml/doc.kml', 'utf-8');
+        const kmlText = fs.readFileSync('C:/Users/ENRIQ/soynexo-web/registros/kml/sonora.kml', 'utf-8');
 
-        // Extract points from the KML
+        // Extract polygons from the KML
         const pointMap = {};
-        const pointRegex = /<Placemark>[\s\S]*?<name>(.*?)<\/name>[\s\S]*?<coordinates>(.*?)<\/coordinates>[\s\S]*?<\/Placemark>/g;
-        let m;
-        while ((m = pointRegex.exec(kmlText)) !== null) {
-            const name = m[1].replace(/[^0-9]/g, ''); // Extract numerical string SECTOR XYZ -> XYZ
-            const coordsStr = m[2].trim().split(',');
-            if (coordsStr.length >= 2) {
-                const lng = parseFloat(coordsStr[0]);
-                const lat = parseFloat(coordsStr[1]);
-                pointMap[name] = [{ lat, lng }]; // Single coordinate as geometry array
+        const placemarkRegex = /<Placemark>([\s\S]*?)<\/Placemark>/g;
+        let pMatch;
+
+        while ((pMatch = placemarkRegex.exec(kmlText)) !== null) {
+            const block = pMatch[1];
+            // Extract sector number from CDATA description
+            const descMatch = block.match(/control:\s*(\d+)/);
+            if (!descMatch) continue;
+            const sectorName = String(descMatch[1]).trim();
+
+            // Extract polygon coordinates
+            const polyMatch = block.match(/<Polygon>[\s\S]*?<coordinates>\s*([\s\S]*?)\s*<\/coordinates>[\s\S]*?<\/Polygon>/);
+            if (polyMatch) {
+                // Parse coordinates "lng,lat,alt lng,lat,alt ..." into array of objects {lat, lng}
+                const coordsRaw = polyMatch[1].trim().split(/\s+/);
+                const geometry = coordsRaw.map(pair => {
+                    const parts = pair.split(',');
+                    return { lng: parseFloat(parts[0]), lat: parseFloat(parts[1]) };
+                }).filter(p => !isNaN(p.lat) && !isNaN(p.lng));
+
+                if (geometry.length > 0) {
+                    pointMap[sectorName] = geometry;
+                }
             }
         }
 
-        const wb = xlsx.readFile('C:/Users/ENRIQ/soynexo-web/registros/Archivo de Metas.xlsx');
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        const rawTargets = xlsx.utils.sheet_to_json(sheet);
+        // We use the already cleaned JSON of Navojoa
+        const rawData = fs.readFileSync('C:/Users/ENRIQ/soynexo-web/public/map_data_fixed.json', 'utf8');
+        const parsedData = JSON.parse(rawData).targets;
 
-        const targets = rawTargets.map(row => {
-            const cleanObj = {};
-            // Clean up keys (remove newlines and trim)
-            for (let key in row) {
-                const cleanKey = key.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
-                cleanObj[cleanKey] = row[key];
-            }
-
-            const sectorStr = String(cleanObj['Sector Comunitario'] || '').trim();
+        let polygonCount = 0;
+        const targets = parsedData.map(row => {
+            const sectorStr = String(row['Sector Comunitario']).trim();
             if (pointMap[sectorStr]) {
-                cleanObj.geometry = pointMap[sectorStr];
+                row.geometry = pointMap[sectorStr];
+                polygonCount++;
             } else {
-                cleanObj.geometry = [];
+                row.geometry = [];
             }
-            return cleanObj;
+            return row;
         });
 
-        let out = { targets }
+        const out = { targets };
         fs.writeFileSync('C:/Users/ENRIQ/soynexo-web/public/map_data.json', JSON.stringify(out));
-        console.log("Success: wrote map_data.json with " + targets.length + " targets.");
+        console.log(`Success: wrote map_data.json with ${targets.length} targets. Mapped ${polygonCount} true Polygons!`);
     } catch (err) {
         console.error("Error:", err);
     }
