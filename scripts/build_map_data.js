@@ -11,8 +11,8 @@ function parseKML() {
 
         while ((pMatch = placemarkRegex.exec(kmlText)) !== null) {
             const block = pMatch[1];
-            // Extract sector number from CDATA description
-            const descMatch = block.match(/control:\s*(\d+)/);
+            // Extract sector number from `<Data name="seccion"><value>1233</value></Data>`
+            const descMatch = block.match(/<Data name="seccion">\s*<value>\s*(\d+)\s*<\/value>\s*<\/Data>/i);
             if (!descMatch) continue;
             const sectorName = String(descMatch[1]).trim();
 
