@@ -36,21 +36,35 @@ function parseKML() {
         const rawData = fs.readFileSync('C:/Users/ENRIQ/soynexo-web/public/map_data_fixed.json', 'utf8');
         const parsedData = JSON.parse(rawData).targets;
 
-        let polygonCount = 0;
-        const targets = parsedData.map(row => {
-            const sectorStr = String(row['Sector Comunitario']).trim();
-            if (pointMap[sectorStr]) {
-                row.geometry = pointMap[sectorStr];
-                polygonCount++;
-            } else {
-                row.geometry = [];
-            }
-            return row;
+        const navojoaDataMap = {};
+        parsedData.forEach(row => {
+            navojoaDataMap[String(row['Sector Comunitario']).trim()] = row;
         });
+
+        const targets = [];
+        let navojoaCount = 0;
+
+        for (const [sector, geometry] of Object.entries(pointMap)) {
+            if (navojoaDataMap[sector]) {
+                targets.push({
+                    ...navojoaDataMap[sector],
+                    geometry
+                });
+                navojoaCount++;
+            } else {
+                targets.push({
+                    'Sector Comunitario': sector,
+                    'Población Estimada (Padrón)': 0,
+                    'Impacto Anteriores (Votos 2024)': 0,
+                    'Objetivo de Cobertura (Meta)': 0,
+                    geometry
+                });
+            }
+        }
 
         const out = { targets };
         fs.writeFileSync('C:/Users/ENRIQ/soynexo-web/public/map_data.json', JSON.stringify(out));
-        console.log(`Success: wrote map_data.json with ${targets.length} targets. Mapped ${polygonCount} true Polygons!`);
+        console.log(`Success: wrote map_data.json with ${targets.length} targets total. Mapped ${navojoaCount} true Polygons with Navojoa data!`);
     } catch (err) {
         console.error("Error:", err);
     }
