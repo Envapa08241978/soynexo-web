@@ -129,45 +129,59 @@ export default function AlbitaRojo70Page() {
 
     /* ---- Upload with content moderation ---- */
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (!file) return
+        const files = Array.from(event.target.files || [])
+        if (files.length === 0) return
         setUploadError(null)
         setShowUploadOptions(false)
 
-        const basicVal = validateFileBasics(file)
-        if (!basicVal.valid) { setUploadError(basicVal.error || 'Error de validación'); return }
-
-        const isImage = file.type.startsWith('image/')
-        const isVideo = file.type.startsWith('video/')
-        if (!isImage && !isVideo) { setUploadError('Solo se permiten fotos y videos'); return }
-
         setIsUploading(true)
-        try {
-            if (isImage) {
-                const mod = await analyzeImageContent(file)
-                if (!mod.isAppropriate) {
-                    setUploadError(mod.reason || 'Contenido no permitido')
-                    setIsUploading(false)
-                    resetFileInputs()
-                    return
-                }
-            }
-            const fileName = `${Date.now()}-${file.name}`
-            const storageRef = ref(storage, `events/${EVENT_SLUG}/${fileName}`)
-            await uploadBytes(storageRef, file)
-            const downloadURL = await getDownloadURL(storageRef)
-            await addDoc(collection(db, 'events', EVENT_SLUG, 'media'), {
-                url: downloadURL, type: isVideo ? 'video' : 'photo', timestamp: serverTimestamp(), fileName
-            })
+        let hasErrors = false
 
+        for (const file of files) {
+            const basicVal = validateFileBasics(file)
+            if (!basicVal.valid) {
+                setUploadError(basicVal.error || 'Error de validación')
+                hasErrors = true
+                continue
+            }
+
+            const isImage = file.type.startsWith('image/')
+            const isVideo = file.type.startsWith('video/')
+            if (!isImage && !isVideo) {
+                setUploadError('Solo se permiten fotos y videos')
+                hasErrors = true
+                continue
+            }
+
+            try {
+                if (isImage) {
+                    const mod = await analyzeImageContent(file)
+                    if (!mod.isAppropriate) {
+                        setUploadError(mod.reason || 'Contenido no permitido')
+                        hasErrors = true
+                        continue
+                    }
+                }
+                const fileName = `${Date.now()}-${file.name}`
+                const storageRef = ref(storage, `events/${EVENT_SLUG}/${fileName}`)
+                await uploadBytes(storageRef, file)
+                const downloadURL = await getDownloadURL(storageRef)
+                await addDoc(collection(db, 'events', EVENT_SLUG, 'media'), {
+                    url: downloadURL, type: isVideo ? 'video' : 'photo', timestamp: serverTimestamp(), fileName
+                })
+            } catch (err) {
+                console.error('Upload error:', err)
+                setUploadError('Error al subir. Intenta de nuevo.')
+                hasErrors = true
+            }
+        }
+
+        setIsUploading(false)
+        resetFileInputs()
+
+        if (!hasErrors) {
             setUploadSuccess(true)
             setTimeout(() => setUploadSuccess(false), 3000)
-        } catch (err) {
-            console.error('Upload error:', err)
-            setUploadError('Error al subir. Intenta de nuevo.')
-        } finally {
-            setIsUploading(false)
-            resetFileInputs()
         }
     }
 
@@ -366,9 +380,9 @@ export default function AlbitaRojo70Page() {
                 FLOATING UPLOAD BUTTON
                 ========================================== */}
             <div className="fixed bottom-6 right-4 z-40">
-                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
-                <input ref={videoInputRef} type="file" accept="video/*" capture="environment" onChange={handleFileUpload} className="hidden" />
-                <input ref={galleryInputRef} type="file" accept="image/*,video/*" onChange={handleFileUpload} className="hidden" />
+                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" multiple onChange={handleFileUpload} className="hidden" />
+                <input ref={videoInputRef} type="file" accept="video/*" capture="environment" multiple onChange={handleFileUpload} className="hidden" />
+                <input ref={galleryInputRef} type="file" accept="image/*,video/*" multiple onChange={handleFileUpload} className="hidden" />
 
                 {showUploadOptions && (
                     <div className="absolute bottom-16 right-0 rounded-xl p-2 mb-1 flex flex-col gap-0.5 min-w-[160px] shadow-xl"
