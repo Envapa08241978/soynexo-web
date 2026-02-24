@@ -739,7 +739,7 @@ export default function PremiumEventPage() {
                                 <form onSubmit={(e) => { e.preventDefault(); if (rsvpData.phone.length === 10 && !isSubmittingRSVP) submitRsvpToFirebase() }} className="flex gap-2 mt-2 animate-fade-in-up">
                                     <input type="tel" autoFocus placeholder="10 dígitos numéricos..." maxLength={10} value={rsvpData.phone} onChange={e => setRsvpData({ ...rsvpData, phone: e.target.value.replace(/\D/g, '') })}
                                         className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-white/30" />
-                                    <button type="submit" disabled={rsvpData.phone.length !== 10 || isSubmittingRSVP} className="w-10 h-10 rounded-full flex items-center justify-center text-black disabled:opacity-50" style={{ background: accent }}>
+                                    <button type="submit" disabled={rsvpData.phone.length !== 10 || isSubmittingRSVP} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center text-black disabled:opacity-50 transition-transform active:scale-95" style={{ background: accent }}>
                                         {isSubmittingRSVP ? '...' : '↑'}
                                     </button>
                                 </form>
