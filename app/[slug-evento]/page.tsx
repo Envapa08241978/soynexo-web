@@ -83,6 +83,7 @@ export default function PremiumEventPage() {
     const [chatStep, setChatStep] = useState(0)
     const [rsvpData, setRsvpData] = useState({ name: '', guests: '', phone: '' })
     const [isSubmittingRSVP, setIsSubmittingRSVP] = useState(false)
+    const chatEndRef = useRef<HTMLDivElement>(null)
 
     // Countdown State
     const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -163,6 +164,15 @@ export default function PremiumEventPage() {
         })
         return () => unsubscribe()
     }, [slug])
+
+    // Auto-scroll chat
+    useEffect(() => {
+        if (showRSVP) {
+            setTimeout(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+            }, 100)
+        }
+    }, [chatStep, showRSVP])
 
     const filteredMedia = media.filter(item => {
         if (filter === 'all') return true
@@ -620,7 +630,8 @@ export default function PremiumEventPage() {
                             <button onClick={() => setShowRSVP(false)} className="absolute top-6 right-6 text-white/30 hover:text-white/70">✕</button>
                         </div>
 
-                        <div className="flex-1 flex flex-col justify-end gap-4 overflow-y-auto pr-2 pb-4 clip-scrollbar">
+                        <div className="flex-1 overflow-y-auto pr-2 pb-4 clip-scrollbar flex flex-col gap-4">
+                            <div className="mt-auto"></div>
 
                             {/* Step 0: Welcome */}
                             <div className="flex flex-col gap-1 w-[85%]">
@@ -733,6 +744,8 @@ export default function PremiumEventPage() {
                                     </button>
                                 </form>
                             )}
+
+                            <div ref={chatEndRef} />
                         </div>
 
                         {/* Step 5: The Ticket View */}
