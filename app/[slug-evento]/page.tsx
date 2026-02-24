@@ -231,57 +231,64 @@ export default function PremiumEventPage() {
 
     // Upload functionality
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (!file) return
+        const files = Array.from(event.target.files || [])
+        if (files.length === 0) return
 
         setUploadError(null)
         setShowUploadOptions(false)
-
-        const basicVal = validateFileBasics(file)
-        if (!basicVal.valid) {
-            setUploadError(basicVal.error || 'Error al validar archivo')
-            return
-        }
-
-        const isImage = file.type.startsWith('image/')
-        const isVideo = file.type.startsWith('video/')
-        if (!isImage && !isVideo) {
-            setUploadError('Solo se permiten fotos y videos')
-            return
-        }
-
         setIsUploading(true)
-        try {
-            if (isImage) {
-                const moderation = await analyzeImageContent(file)
-                if (!moderation.isAppropriate) {
-                    setUploadError(moderation.reason || '⚠️ Contenido no permitido')
-                    setIsUploading(false)
-                    resetInputs()
-                    return
-                }
+        let hasErrors = false
+
+        for (const file of files) {
+            const basicVal = validateFileBasics(file)
+            if (!basicVal.valid) {
+                setUploadError(basicVal.error || 'Error al validar archivo')
+                hasErrors = true
+                continue
             }
 
-            const fileName = `${Date.now()}-${file.name}`
-            const storageRef = ref(storage, `events/${slug}/${fileName}`)
-            await uploadBytes(storageRef, file)
-            const downloadURL = await getDownloadURL(storageRef)
+            const isImage = file.type.startsWith('image/')
+            const isVideo = file.type.startsWith('video/')
+            if (!isImage && !isVideo) {
+                setUploadError('Solo se permiten fotos y videos')
+                hasErrors = true
+                continue
+            }
 
-            await addDoc(collection(db, 'events', slug, 'media'), {
-                url: downloadURL,
-                type: isVideo ? 'video' : 'photo',
-                timestamp: serverTimestamp(),
-                fileName: fileName
-            })
+            try {
+                if (isImage) {
+                    const moderation = await analyzeImageContent(file)
+                    if (!moderation.isAppropriate) {
+                        setUploadError(moderation.reason || '⚠️ Contenido no permitido')
+                        hasErrors = true
+                        continue
+                    }
+                }
 
+                const fileName = `${Date.now()}-${file.name}`
+                const storageRef = ref(storage, `events/${slug}/${fileName}`)
+                await uploadBytes(storageRef, file)
+                const downloadURL = await getDownloadURL(storageRef)
+
+                await addDoc(collection(db, 'events', slug, 'media'), {
+                    url: downloadURL,
+                    type: isVideo ? 'video' : 'photo',
+                    timestamp: serverTimestamp(),
+                    fileName: fileName
+                })
+            } catch (err) {
+                console.error('Upload API error:', err)
+                setUploadError('Ocurrió un error al subir el archivo.')
+                hasErrors = true
+            }
+        }
+
+        setIsUploading(false)
+        resetInputs()
+
+        if (!hasErrors) {
             setUploadSuccess(true)
             setTimeout(() => setUploadSuccess(false), 3000)
-        } catch (err) {
-            console.error('Upload API error:', err)
-            setUploadError('Ocurrió un error al subir el archivo.')
-        } finally {
-            setIsUploading(false)
-            resetInputs()
         }
     }
 
@@ -516,9 +523,9 @@ export default function PremiumEventPage() {
 
             {/* --- FLOATING UPLOAD BUTTON --- */}
             <div className="fixed bottom-6 right-6 z-40">
-                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
-                <input ref={videoInputRef} type="file" accept="video/*" capture="environment" onChange={handleFileUpload} className="hidden" />
-                <input ref={galleryInputRef} type="file" accept="image/*,video/*" onChange={handleFileUpload} className="hidden" />
+                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" multiple onChange={handleFileUpload} className="hidden" />
+                <input ref={videoInputRef} type="file" accept="video/*" capture="environment" multiple onChange={handleFileUpload} className="hidden" />
+                <input ref={galleryInputRef} type="file" accept="image/*,video/*" multiple onChange={handleFileUpload} className="hidden" />
 
                 {showUploadOptions && (
                     <div className="absolute bottom-20 right-0 glass-strong rounded-2xl p-2 mb-2 flex flex-col gap-1 min-w-[160px] shadow-2xl bg-[#1A1A1F] border border-white/10 animate-fade-in origin-bottom-right">
