@@ -100,6 +100,7 @@ export default function PremiumEventPage() {
 
     const [config, setConfig] = useState<EventConfig>(DEFAULT_CONFIG)
     const [media, setMedia] = useState<MediaItem[]>([])
+    const [rsvps, setRsvps] = useState<any[]>([])
     const [isConfigLoaded, setIsConfigLoaded] = useState(false)
 
     // UI State
@@ -124,7 +125,9 @@ export default function PremiumEventPage() {
     const [chatStep, setChatStep] = useState(0)
     const [rsvpData, setRsvpData] = useState({ name: '', guests: '', phone: '' })
     const [isSubmittingRSVP, setIsSubmittingRSVP] = useState(false)
+    const [recentRsvpId, setRecentRsvpId] = useState<string | null>(null)
     const chatEndRef = useRef<HTMLDivElement>(null)
+    const dashboardRef = useRef<HTMLDivElement>(null)
 
     // Countdown State
     const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -189,7 +192,7 @@ export default function PremiumEventPage() {
         const mediaRef = collection(db, 'events', slug, 'media')
         const q = query(mediaRef, orderBy('timestamp', 'desc'))
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribeMedia = onSnapshot(q, (snapshot) => {
             const firebaseMedia: MediaItem[] = snapshot.docs.map(doc => ({
                 id: doc.id,
                 url: doc.data().url,
@@ -200,11 +203,21 @@ export default function PremiumEventPage() {
             }))
             setMedia(firebaseMedia)
             setIsLoading(false)
-        }, (error) => {
-            console.error('Firebase sync error:', error)
-            setIsLoading(false)
         })
-        return () => unsubscribe()
+
+        // Real-time RSVPs Sync for Demo Dashboard
+        const rsvpRef = collection(db, 'events', slug, 'rsvps')
+        const rsvpQ = query(rsvpRef, orderBy('timestamp', 'desc'))
+        const unsubscribeRsvps = onSnapshot(rsvpQ, (snapshot) => {
+            const firebaseRsvps = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().timestamp?.toMillis() || Date.now()
+            }))
+            setRsvps(firebaseRsvps)
+        }, (error) => console.error('RSVP sync error:', error))
+
+        return () => { unsubscribeMedia(); unsubscribeRsvps() }
     }, [slug])
 
     // Auto-scroll chat
@@ -394,13 +407,14 @@ export default function PremiumEventPage() {
     const submitRsvpToFirebase = async () => {
         setIsSubmittingRSVP(true)
         try {
-            await addDoc(collection(db, 'events', slug, 'rsvps'), {
+            const docRef = await addDoc(collection(db, 'events', slug, 'rsvps'), {
                 name: rsvpData.name,
                 guests: parseInt(rsvpData.guests) || 1,
                 phone: rsvpData.phone,
                 status: 'confirmed',
                 timestamp: serverTimestamp()
             })
+            setRecentRsvpId(docRef.id)
             setChatStep(5) // Move to Ticket View
         } catch (error) {
             console.error(error)
@@ -867,6 +881,77 @@ export default function PremiumEventPage() {
             <footer className="text-center py-6 border-t border-white/5 opacity-50 text-xs">
                 Generado con 🖤 por <strong className="text-white">Soy Nexo</strong>
             </footer>
+            {/* --- LIVE DASHBOARD DEMO (WOW FACTOR FOR ONLINE SALES) --- */}
+            <section ref={dashboardRef} className="py-16 px-4 border-t border-white/5" style={{ background: '#0F0F12' }}>
+                <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-3 tracking-tight">🌟 Lo que el anfitrión ve en vivo</h2>
+                        <p className="text-white/60 text-sm max-w-lg mx-auto leading-relaxed">
+                            Al mismo tiempo que tus invitados confirman y sacan su boleto VIP, tú recibes toda su información organizada y lista para descargar. Nada de estrés, nada de Excel manual.
+                        </p>
+                    </div>
+
+                    <div className="bg-[#1A1A1F] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/20">
+                            <div>
+                                <h3 className="text-white font-bold tracking-widest uppercase text-xs">Panel de Control (Demo)</h3>
+                                <p className="text-white/40 text-[10px] mt-0.5">Total Confirmados: <span className="text-white/80 font-bold">{rsvps.reduce((acc, curr) => acc + (curr.guests || 1), 0)}</span></p>
+                            </div>
+                            <button className="px-4 py-2 rounded-lg text-xs font-bold text-black shadow-lg hover:scale-105 transition-transform flex items-center gap-2" style={{ background: accent }}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                Descargar Invitados
+                            </button>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr className="border-b border-white/5 text-[10px] tracking-widest uppercase text-white/30">
+                                        <th className="font-medium p-4">Invitado Principal</th>
+                                        <th className="font-medium p-4 text-center">Lugares</th>
+                                        <th className="font-medium p-4 text-right">WhatsApp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {rsvps.slice(0, 5).map((rsvp, idx) => {
+                                        const isNew = rsvp.id === recentRsvpId
+                                        return (
+                                            <tr key={rsvp.id || idx} className={`border-b border-white/5 transition-all duration-1000 ${isNew ? 'bg-green-500/20' : 'hover:bg-white/5'}`}>
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{ background: accent }}>
+                                                            {rsvp.name?.charAt(0).toUpperCase() || '?'}
+                                                        </div>
+                                                        <div className="font-medium text-sm text-white/90">{rsvp.name}
+                                                            {isNew && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-green-500 text-white animate-pulse">NUEVO</span>}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 text-center text-white/70 text-sm">
+                                                    <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10">{rsvp.guests}</span>
+                                                </td>
+                                                <td className="p-4 text-right text-white/50 text-sm font-mono tracking-wider">
+                                                    {rsvp.phone?.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2 $3')}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                    {rsvps.length === 0 && (
+                                        <tr><td colSpan={3} className="text-center p-8 text-white/30 text-sm">Aún no hay confirmados. ¡Prueba el botón VIP arriba!</td></tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="mt-12 text-center">
+                        <Link href="/checkout" className="inline-block px-10 py-5 rounded-full text-black font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform shadow-[0_0_40px_rgba(188,168,114,0.4)]" style={{ background: accent }}>
+                            Adquiere Soy Nexo para tu Boda
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
         </div>
     )
 }
