@@ -29,10 +29,51 @@ interface EventConfig {
 interface MediaItem {
     id: string
     url: string
+    originalUrl?: string
     type: 'photo' | 'video'
     timestamp: number
     fileName?: string
     senderName?: string
+}
+
+// Compression helper
+const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.src = URL.createObjectURL(file)
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return reject('No canvas context')
+
+            const MAX_SIZE = 1600
+            let width = img.width
+            let height = img.height
+
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width
+                    width = MAX_SIZE
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height
+                    height = MAX_SIZE
+                }
+            }
+
+            canvas.width = width
+            canvas.height = height
+            ctx.drawImage(img, 0, 0, width, height)
+
+            canvas.toBlob((blob) => {
+                URL.revokeObjectURL(img.src)
+                if (blob) resolve(blob)
+                else reject('Compression failed')
+            }, 'image/jpeg', 0.8)
+        }
+        img.onerror = () => reject('Image load error')
+    })
 }
 
 const DEFAULT_CONFIG: EventConfig = {
@@ -152,6 +193,7 @@ export default function PremiumEventPage() {
             const firebaseMedia: MediaItem[] = snapshot.docs.map(doc => ({
                 id: doc.id,
                 url: doc.data().url,
+                originalUrl: doc.data().originalUrl,
                 type: doc.data().type as 'photo' | 'video',
                 timestamp: doc.data().timestamp?.toMillis() || Date.now(),
                 fileName: doc.data().fileName
@@ -197,11 +239,12 @@ export default function PremiumEventPage() {
 
     // Download functionality
     const downloadFile = async (item: MediaItem) => {
+        const downloadSource = item.originalUrl || item.url
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-        if (isIOS) { window.open(item.url, '_blank'); return }
+        if (isIOS) { window.open(downloadSource, '_blank'); return }
 
         try {
-            const response = await fetch(item.url)
+            const response = await fetch(downloadSource)
             const blob = await response.blob()
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
@@ -266,12 +309,30 @@ export default function PremiumEventPage() {
                 }
 
                 const fileName = `${Date.now()}-${file.name}`
-                const storageRef = ref(storage, `events/${slug}/${fileName}`)
-                await uploadBytes(storageRef, file)
-                const downloadURL = await getDownloadURL(storageRef)
+                let displayURL = ''
+                let originalURL: string | null = null
+
+                if (isImage) {
+                    // Upload compressed thumbnail
+                    const compressedBlob = await compressImage(file)
+                    const thumbRef = ref(storage, `events/${slug}/thumb_${fileName}`)
+                    await uploadBytes(thumbRef, compressedBlob)
+                    displayURL = await getDownloadURL(thumbRef)
+
+                    // Upload original
+                    const originalRef = ref(storage, `events/${slug}/${fileName}`)
+                    await uploadBytes(originalRef, file)
+                    originalURL = await getDownloadURL(originalRef)
+                } else {
+                    // Upload video directly
+                    const storageRef = ref(storage, `events/${slug}/${fileName}`)
+                    await uploadBytes(storageRef, file)
+                    displayURL = await getDownloadURL(storageRef)
+                }
 
                 await addDoc(collection(db, 'events', slug, 'media'), {
-                    url: downloadURL,
+                    url: displayURL,
+                    originalUrl: originalURL,
                     type: isVideo ? 'video' : 'photo',
                     timestamp: serverTimestamp(),
                     fileName: fileName
@@ -310,8 +371,12 @@ export default function PremiumEventPage() {
         try {
             await deleteDoc(doc(db, 'events', slug, 'media', selectedMedia.id))
             if (selectedMedia.fileName) {
-                const sRef = ref(storage, `events/${slug}/${selectedMedia.fileName}`)
-                await deleteObject(sRef).catch(() => { })
+                if (selectedMedia.type === 'photo') {
+                    const thumbRef = ref(storage, `events/${slug}/thumb_${selectedMedia.fileName}`)
+                    await deleteObject(thumbRef).catch(() => { })
+                }
+                const originalRef = ref(storage, `events/${slug}/${selectedMedia.fileName}`)
+                await deleteObject(originalRef).catch(() => { })
             }
             setSelectedIndex(null)
             setShowDeleteModal(false)
