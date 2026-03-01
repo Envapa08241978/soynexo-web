@@ -404,17 +404,19 @@ export default function PremiumEventPage() {
     }
 
     // RSVP Logic
-    const submitRsvpToFirebase = async () => {
+    const submitRsvpToFirebase = async (guestsOverride?: number) => {
         setIsSubmittingRSVP(true)
         try {
+            const finalGuests = guestsOverride || parseInt(rsvpData.guests) || 1;
             const docRef = await addDoc(collection(db, 'events', slug, 'rsvps'), {
                 name: rsvpData.name,
-                guests: parseInt(rsvpData.guests) || 1,
-                phone: rsvpData.phone,
+                guests: finalGuests,
+                phone: rsvpData.phone || '0000000000',
                 status: 'confirmed',
                 timestamp: serverTimestamp()
             })
             setRecentRsvpId(docRef.id)
+            setRsvpData(prev => ({ ...prev, guests: finalGuests.toString() }))
             setChatStep(5) // Move to Ticket View
         } catch (error) {
             console.error(error)
@@ -425,6 +427,7 @@ export default function PremiumEventPage() {
     }
 
     const accent = config.theme?.accentColor || '#BCA872'
+    const accentTextColor = config.theme?.backgroundColor || '#0F0F12'
 
     // ==========================================
     // RENDER
@@ -440,8 +443,10 @@ export default function PremiumEventPage() {
 
             {/* --- HERO SECTION --- */}
             <section className="relative w-full aspect-[4/5] sm:aspect-video md:aspect-[21/9] overflow-hidden">
-                <div className="absolute top-4 left-4 z-20">
-                    <img src="/logo.png" alt="Soy Nexo" className="h-8 drop-shadow-lg opacity-90" />
+                <div className="absolute top-4 left-4 z-20 hover:scale-105 transition-transform">
+                    <a href="https://soynexo.com" target="_blank" rel="noopener noreferrer">
+                        <img src="/logo.png" alt="Soy Nexo" className="h-8 drop-shadow-lg opacity-90" />
+                    </a>
                 </div>
 
                 {config.coverImage ? (
@@ -458,15 +463,14 @@ export default function PremiumEventPage() {
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0F0F12] via-[#0F0F12]/40 to-transparent" />
 
                 <div className="absolute bottom-6 left-0 w-full z-20 px-6 text-center">
-                    <p className="text-sm tracking-widest uppercase font-bold text-white/60 mb-1">Evento Exclusivo</p>
                     <h2 className="text-3xl font-bold mb-4">{config.title}</h2>
 
                     {/* RSVP & Directions Buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-sm mx-auto">
                         <button onClick={() => { setChatStep(0); setShowRSVP(true) }}
-                            className="w-full py-4 rounded-full font-bold text-black text-sm uppercase tracking-widest transition-transform hover:scale-105 active:scale-95 shadow-xl"
-                            style={{ background: accent, boxShadow: `0 8px 25px ${accent}44` }}>
-                            Mí Boleto VIP
+                            className="w-full py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-transform hover:scale-105 active:scale-95 shadow-xl"
+                            style={{ background: accent, color: accentTextColor, boxShadow: `0 8px 25px ${accent}44` }}>
+                            Confirmar Asistencia
                         </button>
 
                         {config.coords && (
@@ -544,8 +548,8 @@ export default function PremiumEventPage() {
                             📱
                         </button>
                         <button onClick={downloadAll} disabled={isDownloading || media.length === 0}
-                            className="px-4 py-2 rounded-full text-xs font-bold text-black transition-transform active:scale-95 disabled:opacity-50"
-                            style={{ background: accent }}>
+                            className="px-4 py-2 rounded-full text-xs font-bold transition-transform active:scale-95 disabled:opacity-50"
+                            style={{ background: accent, color: accentTextColor }}>
                             {isDownloading ? 'Descargando...' : 'Descargar Todo'}
                         </button>
                     </div>
@@ -554,9 +558,9 @@ export default function PremiumEventPage() {
                 <div className="flex gap-2 mt-4 max-w-5xl mx-auto overflow-x-auto pb-1 clip-scrollbar">
                     {(['all', 'photos', 'videos'] as const).map(f => (
                         <button key={f} onClick={() => setFilter(f)}
-                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${filter === f ? `text-black border-transparent` : 'text-white/50 border-white/10 hover:border-white/30'
+                            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${filter === f ? `border-transparent` : 'text-white/50 border-white/10 hover:border-white/30'
                                 }`}
-                            style={{ background: filter === f ? accent : 'transparent' }}>
+                            style={{ background: filter === f ? accent : 'transparent', color: filter === f ? accentTextColor : undefined }}>
                             {f === 'all' ? 'Ver Todo' : f === 'photos' ? 'Fotos📸' : 'Videos🎬'}
                         </button>
                     ))}
@@ -626,9 +630,9 @@ export default function PremiumEventPage() {
 
                 <button onClick={() => setShowUploadOptions(!showUploadOptions)} disabled={isUploading}
                     className="w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-90 disabled:opacity-50"
-                    style={{ background: accent, boxShadow: `0 10px 30px ${accent}66` }}>
-                    {isUploading ? <div className="w-6 h-6 border-3 border-black/20 border-t-black rounded-full animate-spin" />
-                        : <svg className="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>}
+                    style={{ background: accent, color: accentTextColor, boxShadow: `0 10px 30px ${accent}66` }}>
+                    {isUploading ? <div className="w-6 h-6 border-3 border-current/20 border-t-current rounded-full animate-spin" />
+                        : <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>}
                 </button>
             </div>
 
@@ -710,7 +714,7 @@ export default function PremiumEventPage() {
                         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
                             <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-white/5">💎</div>
                             <div>
-                                <h3 className="text-sm font-bold text-white">Conserje VIP</h3>
+                                <h3 className="text-sm font-bold text-white">Asistente Virtual de {config?.title || 'Evento'}</h3>
                                 <p className="text-xs text-green-400">En línea</p>
                             </div>
                             <button onClick={() => setShowRSVP(false)} className="absolute top-6 right-6 text-white/30 hover:text-white/70">✕</button>
@@ -721,7 +725,7 @@ export default function PremiumEventPage() {
 
                             {/* Step 0: Welcome */}
                             <div className="flex flex-col gap-1 w-[85%]">
-                                <span className="text-[10px] text-white/30 ml-3">Conserje</span>
+                                <span className="text-[10px] text-white/30 ml-3">Asistente</span>
                                 <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/90">
                                     ¡Hola! Qué emoción verte por aquí. ¿Nos acompañarás este evento? 🎉
                                 </div>
@@ -729,7 +733,7 @@ export default function PremiumEventPage() {
 
                             {chatStep === 0 && (
                                 <div className="flex flex-col gap-2 mt-4 animate-fade-in-up">
-                                    <button onClick={() => setChatStep(2)} className="py-3 px-4 rounded-xl text-sm font-bold text-black border border-transparent hover:scale-[1.02] transition-transform" style={{ background: accent }}>
+                                    <button onClick={() => setChatStep(2)} className="py-3 px-4 rounded-xl text-sm font-bold border border-transparent hover:scale-[1.02] transition-transform" style={{ background: accent, color: accentTextColor }}>
                                         ¡Claro que sí! 🥳
                                     </button>
                                     <button onClick={() => setChatStep(1)} className="py-3 px-4 rounded-xl text-sm font-bold text-white/60 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
@@ -741,7 +745,7 @@ export default function PremiumEventPage() {
                             {/* Step 1: Denied */}
                             {chatStep === 1 && (
                                 <div className="flex flex-col gap-1 w-[85%] mt-2 animate-fade-in">
-                                    <span className="text-[10px] text-white/30 ml-3">Conserje</span>
+                                    <span className="text-[10px] text-white/30 ml-3">Asistente</span>
                                     <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/90">
                                         No te preocupes, ¡te extrañaremos mucho! Brindaremos por ti. 🥂
                                     </div>
@@ -761,7 +765,7 @@ export default function PremiumEventPage() {
 
                             {chatStep >= 2 && (
                                 <div className="flex flex-col gap-1 w-[85%] mt-2 animate-fade-in">
-                                    <span className="text-[10px] text-white/30 ml-3">Conserje</span>
+                                    <span className="text-[10px] text-white/30 ml-3">Asistente</span>
                                     <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/90">
                                         ¡Excelente! Para anotarte en la lista VIP, ¿me podrías dar tu nombre y apellido?
                                     </div>
@@ -772,7 +776,7 @@ export default function PremiumEventPage() {
                                 <form onSubmit={(e) => { e.preventDefault(); if (rsvpData.name.trim()) setChatStep(3) }} className="flex gap-2 mt-2 animate-fade-in-up">
                                     <input type="text" autoFocus placeholder="Escribe tu nombre..." value={rsvpData.name} onChange={e => setRsvpData({ ...rsvpData, name: e.target.value })}
                                         className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-white/30" />
-                                    <button type="submit" disabled={!rsvpData.name.trim()} className="w-10 h-10 rounded-full flex items-center justify-center text-black disabled:opacity-50" style={{ background: accent }}>↑</button>
+                                    <button type="submit" disabled={!rsvpData.name.trim()} className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-50" style={{ background: accent, color: accentTextColor }}>↑</button>
                                 </form>
                             )}
 
@@ -796,39 +800,12 @@ export default function PremiumEventPage() {
                             {chatStep === 3 && (
                                 <div className="grid grid-cols-4 gap-2 mt-2 animate-fade-in-up">
                                     {[1, 2, 3, 4].map(num => (
-                                        <button key={num} onClick={() => { setRsvpData({ ...rsvpData, guests: num.toString() }); setChatStep(4) }}
-                                            className="bg-white/5 border border-white/10 rounded-xl py-3 text-sm font-bold hover:bg-white/10 transition-colors">
-                                            {num}
+                                        <button key={num} onClick={() => submitRsvpToFirebase(num)} disabled={isSubmittingRSVP}
+                                            className="bg-white/5 border border-white/10 rounded-xl py-3 text-sm font-bold hover:bg-white/10 transition-colors disabled:opacity-50">
+                                            {isSubmittingRSVP ? '...' : num}
                                         </button>
                                     ))}
                                 </div>
-                            )}
-
-                            {/* Step 4: Phone */}
-                            {chatStep >= 4 && (
-                                <div className="flex flex-col gap-1 w-[85%] self-end items-end animate-fade-in">
-                                    <div className="bg-accent-500/20 border border-accent-500/30 rounded-2xl rounded-tr-sm px-4 py-3 text-sm" style={{ color: accent }}>
-                                        {rsvpData.guests} personas
-                                    </div>
-                                </div>
-                            )}
-
-                            {chatStep >= 4 && (
-                                <div className="flex flex-col gap-1 w-[85%] mt-2 animate-fade-in">
-                                    <div className="bg-white/10 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/90">
-                                        Perfecto. Por último, regálame tu número de WhatsApp (10 dígitos) para mandarte detalles si es necesario.
-                                    </div>
-                                </div>
-                            )}
-
-                            {chatStep === 4 && (
-                                <form onSubmit={(e) => { e.preventDefault(); if (rsvpData.phone.length === 10 && !isSubmittingRSVP) submitRsvpToFirebase() }} className="flex gap-2 mt-2 animate-fade-in-up">
-                                    <input type="tel" autoFocus placeholder="10 dígitos numéricos..." maxLength={10} value={rsvpData.phone} onChange={e => setRsvpData({ ...rsvpData, phone: e.target.value.replace(/\D/g, '') })}
-                                        className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-white/30" />
-                                    <button type="submit" disabled={rsvpData.phone.length !== 10 || isSubmittingRSVP} className="w-10 h-10 min-w-[40px] rounded-full flex items-center justify-center text-black disabled:opacity-50 transition-transform active:scale-95" style={{ background: accent }}>
-                                        {isSubmittingRSVP ? '...' : '↑'}
-                                    </button>
-                                </form>
                             )}
 
                             <div ref={chatEndRef} />
@@ -839,11 +816,13 @@ export default function PremiumEventPage() {
                             <div className="absolute inset-0 z-10 bg-[#1A1A1F] flex flex-col items-center justify-center p-6 text-center animate-fade-in">
                                 <button onClick={() => setShowRSVP(false)} className="absolute top-4 right-4 text-white/30">✕</button>
 
-                                <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">Acceso Confirmado</p>
-                                <h3 className="text-2xl font-bold mb-8" style={{ color: accent }}>¡Nos vemos en la fiesta!</h3>
+                                <p className="text-green-400 text-xs font-bold uppercase tracking-widest mb-2">✨ Asistencia Registrada</p>
+                                <h3 className="text-2xl font-bold mb-6" style={{ color: accent }}>¡Nos vemos en la fiesta!</h3>
 
-                                <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(188,168,114,0.15)] mb-8">
-                                    <QRCodeSVG value={`VIP-${rsvpData.phone}`} size={160} level="M" includeMargin={false} />
+                                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl mb-8 text-sm text-white/80 leading-relaxed text-left">
+                                    Recuerda que esta página web es tu invitación, pero también será nuestro <strong>álbum digital colaborativo</strong>.
+                                    <br /><br />
+                                    <strong>{config?.title}</strong> quiere que entres aquí el día del evento para que captures y subas tus propias fotos y videos a la galería de todos. 📸
                                 </div>
 
                                 <div className="w-full space-y-3">
@@ -856,8 +835,8 @@ export default function PremiumEventPage() {
                                         <span className="font-bold text-green-400">VIP Listo</span>
                                     </div>
 
-                                    <button onClick={() => setShowRSVP(false)} className="w-full mt-4 py-3 rounded-full font-bold text-black shadow-lg" style={{ background: accent }}>
-                                        Volver al Evento
+                                    <button onClick={() => setShowRSVP(false)} className="w-full py-4 mt-6 rounded-xl font-bold text-sm uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95" style={{ background: accent, color: 'white' }}>
+                                        Regresar al Evento
                                     </button>
                                 </div>
                             </div>
@@ -878,80 +857,16 @@ export default function PremiumEventPage() {
                 </div>
             )}
 
+            {/* --- PRICING CTA --- */}
+            <div className="px-6 py-12 text-center border-t border-white/5 bg-[#1A1A1F]/30">
+                <Link href="/crear" className="inline-block w-full sm:w-auto px-8 py-5 rounded-full font-black text-sm uppercase tracking-wider transition-transform hover:scale-105 shadow-[0_0_30px_rgba(188,168,114,0.2)]" style={{ background: accent, color: accentTextColor }}>
+                    Crea tu invitación digital y álbum privado en 5 minutos
+                </Link>
+            </div>
+
             <footer className="text-center py-6 border-t border-white/5 opacity-50 text-xs">
-                Generado con 🖤 por <strong className="text-white">Soy Nexo</strong>
+                Generado con 🖤 por <a href="https://soynexo.com" target="_blank" rel="noopener noreferrer" className="text-white font-bold hover:underline">Soy Nexo</a>
             </footer>
-            {/* --- LIVE DASHBOARD DEMO (WOW FACTOR FOR ONLINE SALES) --- */}
-            <section ref={dashboardRef} className="py-16 px-4 border-t border-white/5" style={{ background: '#0F0F12' }}>
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-10">
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-3 tracking-tight">🌟 Lo que el anfitrión ve en vivo</h2>
-                        <p className="text-white/60 text-sm max-w-lg mx-auto leading-relaxed">
-                            Al mismo tiempo que tus invitados confirman y sacan su boleto VIP, tú recibes toda su información organizada y lista para descargar. Nada de estrés, nada de Excel manual.
-                        </p>
-                    </div>
-
-                    <div className="bg-[#1A1A1F] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/20">
-                            <div>
-                                <h3 className="text-white font-bold tracking-widest uppercase text-xs">Panel de Control (Demo)</h3>
-                                <p className="text-white/40 text-[10px] mt-0.5">Total Confirmados: <span className="text-white/80 font-bold">{rsvps.reduce((acc, curr) => acc + (curr.guests || 1), 0)}</span></p>
-                            </div>
-                            <button className="px-4 py-2 rounded-lg text-xs font-bold text-black shadow-lg hover:scale-105 transition-transform flex items-center gap-2" style={{ background: accent }}>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                Descargar Invitados
-                            </button>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse min-w-[500px]">
-                                <thead>
-                                    <tr className="border-b border-white/5 text-[10px] tracking-widest uppercase text-white/30">
-                                        <th className="font-medium p-4">Invitado Principal</th>
-                                        <th className="font-medium p-4 text-center">Lugares</th>
-                                        <th className="font-medium p-4 text-right">WhatsApp</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rsvps.slice(0, 5).map((rsvp, idx) => {
-                                        const isNew = rsvp.id === recentRsvpId
-                                        return (
-                                            <tr key={rsvp.id || idx} className={`border-b border-white/5 transition-all duration-1000 ${isNew ? 'bg-green-500/20' : 'hover:bg-white/5'}`}>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-black" style={{ background: accent }}>
-                                                            {rsvp.name?.charAt(0).toUpperCase() || '?'}
-                                                        </div>
-                                                        <div className="font-medium text-sm text-white/90">{rsvp.name}
-                                                            {isNew && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-green-500 text-white animate-pulse">NUEVO</span>}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-center text-white/70 text-sm">
-                                                    <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10">{rsvp.guests}</span>
-                                                </td>
-                                                <td className="p-4 text-right text-white/50 text-sm font-mono tracking-wider">
-                                                    {rsvp.phone?.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2 $3')}
-                                                </td>
-                                            </tr>
-                                        )
-                                    })}
-                                    {rsvps.length === 0 && (
-                                        <tr><td colSpan={3} className="text-center p-8 text-white/30 text-sm">Aún no hay confirmados. ¡Prueba el botón VIP arriba!</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div className="mt-12 text-center">
-                        <Link href="/checkout" className="inline-block px-10 py-5 rounded-full text-black font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform shadow-[0_0_40px_rgba(188,168,114,0.4)]" style={{ background: accent }}>
-                            Adquiere Soy Nexo para tu Boda
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
         </div>
     )
 }

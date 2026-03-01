@@ -75,7 +75,7 @@ export default function Patty50Page() {
                 hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
                 minutes: Math.floor((diff / (1000 * 60)) % 60),
                 seconds: Math.floor((diff / 1000) % 60),
-                isOver: diff === 0
+                isOver: diff <= 0
             })
         }
         tick()
