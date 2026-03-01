@@ -7,6 +7,7 @@ import { db, storage } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
 import { analyzeImageContent, validateFileBasics } from '@/lib/contentModeration'
 import Link from 'next/link'
+import Image from 'next/image'
 
 /* ================================================================
    TYPES
@@ -17,13 +18,6 @@ interface MediaItem {
     type: 'photo' | 'video'
     timestamp: number
     fileName?: string
-}
-
-interface RSVPItem {
-    id: string
-    name: string
-    photoUrl: string
-    timestamp: number
 }
 
 /* ================================================================
@@ -58,18 +52,10 @@ export default function Patty50Page() {
     const [deleteError, setDeleteError] = useState('')
     const [isDeleting, setIsDeleting] = useState(false)
 
-    // --- RSVP state ---
-    const [rsvpList, setRsvpList] = useState<RSVPItem[]>([])
-    const [showRSVP, setShowRSVP] = useState(false)
-    const [rsvpName, setRsvpName] = useState('')
-    const [rsvpPhoto, setRsvpPhoto] = useState<File | null>(null)
-    const [rsvpPhotoPreview, setRsvpPhotoPreview] = useState<string | null>(null)
-    const [isSubmittingRSVP, setIsSubmittingRSVP] = useState(false)
-    const [rsvpSuccess, setRsvpSuccess] = useState(false)
-    const rsvpFileRef = useRef<HTMLInputElement>(null)
+    // --- RSVP state (Removed) ---
 
     // --- Countdown state ---
-    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isOver: false })
 
     const [uploadUrl, setUploadUrl] = useState('')
     useEffect(() => {
@@ -89,6 +75,7 @@ export default function Patty50Page() {
                 hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
                 minutes: Math.floor((diff / (1000 * 60)) % 60),
                 seconds: Math.floor((diff / 1000) % 60),
+                isOver: diff === 0
             })
         }
         tick()
@@ -117,20 +104,7 @@ export default function Patty50Page() {
         return () => unsubscribe()
     }, [])
 
-    /* ---- Firebase: RSVP real-time sync ---- */
-    useEffect(() => {
-        const rsvpRef = collection(db, 'events', EVENT_SLUG, 'rsvp')
-        const q = query(rsvpRef, orderBy('timestamp', 'desc'))
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            setRsvpList(snapshot.docs.map(d => ({
-                id: d.id,
-                name: d.data().name,
-                photoUrl: d.data().photoUrl,
-                timestamp: d.data().timestamp?.toMillis() || Date.now()
-            })))
-        })
-        return () => unsubscribe()
-    }, [])
+    /* ---- Firebase: RSVP real-time sync (Removed) ---- */
 
     /* ---- Filtered media ---- */
     const filteredMedia = media.filter(item => {
@@ -245,51 +219,7 @@ export default function Patty50Page() {
         finally { setIsDeleting(false) }
     }
 
-    /* ---- RSVP: photo goes to BOTH rsvp collection AND media album ---- */
-    const handleRSVPSubmit = async () => {
-        if (!rsvpName.trim() || !rsvpPhoto) return
-        setIsSubmittingRSVP(true)
-        try {
-            const mod = await analyzeImageContent(rsvpPhoto)
-            if (!mod.isAppropriate) {
-                setUploadError(mod.reason || 'Foto no permitida')
-                setIsSubmittingRSVP(false)
-                return
-            }
-            const fileName = `rsvp-${Date.now()}-${rsvpPhoto.name}`
-            const storageRef = ref(storage, `events/${EVENT_SLUG}/rsvp/${fileName}`)
-            await uploadBytes(storageRef, rsvpPhoto)
-            const photoUrl = await getDownloadURL(storageRef)
-
-            // Save to RSVP collection
-            await addDoc(collection(db, 'events', EVENT_SLUG, 'rsvp'), {
-                name: rsvpName.trim(), photoUrl, timestamp: serverTimestamp(), confirmed: true
-            })
-            // ALSO save to media album so the selfie appears in the gallery
-            await addDoc(collection(db, 'events', EVENT_SLUG, 'media'), {
-                url: photoUrl, type: 'photo', timestamp: serverTimestamp(), fileName, rsvpName: rsvpName.trim()
-            })
-
-            setRsvpSuccess(true)
-            setShowRSVP(false)
-            setRsvpName('')
-            setRsvpPhoto(null)
-            setRsvpPhotoPreview(null)
-            setTimeout(() => setRsvpSuccess(false), 4000)
-        } catch (err) {
-            console.error('RSVP error:', err)
-            setUploadError('Error al confirmar. Intenta de nuevo.')
-        } finally { setIsSubmittingRSVP(false) }
-    }
-
-    const handleRSVPPhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        setRsvpPhoto(file)
-        const reader = new FileReader()
-        reader.onload = (ev) => setRsvpPhotoPreview(ev.target?.result as string)
-        reader.readAsDataURL(file)
-    }
+    /* ---- RSVP logic (Removed) ---- */
 
     /* ================================================================
        RENDER — SINGLE CONTINUOUS PAGE (like yoselyn-ariosto-boda)
@@ -313,41 +243,42 @@ export default function Patty50Page() {
 
                 {/* Original invitation image */}
                 <img
-                    src="/PATTY 50.jpeg"
+                    src={countdown.isOver ? "/social/PATTY50.png" : "/PATTY 50.jpeg"}
                     alt="Patty 50th Birthday — Celebra con nosotros — Sábado 28 de Febrero, Calle Corregidora, 7PM"
                     className="w-full max-w-md mx-auto"
-                    style={{ display: 'block' }}
+                    style={{ display: 'block', transition: 'all 0.5s ease-in-out' }}
                 />
 
                 {/* Countdown Timer */}
-                <div className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.06)' }}>
-                    <p className="text-xs font-bold tracking-[0.15em] uppercase mb-3" style={{ color: '#8B7332' }}>⏳ Faltan</p>
-                    <div className="flex justify-center gap-3 sm:gap-5">
-                        {[
-                            { value: countdown.days, label: 'Días' },
-                            { value: countdown.hours, label: 'Hrs' },
-                            { value: countdown.minutes, label: 'Min' },
-                            { value: countdown.seconds, label: 'Seg' },
-                        ].map((unit, i) => (
-                            <div key={i} className="flex flex-col items-center">
-                                <span className="text-2xl sm:text-3xl font-black tabular-nums" style={{
-                                    color: '#8B7332',
-                                    minWidth: '2.5rem',
-                                    textAlign: 'center',
-                                }}>{String(unit.value).padStart(2, '0')}</span>
-                                <span className="text-[0.6rem] font-bold tracking-wider uppercase mt-0.5" style={{ color: '#999' }}>{unit.label}</span>
-                            </div>
-                        ))}
+                {!countdown.isOver ? (
+                    <div className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.06)' }}>
+                        <p className="text-xs font-bold tracking-[0.15em] uppercase mb-3" style={{ color: '#8B7332' }}>⏳ Faltan</p>
+                        <div className="flex justify-center gap-3 sm:gap-5">
+                            {[
+                                { value: countdown.days, label: 'Días' },
+                                { value: countdown.hours, label: 'Hrs' },
+                                { value: countdown.minutes, label: 'Min' },
+                                { value: countdown.seconds, label: 'Seg' },
+                            ].map((unit, i) => (
+                                <div key={i} className="flex flex-col items-center">
+                                    <span className="text-2xl sm:text-3xl font-black tabular-nums" style={{
+                                        color: '#8B7332',
+                                        minWidth: '2.5rem',
+                                        textAlign: 'center',
+                                    }}>{String(unit.value).padStart(2, '0')}</span>
+                                    <span className="text-[0.6rem] font-bold tracking-wider uppercase mt-0.5" style={{ color: '#999' }}>{unit.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="px-4 py-5" style={{ background: 'rgba(139,115,50,0.06)' }}>
+                        <p className="text-sm font-bold tracking-[0.1em] uppercase" style={{ color: '#8B7332' }}>🎉 ¡La fiesta ya comenzó!</p>
+                    </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="px-4 py-5 flex flex-col items-center gap-3">
-                    <button onClick={() => setShowRSVP(true)}
-                        className="w-full max-w-xs px-8 py-3.5 rounded-full text-sm font-bold tracking-wider transition-all active:scale-95"
-                        style={{ background: 'linear-gradient(135deg, #C5A55A, #8B7332)', color: '#FFF', boxShadow: '0 6px 20px rgba(139,115,50,0.3)' }}>
-                        ✅ CONFIRMAR ASISTENCIA
-                    </button>
                     <a href="https://www.google.com/maps?q=27.082254,-109.457556" target="_blank" rel="noopener noreferrer"
                         className="w-full max-w-xs px-8 py-3 rounded-full text-sm font-bold tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2"
                         style={{ background: 'rgba(139,115,50,0.1)', color: '#8B7332', border: '1px solid rgba(139,115,50,0.25)' }}>
@@ -355,27 +286,6 @@ export default function Patty50Page() {
                     </a>
                 </div>
             </section>
-
-            {/* ==========================================
-                SECTION 2: CONFIRMED GUESTS (RSVP)
-                ========================================== */}
-            {rsvpList.length > 0 && (
-                <section className="px-4 py-6">
-                    <p className="text-center text-sm mb-4" style={{ color: '#8B7332', letterSpacing: '0.1em' }}>
-                        🎉 {rsvpList.length} {rsvpList.length === 1 ? 'confirmado' : 'confirmados'}
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-3 max-w-lg mx-auto">
-                        {rsvpList.map(r => (
-                            <div key={r.id} className="flex flex-col items-center gap-1">
-                                <img src={r.photoUrl} alt={r.name}
-                                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover"
-                                    style={{ border: '2px solid #C5A55A', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
-                                <span className="text-[0.65rem] font-semibold max-w-[60px] truncate" style={{ color: '#555' }}>{r.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            )}
 
             {/* ==========================================
                 SECTION 3: HOW-TO INSTRUCTIONS
@@ -468,8 +378,9 @@ export default function Patty50Page() {
                                     <video src={item.url} className="w-full h-full object-cover" muted playsInline preload="metadata"
                                         onLoadedData={(e) => { (e.target as HTMLVideoElement).currentTime = 0.5 }} />
                                 ) : (
-                                    <img src={item.url} alt="Foto" loading="lazy"
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                                    <div className="w-full h-full relative">
+                                        <Image src={item.url} alt="Foto del evento" fill sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw" className="object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" />
+                                    </div>
                                 )}
                                 {item.type === 'video' && (
                                     <div className="absolute inset-0 flex items-center justify-center">
@@ -554,12 +465,7 @@ export default function Patty50Page() {
                     ✅ ¡Foto añadida al álbum!
                 </div>
             )}
-            {rsvpSuccess && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] rounded-xl px-5 py-3 flex items-center gap-2 text-sm text-white shadow-lg"
-                    style={{ background: 'rgba(139,115,50,0.95)', backdropFilter: 'blur(8px)' }}>
-                    🎉 ¡Asistencia confirmada!
-                </div>
-            )}
+            {/* RSVP Succes Removed */}
             {uploadError && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] rounded-xl px-5 py-3 flex items-center gap-2 text-sm text-white shadow-lg"
                     style={{ background: 'rgba(183,28,28,0.95)', backdropFilter: 'blur(8px)' }}>
@@ -663,52 +569,7 @@ export default function Patty50Page() {
                 </div>
             )}
 
-            {/* ==========================================
-                RSVP MODAL
-                ========================================== */}
-            {showRSVP && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}
-                    onClick={() => setShowRSVP(false)}>
-                    <div className="rounded-2xl p-5 w-full max-w-xs" style={{ background: '#F5F0E8' }} onClick={(e) => e.stopPropagation()}>
-                        <h3 className="text-lg font-bold mb-0.5" style={{ color: '#333' }}>✅ Confirmar Asistencia</h3>
-                        <p className="text-xs mb-4" style={{ color: '#666' }}>Tu nombre y una selfie</p>
-
-                        <input type="text" value={rsvpName} onChange={(e) => setRsvpName(e.target.value)}
-                            placeholder="Tu nombre" autoFocus
-                            className="w-full px-3 py-2.5 rounded-lg mb-3 text-sm outline-none"
-                            style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(139,115,50,0.2)', color: '#333' }} />
-
-                        <input ref={rsvpFileRef} type="file" accept="image/*" capture="user" onChange={handleRSVPPhotoSelect} className="hidden" />
-
-                        {rsvpPhotoPreview ? (
-                            <div className="relative mb-3">
-                                <img src={rsvpPhotoPreview} alt="Selfie" className="w-full h-40 object-cover rounded-xl" />
-                                <button onClick={() => { setRsvpPhoto(null); setRsvpPhotoPreview(null); if (rsvpFileRef.current) rsvpFileRef.current.value = '' }}
-                                    className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center text-white text-sm">×</button>
-                            </div>
-                        ) : (
-                            <button onClick={() => rsvpFileRef.current?.click()}
-                                className="w-full py-6 rounded-xl mb-3 flex flex-col items-center gap-1.5"
-                                style={{ border: '2px dashed rgba(139,115,50,0.25)', color: '#8B7332' }}>
-                                <span className="text-2xl">📸</span>
-                                <span className="text-xs font-medium">Tomar Selfie</span>
-                            </button>
-                        )}
-
-                        <div className="flex gap-2">
-                            <button onClick={() => setShowRSVP(false)}
-                                className="flex-1 py-2.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(0,0,0,0.05)', color: '#666' }}>
-                                Cancelar
-                            </button>
-                            <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || !rsvpPhoto}
-                                className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white disabled:opacity-40"
-                                style={{ background: 'linear-gradient(135deg, #C5A55A, #8B7332)' }}>
-                                {isSubmittingRSVP ? 'Confirmando...' : '¡Confirmo! 🎉'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* RSVP Modal Removed */}
 
             {/* ==========================================
                 QR MODAL
