@@ -857,12 +857,7 @@ export default function PremiumEventPage() {
                 </div>
             )}
 
-            {/* --- PRICING CTA --- */}
-            <div className="px-6 py-12 text-center border-t border-white/5 bg-[#1A1A1F]/30">
-                <Link href="/crear" className="inline-block w-full sm:w-auto px-8 py-5 rounded-full font-black text-sm uppercase tracking-wider transition-transform hover:scale-105 shadow-[0_0_30px_rgba(188,168,114,0.2)]" style={{ background: accent, color: accentTextColor }}>
-                    Crea tu invitación digital y álbum privado en 5 minutos
-                </Link>
-            </div>
+
 
             <footer className="text-center py-6 border-t border-white/5 opacity-50 text-xs">
                 Generado con 🖤 por <a href="https://soynexo.com" target="_blank" rel="noopener noreferrer" className="text-white font-bold hover:underline">Soy Nexo</a>
