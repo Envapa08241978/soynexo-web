@@ -226,7 +226,7 @@ export default function Patty50Page() {
        Hero Invitation → RSVP Confirmed → Instructions → Album
        ================================================================ */
     return (
-        <div className="min-h-screen" style={{ background: '#F5F0E8', fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+        <div className="min-h-screen" style={{ background: '#111111', fontFamily: "'Georgia', 'Times New Roman', serif" }}>
 
             {/* ==========================================
                 SECTION 1: HERO — ORIGINAL INVITATION IMAGE
@@ -302,7 +302,7 @@ export default function Patty50Page() {
                                 <span className="text-lg">{s.emoji}</span>
                             </div>
                             <p className="text-xs font-bold" style={{ color: '#8B7332' }}>{s.step}</p>
-                            <p className="text-[0.6rem] leading-tight" style={{ color: '#888' }}>{s.desc}</p>
+                            <p className="text-[0.6rem] leading-tight" style={{ color: '#AAA' }}>{s.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -312,10 +312,10 @@ export default function Patty50Page() {
                 SECTION 4: ALBUM HEADER
                 ========================================== */}
             <section className="sticky top-0 z-40 border-b px-4 py-3"
-                style={{ background: 'rgba(245,240,232,0.97)', backdropFilter: 'blur(10px)', borderColor: 'rgba(139,115,50,0.12)' }}>
+                style={{ background: 'rgba(17,17,17,0.95)', backdropFilter: 'blur(10px)', borderColor: 'rgba(139,115,50,0.12)' }}>
                 <div className="flex items-center justify-between max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold" style={{ color: '#333' }}>📸 Álbum</span>
+                        <span className="text-sm font-bold" style={{ color: '#FFF' }}>📸 Álbum</span>
                         <span className="text-xs" style={{ color: '#999' }}>
                             {media.filter(m => m.type === 'photo').length} fotos · {media.filter(m => m.type === 'video').length} videos
                         </span>
@@ -416,18 +416,18 @@ export default function Patty50Page() {
 
                 {showUploadOptions && (
                     <div className="absolute bottom-16 right-0 rounded-xl p-2 mb-1 flex flex-col gap-0.5 min-w-[160px] shadow-xl"
-                        style={{ background: '#F5F0E8', border: '1px solid rgba(139,115,50,0.2)' }}>
+                        style={{ background: '#111111', border: '1px solid rgba(139,115,50,0.2)' }}>
                         <button onClick={() => { fileInputRef.current?.click(); setShowUploadOptions(false) }}
-                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#333' }}>
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#FFF' }}>
                             📸 Foto
                         </button>
                         <button onClick={() => { videoInputRef.current?.click(); setShowUploadOptions(false) }}
-                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#333' }}>
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#FFF' }}>
                             🎥 Video
                         </button>
                         <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', margin: '2px 0' }} />
                         <button onClick={() => { galleryInputRef.current?.click(); setShowUploadOptions(false) }}
-                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#333' }}>
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm hover:bg-black/5" style={{ color: '#FFF' }}>
                             🖼️ Galería
                         </button>
                     </div>
@@ -545,19 +545,19 @@ export default function Patty50Page() {
             {showDeleteModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}
                     onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}>
-                    <div className="rounded-2xl p-5 w-full max-w-xs" style={{ background: '#F5F0E8' }} onClick={(e) => e.stopPropagation()}>
-                        <h3 className="text-lg font-bold mb-1" style={{ color: '#333' }}>🗑️ Eliminar</h3>
-                        <p className="text-xs mb-3" style={{ color: '#666' }}>Ingresa la contraseña</p>
+                    <div className="rounded-2xl p-5 w-full max-w-xs" style={{ background: '#111111' }} onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-lg font-bold mb-1" style={{ color: '#FFF' }}>🗑️ Eliminar</h3>
+                        <p className="text-xs mb-3" style={{ color: '#999' }}>Ingresa la contraseña</p>
                         <input type="password" value={deletePassword}
                             onChange={(e) => { setDeletePassword(e.target.value); setDeleteError('') }}
                             placeholder="Contraseña" autoFocus
                             onKeyDown={(e) => e.key === 'Enter' && handleDelete()}
                             className="w-full px-3 py-2.5 rounded-lg mb-2 text-sm outline-none"
-                            style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(139,115,50,0.2)', color: '#333' }} />
+                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(139,115,50,0.2)', color: '#FFF' }} />
                         {deleteError && <p className="text-red-500 text-xs mb-2">{deleteError}</p>}
                         <div className="flex gap-2">
                             <button onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}
-                                className="flex-1 py-2.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(0,0,0,0.05)', color: '#666' }}>
+                                className="flex-1 py-2.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(255,255,255,0.05)', color: '#999' }}>
                                 Cancelar
                             </button>
                             <button onClick={handleDelete} disabled={isDeleting}
@@ -577,18 +577,18 @@ export default function Patty50Page() {
             {showQR && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)' }}
                     onClick={() => setShowQR(false)}>
-                    <div className="rounded-2xl p-6 w-full max-w-xs text-center relative" style={{ background: '#F5F0E8' }}
+                    <div className="rounded-2xl p-6 w-full max-w-xs text-center relative" style={{ background: '#111111' }}
                         onClick={(e) => e.stopPropagation()}>
                         <button onClick={() => setShowQR(false)}
                             className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
                             style={{ background: 'rgba(139,115,50,0.1)', color: '#8B7332' }}>✕</button>
-                        <h2 className="text-lg font-bold mb-1" style={{ color: '#333' }}>📸 ¡Comparte!</h2>
-                        <p className="text-xs mb-4" style={{ color: '#666' }}>Sube fotos y videos de la fiesta</p>
+                        <h2 className="text-lg font-bold mb-1" style={{ color: '#FFF' }}>📸 ¡Comparte!</h2>
+                        <p className="text-xs mb-4" style={{ color: '#999' }}>Sube fotos y videos de la fiesta</p>
                         <div className="bg-white p-4 rounded-xl inline-block mb-4">
                             <QRCodeSVG value={uploadUrl} size={180} level="H" fgColor="#333" />
                         </div>
                         <div className="rounded-lg p-3" style={{ background: 'rgba(139,115,50,0.08)' }}>
-                            <p className="font-mono text-xs break-all" style={{ color: '#333' }}>{uploadUrl}</p>
+                            <p className="font-mono text-xs break-all" style={{ color: '#FFF' }}>{uploadUrl}</p>
                         </div>
                     </div>
                 </div>
