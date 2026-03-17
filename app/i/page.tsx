@@ -1,7 +1,4 @@
-import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-
-type Props = {
+import { Metadata } from 'next';type Props = {
     searchParams: { [key: string]: string | string[] | undefined };
 };
 
@@ -43,14 +40,13 @@ export default function RouteRedirect({ searchParams }: Props) {
     const imgParam = searchParams.img;
     const imageUrl = Array.isArray(imgParam) ? imgParam[0] : imgParam;
 
-    // Redirigir siempre a la imagen si un humano abre el link en su navegador
-    if (imageUrl) {
-        redirect(imageUrl);
-    }
-
     return (
-        <div style={{ padding: '2rem', textAlign: 'center', fontFamily: 'sans-serif' }}>
-            <h1>Enlace inválido o sin imagen</h1>
+        <div style={{ margin: 0, padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#000' }}>
+            {imageUrl ? (
+                <img src={imageUrl} style={{ maxWidth: '100%', maxHeight: '100vh', objectFit: 'contain' }} alt="Invitación" />
+            ) : (
+                <h1 style={{ color: 'white', fontFamily: 'sans-serif' }}>Enlace inválido o sin imagen</h1>
+            )}
         </div>
     );
 }
