@@ -86,9 +86,9 @@ export default function RegistroDashboard() {
     const [uploadProgress, setUploadProgress] = useState(0)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    // --- Broadcast ---
     const [broadcastMsg, setBroadcastMsg] = useState('')
     const [broadcastEventFilter, setBroadcastEventFilter] = useState('')
+    const [broadcastColoniaFilter, setBroadcastColoniaFilter] = useState('')
     const [sentContacts, setSentContacts] = useState<Set<string>>(new Set())
     const [broadcastImage, setBroadcastImage] = useState('')
     const [isUploadingBroadcastImage, setIsUploadingBroadcastImage] = useState(false)
@@ -781,7 +781,7 @@ export default function RegistroDashboard() {
                                 )}
                                 <input ref={broadcastFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBroadcastImageUpload} />
                                 <div className="mt-3 text-xs text-gray-500 flex items-center gap-2">
-                                    <span>O usa la imagen de un evento:</span>
+                                    <span>Evento a promocionar (Auto-carga su imagen):</span>
                                     <select 
                                         className="p-1.5 rounded-lg border border-gray-200 text-xs bg-white text-gray-700 font-medium cursor-pointer outline-none flex-1 max-w-[250px]"
                                         onChange={(e) => {
@@ -793,24 +793,42 @@ export default function RegistroDashboard() {
                                             }
                                         }}
                                     >
-                                        <option value="">-- Seleccionar --</option>
-                                        {events.filter(e => e.image).map(e => (
+                                        <option value="">-- Seleccionar Evento --</option>
+                                        {events.map(e => (
                                             <option key={e.id} value={e.id}>{e.name}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
 
-                            <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Filtrar Destinatarios (A quién le llegará el mensaje)</label>
-                            <select value={broadcastEventFilter} onChange={(e) => { setBroadcastEventFilter(e.target.value); setSentContacts(new Set()) }}
-                                className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 mb-6 outline-none bg-white font-medium cursor-pointer shadow-sm">
-                                <option value="">Toda la base de datos ({contacts.length} personas)</option>
-                                {events.map(e => <option key={e.id} value={e.id}>{e.name} ({contacts.filter(c => c.eventId === e.id).length} personas)</option>)}
-                            </select>
+                            <h4 className="font-bold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2">🎯 Seleccionar Destinatarios</h4>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Evento de Registro</label>
+                                    <select value={broadcastEventFilter} onChange={(e) => { setBroadcastEventFilter(e.target.value); setSentContacts(new Set()) }}
+                                        className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 outline-none bg-white font-medium cursor-pointer shadow-sm">
+                                        <option value="">Todos los eventos</option>
+                                        {events.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Colonia / Área</label>
+                                    <select value={broadcastColoniaFilter} onChange={(e) => { setBroadcastColoniaFilter(e.target.value); setSentContacts(new Set()) }}
+                                        className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 outline-none bg-white font-medium cursor-pointer shadow-sm">
+                                        <option value="">Todas las colonias</option>
+                                        {uniqueColonias.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                            </div>
 
                             {/* Execution */}
                             {(() => {
-                                const list = broadcastEventFilter ? contacts.filter(c => c.eventId === broadcastEventFilter) : contacts
+                                const list = contacts.filter(c => {
+                                    const matchEvent = broadcastEventFilter ? c.eventId === broadcastEventFilter : true;
+                                    const matchColonia = broadcastColoniaFilter ? c.colonia === broadcastColoniaFilter : true;
+                                    return matchEvent && matchColonia;
+                                });
                                 const sentCount = list.filter(c => sentContacts.has(c.id)).length
                                 return (
                                     <div className="bg-white border text-sm border-gray-200 rounded-2xl shadow-sm overflow-hidden">
