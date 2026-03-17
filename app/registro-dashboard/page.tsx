@@ -90,6 +90,9 @@ export default function RegistroDashboard() {
     const [broadcastMsg, setBroadcastMsg] = useState('')
     const [broadcastEventFilter, setBroadcastEventFilter] = useState('')
     const [sentContacts, setSentContacts] = useState<Set<string>>(new Set())
+    const [broadcastImage, setBroadcastImage] = useState('')
+    const [isUploadingBroadcastImage, setIsUploadingBroadcastImage] = useState(false)
+    const broadcastFileInputRef = useRef<HTMLInputElement>(null)
 
     // --- Config edit ---
     const [isEditingConfig, setIsEditingConfig] = useState(false)
@@ -256,6 +259,38 @@ export default function RegistroDashboard() {
         } catch (err) {
             console.error('Upload error:', err)
             setIsUploadingImage(false)
+        }
+    }
+
+    const handleBroadcastImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) { alert('Solo se permiten imágenes'); return }
+        if (file.size > 5 * 1024 * 1024) { alert('La imagen no debe exceder 5MB'); return }
+
+        setIsUploadingBroadcastImage(true)
+
+        try {
+            const fileName = `broadcast_${Date.now()}_${file.name}`
+            const storageRef = ref(storage, `campaigns/main_campaign/broadcasts/${fileName}`)
+            const uploadTask = uploadBytesResumable(storageRef, file)
+
+            uploadTask.on('state_changed',
+                () => {},
+                (error) => {
+                    console.error('Upload error:', error)
+                    setIsUploadingBroadcastImage(false)
+                },
+                async () => {
+                    const url = await getDownloadURL(uploadTask.snapshot.ref)
+                    setBroadcastImage(url)
+                    setIsUploadingBroadcastImage(false)
+                }
+            )
+        } catch (err) {
+            console.error('Upload error:', err)
+            setIsUploadingBroadcastImage(false)
         }
     }
 
@@ -732,11 +767,45 @@ export default function RegistroDashboard() {
                             />
                             <p className="text-[0.65rem] text-gray-400 mb-6 font-medium">Truco: Escribe {'{nombre}'} para que el sistema lo reemplace por el nombre real de cada persona.</p>
 
-                            <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Filtrar Base de Datos</label>
+                            <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Imagen Adjunta (Opcional)</label>
+                            <div className="mb-6">
+                                {broadcastImage ? (
+                                    <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200">
+                                        <img src={broadcastImage} alt="Preview" className="w-full h-40 object-cover" />
+                                        <button onClick={() => setBroadcastImage('')} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-md hover:scale-110 transition-transform">X</button>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => broadcastFileInputRef.current?.click()} disabled={isUploadingBroadcastImage} className="w-full py-6 text-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors font-medium cursor-pointer">
+                                        {isUploadingBroadcastImage ? 'Subiendo imagen...' : '📸 Subir Imagen para Difusión'}
+                                    </button>
+                                )}
+                                <input ref={broadcastFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBroadcastImageUpload} />
+                                <div className="mt-3 text-xs text-gray-500 flex items-center gap-2">
+                                    <span>O usa la imagen de un evento:</span>
+                                    <select 
+                                        className="p-1.5 rounded-lg border border-gray-200 text-xs bg-white text-gray-700 font-medium cursor-pointer outline-none flex-1 max-w-[250px]"
+                                        onChange={(e) => {
+                                            const ev = events.find(ev => ev.id === e.target.value)
+                                            if (ev && ev.image) {
+                                                setBroadcastImage(ev.image)
+                                            } else {
+                                                setBroadcastImage('')
+                                            }
+                                        }}
+                                    >
+                                        <option value="">-- Seleccionar --</option>
+                                        {events.filter(e => e.image).map(e => (
+                                            <option key={e.id} value={e.id}>{e.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Filtrar Destinatarios (A quién le llegará el mensaje)</label>
                             <select value={broadcastEventFilter} onChange={(e) => { setBroadcastEventFilter(e.target.value); setSentContacts(new Set()) }}
                                 className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 mb-6 outline-none bg-white font-medium cursor-pointer shadow-sm">
-                                <option value="">Toda la red ciduadana ({contacts.length} personas)</option>
-                                {events.map(e => <option key={e.id} value={e.id}>{e.name} ({contacts.filter(c => c.eventId === e.id).length})</option>)}
+                                <option value="">Toda la base de datos ({contacts.length} personas)</option>
+                                {events.map(e => <option key={e.id} value={e.id}>{e.name} ({contacts.filter(c => c.eventId === e.id).length} personas)</option>)}
                             </select>
 
                             {/* Execution */}
@@ -754,7 +823,8 @@ export default function RegistroDashboard() {
                                                 const sent = sentContacts.has(c.id)
                                                 const firstName = c.name.split(' ')[0]
                                                 const msg = broadcastMsg ? broadcastMsg.replace(/\{nombre\}/gi, firstName) : `¡Hola ${firstName}!`
-                                                const url = `https://wa.me/52${c.phone}?text=${encodeURIComponent(msg)}`
+                                                const finalMsg = broadcastImage ? `${broadcastImage}\n\n${msg}` : msg
+                                                const url = `https://wa.me/52${c.phone}?text=${encodeURIComponent(finalMsg)}`
                                                 return (
                                                     <div key={c.id} className={`flex items-center justify-between p-3 mb-1 rounded-xl transition-all ${sent ? 'bg-green-50/50' : 'hover:bg-gray-50'}`}>
                                                         <div className="font-medium text-gray-700 truncate w-48 text-sm">{c.name}</div>
