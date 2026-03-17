@@ -823,7 +823,7 @@ export default function RegistroDashboard() {
                                                 const sent = sentContacts.has(c.id)
                                                 const firstName = c.name.split(' ')[0]
                                                 const msg = broadcastMsg ? broadcastMsg.replace(/\{nombre\}/gi, firstName) : `¡Hola ${firstName}!`
-                                                const finalMsg = broadcastImage ? `${broadcastImage}\n\n${msg}` : msg
+                                                const finalMsg = broadcastImage ? `https://www.soynexo.com/i?img=${encodeURIComponent(broadcastImage)}\n\n${msg}` : msg
                                                 const url = `https://wa.me/52${c.phone}?text=${encodeURIComponent(finalMsg)}`
                                                 return (
                                                     <div key={c.id} className={`flex items-center justify-between p-3 mb-1 rounded-xl transition-all ${sent ? 'bg-green-50/50' : 'hover:bg-gray-50'}`}>
