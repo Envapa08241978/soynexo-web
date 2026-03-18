@@ -33,6 +33,9 @@ interface EventItem {
     description: string
     time: string
     active?: boolean
+    targetSeccionales?: string[]
+    targetColonias?: string[]
+    targetContacts?: string[]
 }
 
 const MultiSelect = ({ options, selected, onChange, placeholder }: { options: {label: string, value: string}[], selected: string[], onChange: (val: string[]) => void, placeholder: string }) => {
@@ -130,6 +133,7 @@ export default function RegistroDashboard() {
     const [showEventForm, setShowEventForm] = useState(false)
     const [eventForm, setEventForm] = useState<Partial<EventItem>>({
         name: '', date: '', location: '', coords: '', image: '', description: '', time: '',
+        targetSeccionales: [], targetColonias: [], targetContacts: []
     })
     const [editingEventId, setEditingEventId] = useState<string | null>(null)
     const [isSaving, setIsSaving] = useState(false)
@@ -813,7 +817,7 @@ export default function RegistroDashboard() {
                     {/* TAB: EVENTS */}
                     {activeTab === 'events' && (
                         <div className="p-6 bg-gray-50/50 min-h-[500px]">
-                            <button onClick={() => { setShowEventForm(true); setEditingEventId(null); setEventForm({ name: '', date: '', location: '', coords: '', image: '', description: '', time: '' }) }}
+                            <button onClick={() => { setShowEventForm(true); setEditingEventId(null); setEventForm({ name: '', date: '', location: '', coords: '', image: '', description: '', time: '', targetSeccionales: [], targetColonias: [], targetContacts: [] }) }}
                                 className="w-full mb-6 py-4 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 shadow-md hover:bg-opacity-90 transition-all active:scale-[0.98]"
                                 style={{ background: accent }}>
                                 ➕ Crear Nueva Asamblea / Evento
@@ -890,8 +894,47 @@ export default function RegistroDashboard() {
                                                 )}
                                                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                                             </div>
+
+                                            <div className="pt-4 mt-6 border-t border-gray-100">
+                                                <h4 className="font-bold text-gray-800 text-sm mb-4">👥 Perfil de Invitados (Opcional)</h4>
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Por Seccional</label>
+                                                        <div className="relative z-30">
+                                                            <MultiSelect 
+                                                                placeholder="Todos los seccionales (Sin filtro)"
+                                                                options={uniqueSeccionales.map(c => ({ label: `Seccional ${c}`, value: c }))}
+                                                                selected={eventForm.targetSeccionales || []}
+                                                                onChange={(val) => setEventForm(prev => ({...prev, targetSeccionales: val}))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Por Colonia</label>
+                                                        <div className="relative z-20">
+                                                            <MultiSelect 
+                                                                placeholder="Todas las colonias (Sin filtro)"
+                                                                options={uniqueColonias.map(c => ({ label: c, value: c }))}
+                                                                selected={eventForm.targetColonias || []}
+                                                                onChange={(val) => setEventForm(prev => ({...prev, targetColonias: val}))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Por Persona Individual</label>
+                                                        <div className="relative z-10 w-full mb-8">
+                                                            <MultiSelect 
+                                                                placeholder="Seleccionar contactos específicos"
+                                                                options={contacts.map(c => ({ label: c.name, value: c.id }))}
+                                                                selected={eventForm.targetContacts || []}
+                                                                onChange={(val) => setEventForm(prev => ({...prev, targetContacts: val}))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2 mt-8">
+                                        <div className="flex gap-2 mt-8 pt-4 border-t border-gray-100">
                                             <button onClick={() => setShowEventForm(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors">Cancelar</button>
                                             <button onClick={saveEvent} disabled={isSaving || !eventForm.name} className="flex-2 py-3 rounded-xl text-white font-bold px-8 shadow-md hover:opacity-90 transition-opacity disabled:opacity-50" style={{ background: accent }}>{isSaving ? 'Guardando...' : 'Guardar'}</button>
                                         </div>
