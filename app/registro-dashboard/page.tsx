@@ -298,7 +298,7 @@ export default function RegistroDashboard() {
 
     const updateContactFields = async (contactId: string, seccional: string, distrito: string) => {
         try {
-            await updateDoc(doc(db, 'contacts', contactId), { seccional, distrito })
+            await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', contactId), { seccional, distrito })
             alert('¡Guardado correctamente! 💾')
         } catch (error) {
             console.error(`Error updating contact:`, error)
