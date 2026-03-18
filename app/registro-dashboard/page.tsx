@@ -150,6 +150,11 @@ export default function RegistroDashboard() {
     const [isUploadingBroadcastImage, setIsUploadingBroadcastImage] = useState(false)
     const broadcastFileInputRef = useRef<HTMLInputElement>(null)
 
+    // --- Invitation Modal ---
+    const [invitationEventId, setInvitationEventId] = useState<string | null>(null)
+    const [invitationMsg, setInvitationMsg] = useState('')
+    const [invitationSentContacts, setInvitationSentContacts] = useState<Set<string>>(new Set())
+
     // --- Config edit ---
     const [isEditingConfig, setIsEditingConfig] = useState(false)
     const [configForm, setConfigForm] = useState<any>(config)
@@ -529,7 +534,7 @@ export default function RegistroDashboard() {
                         { key: 'contacts', label: '👥 Directorio' },
                         { key: 'map', label: '🗺️ Alcance Comunitario' },
                         { key: 'events', label: '🏛️ Eventos' },
-                        { key: 'broadcast', label: '📢 Difusión' },
+                        { key: 'broadcast', label: '📢 Comunicados' },
                         { key: 'config', label: '⚙️ Configuración' },
                     ] as const).map(tab => (
                         <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -846,6 +851,9 @@ export default function RegistroDashboard() {
                                                         Publicar
                                                     </button>
                                                 )}
+                                                <button onClick={() => { setInvitationEventId(e.id); setInvitationMsg(''); setInvitationSentContacts(new Set()); }} className="flex-1 py-2 text-xs font-bold rounded-lg bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 flex items-center justify-center gap-1 shadow-sm">
+                                                    💌 Invitar
+                                                </button>
                                                 <button onClick={() => { setEventForm(e); setEditingEventId(e.id); setShowEventForm(true) }} className="px-3 py-2 bg-gray-50 text-gray-600 rounded-lg text-xs hover:bg-gray-100 border border-gray-200">
                                                     ✏️
                                                 </button>
@@ -941,15 +949,109 @@ export default function RegistroDashboard() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Invitation Modal */}
+                            {invitationEventId && (() => {
+                                const ev = events.find(e => e.id === invitationEventId);
+                                if (!ev) return null;
+
+                                const targetList = contacts.filter(c => {
+                                    const matchSeccional = (ev.targetSeccionales || []).includes(c.seccional || '');
+                                    const matchColonia = (ev.targetColonias || []).includes(c.colonia || '');
+                                    const matchPerson = (ev.targetContacts || []).includes(c.id);
+                                    
+                                    const hasFilters = (ev.targetSeccionales?.length || 0) > 0 || (ev.targetColonias?.length || 0) > 0 || (ev.targetContacts?.length || 0) > 0;
+                                    
+                                    if (!hasFilters) return true; // Si no puso filtros, asume todas las personas de la base.
+                                    return matchSeccional || matchColonia || matchPerson;
+                                });
+
+                                const sentCount = targetList.filter(c => invitationSentContacts.has(c.id)).length;
+
+                                return (
+                                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm shadow-2xl">
+                                        <div className="bg-white rounded-3xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+                                            <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-5">
+                                                <h3 className="text-xl font-black text-gray-800 flex items-center gap-2">
+                                                    <span>💌</span> Invitaciones: {ev.name}
+                                                </h3>
+                                                <button onClick={() => setInvitationEventId(null)} className="text-gray-400 hover:text-gray-600 font-bold text-xl px-2">X</button>
+                                            </div>
+
+                                            <div className="bg-green-50 rounded-xl p-4 border border-green-100 mb-5 text-sm flex gap-3 text-green-800">
+                                                <span className="text-xl">👥</span>
+                                                <div>
+                                                    <p className="font-bold mb-1">Perfil de Invitados Cargado</p>
+                                                    <p className="opacity-80 leading-snug">Se encontraron <strong>{targetList.length} personas</strong> basadas en las reglas de Seccional, Colonia y/o contactos directos de este evento.</p>
+                                                </div>
+                                            </div>
+
+                                            <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Plantilla del Mensaje de Invitación</label>
+                                            <textarea
+                                                value={invitationMsg}
+                                                onChange={(e) => setInvitationMsg(e.target.value)}
+                                                placeholder={`¡Hola {nombre}! Te invito a la asamblea ${ev.name} este ${ev.date}...`}
+                                                className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:border-green-400 text-sm h-28 mb-1 resize-none font-medium text-gray-700"
+                                            />
+                                            <p className="text-[0.65rem] text-gray-400 mb-6 font-medium">Truco: Escribe {'{nombre}'} para cambiarlo por el nombre real. (La imagen de la asamblea se adjuntará automáticamente si tiene una).</p>
+
+                                            <div className="bg-white border text-sm border-gray-200 rounded-2xl shadow-sm overflow-hidden flex-1 min-h-[250px] flex flex-col">
+                                                <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between sticky top-0">
+                                                    <span className="font-bold text-gray-500">Progreso de Envío</span>
+                                                    <span className="font-black text-green-600">{sentCount} / {targetList.length}</span>
+                                                </div>
+                                                <div className="overflow-y-auto p-2 flex-1 relative">
+                                                    {targetList.length === 0 ? (
+                                                        <div className="text-center py-10 text-gray-400 font-medium">No hay personas que coincidan con la lista de invitados.</div>
+                                                    ) : (
+                                                        targetList.map(c => {
+                                                            const sent = invitationSentContacts.has(c.id)
+                                                            const firstName = c.name.split(' ')[0]
+                                                            return (
+                                                                <div key={c.id} className={`flex items-center justify-between p-3 border-b border-gray-50 last:border-0 rounded-xl mb-1 transition-colors ${sent ? 'bg-green-50/50' : 'hover:bg-gray-50'}`}>
+                                                                    <div className="flex items-center gap-3">
+                                                                        {sent ? <span className="text-green-500">✅</span> : <span className="text-gray-300">⏳</span>}
+                                                                        <div className="flex flex-col">
+                                                                            <span className={`font-bold text-sm ${sent ? 'text-gray-800' : 'text-gray-700'}`}>{c.name}</span>
+                                                                            <span className="text-gray-400 text-[10px] tracking-wide uppercase font-bold">{c.colonia || 'Sin Colonia'}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <a
+                                                                        href={`https://wa.me/521${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`${ev.image ? window.location.origin + '/i?img=' + encodeURIComponent(ev.image) + ' \n\n' : ''}${invitationMsg.replace(/{nombre}/gi, firstName)}`)}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        onClick={() => {
+                                                                            const newSet = new Set(invitationSentContacts)
+                                                                            newSet.add(c.id)
+                                                                            setInvitationSentContacts(newSet)
+                                                                        }}
+                                                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${sent ? 'bg-white border-2 border-green-500 text-green-600' : 'bg-green-500 hover:bg-green-600 text-white hover:-translate-y-0.5'}`}
+                                                                    >
+                                                                        {sent ? 'Reenviar WA' : 'Enviar WA'}
+                                                                    </a>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-5 text-center">
+                                                <button onClick={() => setInvitationEventId(null)} className="px-8 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })()}
                         </div>
                     )}
 
                     {/* TAB: BROADCAST */}
                     {activeTab === 'broadcast' && (
                         <div className="p-6 md:p-8 max-w-2xl mx-auto">
-                            <div className="bg-green-50 border border-green-100 p-4 rounded-xl mb-6">
-                                <h3 className="font-bold text-green-800 text-sm flex items-center gap-2 mb-1"><span>📢</span> Motor de Difusión WhatsApp</h3>
-                                <p className="text-green-700/80 text-xs">Abre chats de WhatsApp masivamente para invitar a tus contactos a las nuevas asambleas usando tu celular o WhatsApp Web.</p>
+                            <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6">
+                                <h3 className="font-bold text-blue-800 text-sm flex items-center gap-2 mb-1"><span>📢</span> Avisos y Comunicados Generales</h3>
+                                <p className="text-blue-700/80 text-xs">Abre chats de WhatsApp masivamente para mantener comunicación constante, saludos, alertas comunitarias, o felicitar a los miembros.</p>
                             </div>
 
                             <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Plantilla del Mensaje</label>
