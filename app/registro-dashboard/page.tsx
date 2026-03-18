@@ -19,6 +19,8 @@ interface ContactItem {
     eventId: string
     eventName: string
     timestamp: any
+    seccional?: string
+    distrito?: string
 }
 
 interface EventItem {
@@ -294,6 +296,15 @@ export default function RegistroDashboard() {
         }
     }
 
+    const updateContactField = async (contactId: string, field: 'seccional' | 'distrito', value: string) => {
+        try {
+            await updateDoc(doc(db, 'contacts', contactId), { [field]: value })
+            // The onSnapshot listener will automatically update the UI
+        } catch (error) {
+            console.error(`Error updating ${field}:`, error)
+        }
+    }
+
     const setActiveEvent = async (eventId: string) => {
         try {
             await setDoc(doc(db, 'campaigns', 'main_campaign', 'config', 'profile'), {
@@ -496,6 +507,7 @@ export default function RegistroDashboard() {
                                             <th className="px-6 py-4">WhatsApp</th>
                                             <th className="px-6 py-4">Evento</th>
                                             <th className="px-6 py-4">C.P. / Colonia</th>
+                                            <th className="px-4 py-4 w-32">Seccional / Distrito</th>
                                             <th className="px-6 py-4">Fecha</th>
                                             <th className="px-6 py-4 text-center">Acciones</th>
                                         </tr>
@@ -512,6 +524,26 @@ export default function RegistroDashboard() {
                                                 <td className="px-6 py-3 text-gray-500 text-xs">{c.eventName}</td>
                                                 <td className="px-6 py-3 text-gray-500">
                                                     <span className="font-bold">{c.cp}</span> <span className="text-xs">{c.colonia}</span>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex flex-col gap-1 w-full max-w-[120px]">
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Seccional"
+                                                            defaultValue={c.seccional || ''} 
+                                                            onBlur={(e) => updateContactField(c.id, 'seccional', e.target.value)}
+                                                            className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 hover:bg-white transition-colors"
+                                                            title="Número de Seccional"
+                                                        />
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Distrito Fed."
+                                                            defaultValue={c.distrito || ''} 
+                                                            onBlur={(e) => updateContactField(c.id, 'distrito', e.target.value)}
+                                                            className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 hover:bg-white transition-colors"
+                                                            title="Distrito Federal"
+                                                        />
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-3 text-gray-400 text-xs">
                                                     {c.timestamp?.toDate?.()?.toLocaleDateString('es-MX')}
@@ -640,14 +672,19 @@ export default function RegistroDashboard() {
                                         </div>
 
                                         {/* Progress Match (Live connections) */}
-                                        <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-                                            <h3 className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-4">Alcance en Vivo (Soy Nexo)</h3>
-                                            <div className="w-28 h-28 mx-auto rounded-full border-[10px] border-gray-50 flex flex-col items-center justify-center relative shadow-inner bg-white">
-                                                {/* Visual simulation of progress */}
-                                                <span className="text-4xl font-black text-green-500 drop-shadow-sm">0</span>
-                                            </div>
-                                            <p className="text-xs text-gray-400 mt-4 leading-relaxed">Calculando cruce de Códigos Postales registrados hacia este polígono territorial...</p>
-                                        </div>
+                                        {(() => {
+                                            const sectorNumber = String(selectedSector['Sector Comunitario']);
+                                            const matchCount = contacts.filter((c: ContactItem) => c.seccional === sectorNumber).length;
+                                            return (
+                                                <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+                                                    <h3 className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-4">Alcance en Vivo (Soy Nexo)</h3>
+                                                    <div className="w-28 h-28 mx-auto rounded-full border-[10px] border-gray-50 flex flex-col items-center justify-center relative shadow-inner bg-white">
+                                                        <span className="text-4xl font-black text-green-500 drop-shadow-sm">{matchCount}</span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-400 mt-4 leading-relaxed font-medium">Conteo real de ciudadanos registrados asignados al Seccional / Sector <strong className="text-gray-600">{sectorNumber}</strong>.</p>
+                                                </div>
+                                            )
+                                        })()}
                                     </div>
                                 ) : (
                                     <div className="text-center py-16 px-4 opacity-40">
