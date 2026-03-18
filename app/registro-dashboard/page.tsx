@@ -35,6 +35,54 @@ interface EventItem {
     active?: boolean
 }
 
+const MultiSelect = ({ options, selected, onChange, placeholder }: { options: {label: string, value: string}[], selected: string[], onChange: (val: string[]) => void, placeholder: string }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const toggle = (val: string) => {
+        if (selected.includes(val)) onChange(selected.filter(v => v !== val));
+        else onChange([...selected, val]);
+    };
+
+    return (
+        <div className="relative" ref={ref}>
+            <button 
+                onClick={() => setOpen(!open)} 
+                className="px-4 py-2 w-full md:w-56 text-left rounded-xl text-sm border border-gray-200 bg-white shadow-sm flex justify-between items-center"
+            >
+                <span className="truncate text-gray-600 font-medium">
+                    {selected.length === 0 ? placeholder : `${selected.length} seleccionado(s)`}
+                </span>
+                <span className="text-gray-400 text-xs text-center w-4">{open ? '▲' : '▼'}</span>
+            </button>
+            {open && (
+                <div className="absolute top-full mt-1 left-0 z-50 w-64 max-h-60 overflow-y-auto bg-white border border-gray-100 rounded-xl shadow-xl p-2 font-medium">
+                    {options.map((opt) => (
+                        <label key={opt.value} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                            <input 
+                                type="checkbox" 
+                                checked={selected.includes(opt.value)}
+                                onChange={() => toggle(opt.value)}
+                                className="w-4 h-4 text-red-500 rounded focus:ring-red-500"
+                            />
+                            <span className="text-sm text-gray-700 truncate">{opt.label}</span>
+                        </label>
+                    ))}
+                    {options.length === 0 && <div className="p-2 text-xs text-gray-400">Sin opciones</div>}
+                </div>
+            )}
+        </div>
+    )
+}
 export default function RegistroDashboard() {
     // --- Auth ---
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -74,8 +122,9 @@ export default function RegistroDashboard() {
 
     // --- Filters ---
     const [searchQuery, setSearchQuery] = useState('')
-    const [filterEvent, setFilterEvent] = useState('')
-    const [filterColonia, setFilterColonia] = useState('')
+    const [filterEvents, setFilterEvents] = useState<string[]>([])
+    const [filterColonias, setFilterColonias] = useState<string[]>([])
+    const [filterSeccionales, setFilterSeccionales] = useState<string[]>([])
 
     // --- Event Form ---
     const [showEventForm, setShowEventForm] = useState(false)
@@ -89,8 +138,9 @@ export default function RegistroDashboard() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [broadcastMsg, setBroadcastMsg] = useState('')
-    const [broadcastEventFilter, setBroadcastEventFilter] = useState('')
-    const [broadcastColoniaFilter, setBroadcastColoniaFilter] = useState('')
+    const [broadcastEventFilters, setBroadcastEventFilters] = useState<string[]>([])
+    const [broadcastColoniaFilters, setBroadcastColoniaFilters] = useState<string[]>([])
+    const [broadcastSeccionalFilters, setBroadcastSeccionalFilters] = useState<string[]>([])
     const [sentContacts, setSentContacts] = useState<Set<string>>(new Set())
     const [broadcastImage, setBroadcastImage] = useState('')
     const [isUploadingBroadcastImage, setIsUploadingBroadcastImage] = useState(false)
@@ -173,9 +223,10 @@ export default function RegistroDashboard() {
     const filteredContacts = contacts.filter(c => {
         const search = searchQuery.toLowerCase()
         const matchesSearch = !search || c.name?.toLowerCase().includes(search) || c.phone?.includes(search) || c.cp?.includes(search)
-        const matchesEvent = !filterEvent || c.eventId === filterEvent
-        const matchesColonia = !filterColonia || c.colonia?.toLowerCase().includes(filterColonia.toLowerCase())
-        return matchesSearch && matchesEvent && matchesColonia
+        const matchesEvent = filterEvents.length === 0 || filterEvents.includes(c.eventId)
+        const matchesColonia = filterColonias.length === 0 || filterColonias.includes(c.colonia || '')
+        const matchesSeccional = filterSeccionales.length === 0 || filterSeccionales.includes(c.seccional || '')
+        return matchesSearch && matchesEvent && matchesColonia && matchesSeccional
     })
 
     const requestSort = (key: keyof ContactItem) => {
@@ -207,6 +258,7 @@ export default function RegistroDashboard() {
     }).length
 
     const uniqueColonias = Array.from(new Set(contacts.map(c => c.colonia).filter(Boolean))) as string[]
+    const uniqueSeccionales = Array.from(new Set(contacts.map(c => c.seccional).filter(Boolean))) as string[]
     const contactsByEvent = events.map(e => ({
         ...e,
         count: contacts.filter(c => c.eventId === e.id).length,
@@ -502,18 +554,29 @@ export default function RegistroDashboard() {
                                         placeholder="🔍 Buscar nombre, teléfono o CP..."
                                         className="px-4 py-2 rounded-xl text-sm border border-gray-200 outline-none focus:border-red-500 w-full md:w-64" />
 
-                                    <select value={filterEvent} onChange={(e) => setFilterEvent(e.target.value)}
-                                        className="px-3 py-2 rounded-xl text-sm border border-gray-200 text-gray-600 bg-white cursor-pointer w-full md:w-auto">
-                                        <option value="">Todos los eventos</option>
-                                        {events.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                                    </select>
+                                    <MultiSelect 
+                                        placeholder="Todos los eventos"
+                                        options={events.map(e => ({ label: e.name, value: e.id }))}
+                                        selected={filterEvents}
+                                        onChange={setFilterEvents}
+                                    />
 
                                     {uniqueColonias.length > 0 && (
-                                        <select value={filterColonia} onChange={(e) => setFilterColonia(e.target.value)}
-                                            className="px-3 py-2 rounded-xl text-sm border border-gray-200 text-gray-600 bg-white cursor-pointer w-full md:w-auto">
-                                            <option value="">Todas las colonias</option>
-                                            {uniqueColonias.map(c => <option key={c} value={c}>{c}</option>)}
-                                        </select>
+                                        <MultiSelect 
+                                            placeholder="Todas las colonias"
+                                            options={uniqueColonias.map(c => ({ label: c, value: c }))}
+                                            selected={filterColonias}
+                                            onChange={setFilterColonias}
+                                        />
+                                    )}
+
+                                    {uniqueSeccionales.length > 0 && (
+                                        <MultiSelect 
+                                            placeholder="Todos los seccionales"
+                                            options={uniqueSeccionales.map(c => ({ label: `Seccional ${c}`, value: c }))}
+                                            selected={filterSeccionales}
+                                            onChange={setFilterSeccionales}
+                                        />
                                     )}
                                 </div>
                                 <button onClick={exportCSV} className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm flex items-center gap-2 w-full md:w-auto justify-center">
@@ -891,31 +954,43 @@ export default function RegistroDashboard() {
 
                             <h4 className="font-bold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2">🎯 Seleccionar Destinatarios</h4>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-10">
                                 <div>
                                     <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Evento de Registro</label>
-                                    <select value={broadcastEventFilter} onChange={(e) => { setBroadcastEventFilter(e.target.value); setSentContacts(new Set()) }}
-                                        className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 outline-none bg-white font-medium cursor-pointer shadow-sm">
-                                        <option value="">Todos los eventos</option>
-                                        {events.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                                    </select>
+                                    <MultiSelect 
+                                        placeholder="Todos los eventos"
+                                        options={events.map(e => ({ label: e.name, value: e.id }))}
+                                        selected={broadcastEventFilters}
+                                        onChange={(val) => { setBroadcastEventFilters(val); setSentContacts(new Set()) }}
+                                    />
                                 </div>
                                 <div>
                                     <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Colonia / Área</label>
-                                    <select value={broadcastColoniaFilter} onChange={(e) => { setBroadcastColoniaFilter(e.target.value); setSentContacts(new Set()) }}
-                                        className="w-full p-3.5 rounded-xl border border-gray-200 text-sm text-gray-700 outline-none bg-white font-medium cursor-pointer shadow-sm">
-                                        <option value="">Todas las colonias</option>
-                                        {uniqueColonias.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
+                                    <MultiSelect 
+                                        placeholder="Todas las colonias"
+                                        options={uniqueColonias.map(c => ({ label: c, value: c }))}
+                                        selected={broadcastColoniaFilters}
+                                        onChange={(val) => { setBroadcastColoniaFilters(val); setSentContacts(new Set()) }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Seccional</label>
+                                    <MultiSelect 
+                                        placeholder="Todos los seccionales"
+                                        options={uniqueSeccionales.map(c => ({ label: `Seccional ${c}`, value: c }))}
+                                        selected={broadcastSeccionalFilters}
+                                        onChange={(val) => { setBroadcastSeccionalFilters(val); setSentContacts(new Set()) }}
+                                    />
                                 </div>
                             </div>
 
                             {/* Execution */}
                             {(() => {
                                 const list = contacts.filter(c => {
-                                    const matchEvent = broadcastEventFilter ? c.eventId === broadcastEventFilter : true;
-                                    const matchColonia = broadcastColoniaFilter ? c.colonia === broadcastColoniaFilter : true;
-                                    return matchEvent && matchColonia;
+                                    const matchEvent = broadcastEventFilters.length === 0 || broadcastEventFilters.includes(c.eventId);
+                                    const matchColonia = broadcastColoniaFilters.length === 0 || broadcastColoniaFilters.includes(c.colonia || '');
+                                    const matchSeccional = broadcastSeccionalFilters.length === 0 || broadcastSeccionalFilters.includes(c.seccional || '');
+                                    return matchEvent && matchColonia && matchSeccional;
                                 });
                                 const sentCount = list.filter(c => sentContacts.has(c.id)).length
                                 return (
