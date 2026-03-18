@@ -99,6 +99,7 @@ export default function RegistroDashboard() {
     // --- Config edit ---
     const [isEditingConfig, setIsEditingConfig] = useState(false)
     const [configForm, setConfigForm] = useState<any>(config)
+    const [sortConfig, setSortConfig] = useState<{ key: keyof ContactItem | '', direction: 'asc' | 'desc' }>({ key: '', direction: 'desc' })
 
     /* ---- Load config ---- */
     useEffect(() => {
@@ -175,6 +176,27 @@ export default function RegistroDashboard() {
         const matchesEvent = !filterEvent || c.eventId === filterEvent
         const matchesColonia = !filterColonia || c.colonia?.toLowerCase().includes(filterColonia.toLowerCase())
         return matchesSearch && matchesEvent && matchesColonia
+    })
+
+    const requestSort = (key: keyof ContactItem) => {
+        let direction: 'asc' | 'desc' = 'asc'
+        if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc'
+        setSortConfig({ key, direction })
+    }
+
+    const sortedContacts = [...filteredContacts].sort((a, b) => {
+        if (!sortConfig.key) return 0
+        let valA = a[sortConfig.key] || ''
+        let valB = b[sortConfig.key] || ''
+
+        if (sortConfig.key === 'timestamp') {
+            valA = a.timestamp?.toMillis?.() || 0
+            valB = b.timestamp?.toMillis?.() || 0
+        }
+
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1
+        return 0
     })
 
     /* ---- Stats ---- */
@@ -504,17 +526,29 @@ export default function RegistroDashboard() {
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-white text-gray-400 text-xs uppercase tracking-wider font-bold">
                                         <tr className="border-b border-gray-100">
-                                            <th className="px-6 py-4">Nombre</th>
-                                            <th className="px-6 py-4">WhatsApp</th>
-                                            <th className="px-6 py-4">Evento</th>
-                                            <th className="px-6 py-4">C.P. / Colonia</th>
-                                            <th className="px-4 py-4 w-32">Seccional / Distrito</th>
-                                            <th className="px-6 py-4">Fecha</th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('name')}>
+                                                Nombre {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('phone')}>
+                                                WhatsApp {sortConfig.key === 'phone' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('eventName')}>
+                                                Evento {sortConfig.key === 'eventName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('colonia')}>
+                                                C.P. / Colonia {sortConfig.key === 'colonia' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-4 py-4 w-32 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('seccional')}>
+                                                Seccional / Distrito {sortConfig.key === 'seccional' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('timestamp')}>
+                                                Fecha {sortConfig.key === 'timestamp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
                                             <th className="px-6 py-4 text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {filteredContacts.map(c => (
+                                        {sortedContacts.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-3 font-bold text-gray-700">{c.name}</td>
                                                 <td className="px-6 py-3">
@@ -688,14 +722,17 @@ export default function RegistroDashboard() {
                                         {/* Progress Match (Live connections) */}
                                         {(() => {
                                             const sectorNumber = String(selectedSector['Sector Comunitario']);
-                                            const matchCount = contacts.filter((c: ContactItem) => c.seccional === sectorNumber).length;
+                                            const contactsInSector = contacts.filter((c: ContactItem) => c.seccional === sectorNumber);
+                                            // Unique phone numbers calculation
+                                            const uniquePhones = new Set(contactsInSector.map(c => c.phone).filter(Boolean));
+                                            const matchCount = uniquePhones.size;
                                             return (
                                                 <div className="mt-8 pt-6 border-t border-gray-100 text-center">
                                                     <h3 className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-4">Alcance en Vivo (Soy Nexo)</h3>
                                                     <div className="w-28 h-28 mx-auto rounded-full border-[10px] border-gray-50 flex flex-col items-center justify-center relative shadow-inner bg-white">
                                                         <span className="text-4xl font-black text-green-500 drop-shadow-sm">{matchCount}</span>
                                                     </div>
-                                                    <p className="text-xs text-gray-400 mt-4 leading-relaxed font-medium">Conteo real de ciudadanos registrados asignados al Seccional / Sector <strong className="text-gray-600">{sectorNumber}</strong>.</p>
+                                                    <p className="text-xs text-gray-400 mt-4 leading-relaxed font-medium">Conteo real de teléfonos únicos asignados al Seccional / Sector <strong className="text-gray-600">{sectorNumber}</strong>.</p>
                                                 </div>
                                             )
                                         })()}
