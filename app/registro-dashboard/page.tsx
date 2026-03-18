@@ -296,12 +296,13 @@ export default function RegistroDashboard() {
         }
     }
 
-    const updateContactField = async (contactId: string, field: 'seccional' | 'distrito', value: string) => {
+    const updateContactFields = async (contactId: string, seccional: string, distrito: string) => {
         try {
-            await updateDoc(doc(db, 'contacts', contactId), { [field]: value })
-            // The onSnapshot listener will automatically update the UI
+            await updateDoc(doc(db, 'contacts', contactId), { seccional, distrito })
+            alert('¡Guardado correctamente! 💾')
         } catch (error) {
-            console.error(`Error updating ${field}:`, error)
+            console.error(`Error updating contact:`, error)
+            alert('Error al guardar.')
         }
     }
 
@@ -526,23 +527,36 @@ export default function RegistroDashboard() {
                                                     <span className="font-bold">{c.cp}</span> <span className="text-xs">{c.colonia}</span>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <div className="flex flex-col gap-1 w-full max-w-[120px]">
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="Seccional"
-                                                            defaultValue={c.seccional || ''} 
-                                                            onBlur={(e) => updateContactField(c.id, 'seccional', e.target.value)}
-                                                            className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 hover:bg-white transition-colors"
-                                                            title="Número de Seccional"
-                                                        />
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="Distrito Fed."
-                                                            defaultValue={c.distrito || ''} 
-                                                            onBlur={(e) => updateContactField(c.id, 'distrito', e.target.value)}
-                                                            className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 hover:bg-white transition-colors"
-                                                            title="Distrito Federal"
-                                                        />
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex flex-col gap-1 w-full max-w-[100px]">
+                                                            <input 
+                                                                id={`sec-${c.id}`}
+                                                                type="text" 
+                                                                placeholder="Seccional"
+                                                                defaultValue={c.seccional || ''} 
+                                                                className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors"
+                                                                title="Número de Seccional"
+                                                            />
+                                                            <input 
+                                                                id={`dist-${c.id}`}
+                                                                type="text" 
+                                                                placeholder="Distrito Fed."
+                                                                defaultValue={c.distrito || ''} 
+                                                                className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors"
+                                                                title="Distrito Federal"
+                                                            />
+                                                        </div>
+                                                        <button 
+                                                            onClick={async () => {
+                                                                const sec = (document.getElementById(`sec-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                const dist = (document.getElementById(`dist-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                await updateContactFields(c.id, sec, dist);
+                                                            }}
+                                                            className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex flex-col items-center justify-center gap-1 active:scale-95"
+                                                            title="Guardar Seccional/Distrito"
+                                                        >
+                                                            <span className="text-sm">💾</span>
+                                                        </button>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-3 text-gray-400 text-xs">
