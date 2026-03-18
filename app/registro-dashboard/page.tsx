@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { db, storage } from '@/lib/firebase'
-import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import Link from 'next/link'
 import { GoogleMap, useLoadScript, Polygon, Marker, Circle } from '@react-google-maps/api'
@@ -36,6 +36,7 @@ interface EventItem {
     targetSeccionales?: string[]
     targetColonias?: string[]
     targetContacts?: string[]
+    sentInvitations?: string[]
 }
 
 const MultiSelect = ({ options, selected, onChange, placeholder }: { options: {label: string, value: string}[], selected: string[], onChange: (val: string[]) => void, placeholder: string }) => {
@@ -851,7 +852,7 @@ export default function RegistroDashboard() {
                                                         Publicar
                                                     </button>
                                                 )}
-                                                <button onClick={() => { setInvitationEventId(e.id); setInvitationMsg(''); setInvitationSentContacts(new Set()); }} className="flex-1 py-2 text-xs font-bold rounded-lg bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 flex items-center justify-center gap-1 shadow-sm">
+                                                <button onClick={() => { setInvitationEventId(e.id); setInvitationMsg(''); setInvitationSentContacts(new Set(e.sentInvitations || [])); }} className="flex-1 py-2 text-xs font-bold rounded-lg bg-green-50 text-green-600 hover:bg-green-100 border border-green-100 flex items-center justify-center gap-1 shadow-sm">
                                                     💌 Invitar
                                                 </button>
                                                 <button onClick={() => { setEventForm(e); setEditingEventId(e.id); setShowEventForm(true) }} className="px-3 py-2 bg-gray-50 text-gray-600 rounded-lg text-xs hover:bg-gray-100 border border-gray-200">
@@ -1021,9 +1022,15 @@ export default function RegistroDashboard() {
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
                                                                         onClick={() => {
-                                                                            const newSet = new Set(invitationSentContacts)
-                                                                            newSet.add(c.id)
-                                                                            setInvitationSentContacts(newSet)
+                                                                            if (!sent) {
+                                                                                const newSet = new Set(invitationSentContacts)
+                                                                                newSet.add(c.id)
+                                                                                setInvitationSentContacts(newSet)
+
+                                                                                updateDoc(doc(db, 'campaigns', 'main_campaign', 'events', ev.id), {
+                                                                                    sentInvitations: arrayUnion(c.id)
+                                                                                }).catch(e => console.error("Error saving sent invitation", e))
+                                                                            }
                                                                         }}
                                                                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${sent ? 'bg-white border-2 border-green-500 text-green-600' : 'bg-green-500 hover:bg-green-600 text-white hover:-translate-y-0.5'}`}
                                                                     >
