@@ -87,9 +87,9 @@ export default function CitizenEventPage() {
     // --- RSVP ---
     const [showRSVP, setShowRSVP] = useState(false)
     const [rsvpName, setRsvpName] = useState('')
-    const [rsvpPhone, setRsvpPhone] = useState('')
-    const [rsvpCP, setRsvpCP] = useState('')
-    const [rsvpColonia, setRsvpColonia] = useState('')
+    const [rsvpCalle, setRsvpCalle] = useState('')
+    const [rsvpNumExt, setRsvpNumExt] = useState('')
+    const [rsvpSeccional, setRsvpSeccional] = useState('')
     const [isSubmittingRSVP, setIsSubmittingRSVP] = useState(false)
     const [rsvpSuccess, setRsvpSuccess] = useState(false)
 
@@ -331,44 +331,36 @@ END:VCARD`;
 
     /* ---- RSVP: Register attendance + open WhatsApp ---- */
     const handleRSVPSubmit = async () => {
-        if (!rsvpName.trim() || !rsvpPhone.trim()) return
-
-        // Validate phone: 10 digits
-        const cleanPhone = rsvpPhone.replace(/D/g, '')
-        if (cleanPhone.length !== 10) { setUploadError('Ingresa un número de 10 dígitos'); return }
-
-        // Require CP
-        if (!rsvpCP.trim() || rsvpCP.trim().length !== 5) { setUploadError('Ingresa un Código Postal de 5 dígitos'); return }
+        if (!rsvpName.trim() || !rsvpCalle.trim() || !rsvpNumExt.trim() || !rsvpSeccional.trim()) return
 
         setIsSubmittingRSVP(true)
         try {
             await addDoc(collection(db, 'campaigns', 'main_campaign', 'contacts'), {
                 name: rsvpName.trim(),
-                phone: cleanPhone,
-                cp: rsvpCP.trim(),
-                colonia: rsvpColonia.trim() || '',
+                calle: rsvpCalle.trim(),
+                numExt: rsvpNumExt.trim(),
+                seccional: rsvpSeccional.trim(),
                 eventId: event.id || '',
                 eventName: event.name || '',
                 timestamp: serverTimestamp(),
             })
 
-            const confirmedName = rsvpName.trim()
-            
             // Auto download contact to their phone
             setTimeout(() => downloadVCard(), 500);
 
             setShowRSVP(false)
             setRsvpName('')
-            setRsvpPhone('')
-            setRsvpCP('')
-            setRsvpColonia('')
+            setRsvpCalle('')
+            setRsvpNumExt('')
+            setRsvpSeccional('')
             setRsvpSuccess(true)
             setTimeout(() => setRsvpSuccess(false), 5000)
 
             // Open WhatsApp with pre-filled message
             const politicianPhone = config.phone?.replace(/D/g, '') || ''
             if (politicianPhone) {
-                const msg = encodeURIComponent(`¡Hola! Me acabo de registrar como Enlace de ${config.name}. 🎉n📋 ${confirmedName}n🏛️ ${event.name || ''}`)
+                const confirmedName = rsvpName.trim()
+                const msg = encodeURIComponent(`¡Hola! Me acabo de registrar como Enlace de ${config.name}. 🎉\n📋 ${confirmedName}\n🏛️ ${event.name || ''}`)
                 window.location.href = `https://wa.me/52${politicianPhone}?text=${msg}`
             }
         } catch (err) {
@@ -682,33 +674,30 @@ END:VCARD`;
                             </div>
 
                             <div>
-                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">WhatsApp Institucional *</label>
-                                <div className="flex items-center gap-2">
-                                    <span className="bg-gray-100 text-gray-500 font-bold px-3 py-3.5 rounded-xl border border-gray-200 text-sm flex-shrink-0">🇲🇽 +52</span>
-                                    <input type="tel" value={rsvpPhone} onChange={(e) => setRsvpPhone(e.target.value.replace(/D/g, '').slice(0, 10))}
-                                        placeholder="10 dígitos" inputMode="numeric" maxLength={10}
-                                        className="flex-1 px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800 tracking-wider" />
-                                </div>
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Calle *</label>
+                                <input type="text" value={rsvpCalle} onChange={(e) => setRsvpCalle(e.target.value)}
+                                    placeholder="Ej. Av. Reforma"
+                                    className="w-full px-4 py-3.5 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Código Postal *</label>
-                                    <input type="text" value={rsvpCP} onChange={(e) => setRsvpCP(e.target.value.replace(/D/g, '').slice(0, 5))}
-                                        placeholder="5 dígitos" inputMode="numeric" maxLength={5}
-                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center tracking-widest text-gray-800 focus:bg-white" />
+                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Número Exterior *</label>
+                                    <input type="text" value={rsvpNumExt} onChange={(e) => setRsvpNumExt(e.target.value)}
+                                        placeholder="Ej. 123"
+                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
                                 </div>
                                 <div>
-                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Colonia</label>
-                                    <input type="text" value={rsvpColonia} onChange={(e) => setRsvpColonia(e.target.value)}
-                                        placeholder="Opcional"
-                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-gray-800 focus:bg-white transition-colors" />
+                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Seccional *</label>
+                                    <input type="text" value={rsvpSeccional} onChange={(e) => setRsvpSeccional(e.target.value)}
+                                        placeholder="Ej. 1234"
+                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
                                 </div>
                             </div>
                         </div>
 
                         <div className="mt-8">
-                            <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || rsvpPhone.replace(/D/g, '').length !== 10 || rsvpCP.length !== 5} data-btn
+                            <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || !rsvpCalle.trim() || !rsvpNumExt.trim() || !rsvpSeccional.trim()} data-btn
                                 className="w-full py-4 rounded-xl text-sm font-black text-white shadow-lg disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
                                 style={{ background: accent }}>
                                 {isSubmittingRSVP ? 'VERIFICANDO...' : 'REGISTRAR MI ASISTENCIA ✅'}

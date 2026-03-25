@@ -16,6 +16,8 @@ interface ContactItem {
     phone: string
     cp?: string
     colonia?: string
+    calle?: string
+    numExt?: string
     eventId: string
     eventName: string
     timestamp: any
@@ -602,17 +604,17 @@ export default function RegistroDashboard() {
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('name')}>
                                                 Nombre {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </th>
-                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('phone')}>
-                                                WhatsApp {sortConfig.key === 'phone' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                                Calle
+                                            </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                                Num. Ext
+                                            </th>
+                                            <th className="px-4 py-4 w-32 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('seccional')}>
+                                                Seccional {sortConfig.key === 'seccional' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </th>
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('eventName')}>
                                                 Evento {sortConfig.key === 'eventName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </th>
-                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('colonia')}>
-                                                C.P. / Colonia {sortConfig.key === 'colonia' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                            </th>
-                                            <th className="px-4 py-4 w-32 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('seccional')}>
-                                                Seccional / Distrito {sortConfig.key === 'seccional' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </th>
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('timestamp')}>
                                                 Fecha {sortConfig.key === 'timestamp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
@@ -624,15 +626,10 @@ export default function RegistroDashboard() {
                                         {sortedContacts.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-3 font-bold text-gray-700">{c.name}</td>
-                                                <td className="px-6 py-3">
-                                                    <a href={`https://wa.me/52${c.phone}`} target="_blank" className="text-green-600 font-medium hover:underline flex items-center gap-1.5">
-                                                        📞 {c.phone}
-                                                    </a>
-                                                </td>
+                                                <td className="px-6 py-3 text-gray-600 text-sm">{c.calle || c.colonia || '-'}</td>
+                                                <td className="px-6 py-3 text-gray-600 text-sm font-bold">{c.numExt || '-'}</td>
+                                                <td className="px-4 py-3 text-gray-600 text-sm font-bold">{c.seccional || '-'}</td>
                                                 <td className="px-6 py-3 text-gray-500 text-xs">{c.eventName}</td>
-                                                <td className="px-6 py-3 text-gray-500">
-                                                    <span className="font-bold">{c.cp}</span> <span className="text-xs">{c.colonia}</span>
-                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2">
                                                         <div className="flex flex-col gap-1 w-full max-w-[100px]">
