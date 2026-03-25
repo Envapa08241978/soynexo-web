@@ -1262,7 +1262,7 @@ export default function RegistroDashboard() {
 
                             <h4 className="font-bold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2">🎯 Seleccionar Destinatarios</h4>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 relative z-10">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-10">
                                 <div>
                                     <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Evento de Registro</label>
                                     <MultiSelect 
