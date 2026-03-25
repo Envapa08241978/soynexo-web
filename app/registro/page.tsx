@@ -110,6 +110,7 @@ function CitizenEventPageInner() {
     const [rsvpCalle, setRsvpCalle] = useState('')
     const [rsvpNumExt, setRsvpNumExt] = useState('')
     const [rsvpSeccional, setRsvpSeccional] = useState('')
+    const [rsvpRoles, setRsvpRoles] = useState<string[]>([])
     const [isSubmittingRSVP, setIsSubmittingRSVP] = useState(false)
     const [rsvpSuccess, setRsvpSuccess] = useState(false)
 
@@ -379,6 +380,7 @@ END:VCARD`;
                 calle: rsvpCalle.trim(),
                 numExt: rsvpNumExt.trim(),
                 seccional: rsvpSeccional.trim(),
+                roles: rsvpRoles,
                 ...(brigadistaName ? { brigadista: brigadistaName } : {}),
                 ...(brigId ? { brigadistaId: brigId } : {}),
                 eventId: event.id || '',
@@ -395,6 +397,7 @@ END:VCARD`;
             setRsvpCalle('')
             setRsvpNumExt('')
             setRsvpSeccional('')
+            setRsvpRoles([])
             setRsvpSuccess(true)
             setTimeout(() => setRsvpSuccess(false), 5000)
 
@@ -744,6 +747,24 @@ END:VCARD`;
                                     <input type="text" value={rsvpSeccional} onChange={(e) => setRsvpSeccional(e.target.value)}
                                         placeholder="Ej. 1234"
                                         className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-2">Le gustaría ser parte de nuestro movimiento como:</label>
+                                <div className="space-y-2">
+                                    {['Protagonista del cambio verdadero', 'Activista digital', 'Defensa del voto'].map(role => (
+                                        <label key={role} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                            rsvpRoles.includes(role)
+                                                ? 'border-red-400 bg-red-50/50'
+                                                : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                                        }`}>
+                                            <input type="checkbox" checked={rsvpRoles.includes(role)}
+                                                onChange={() => setRsvpRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role])}
+                                                className="w-4 h-4 accent-red-500" />
+                                            <span className="text-sm font-medium text-gray-700">{role}</span>
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
                         </div>

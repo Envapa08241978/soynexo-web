@@ -20,6 +20,7 @@ interface ContactItem {
     calle?: string
     numExt?: string
     brigadista?: string
+    roles?: string[]
     eventId: string
     eventName: string
     timestamp: any
@@ -141,6 +142,8 @@ export default function RegistroDashboard() {
     const [filterEvents, setFilterEvents] = useState<string[]>([])
     const [filterColonias, setFilterColonias] = useState<string[]>([])
     const [filterSeccionales, setFilterSeccionales] = useState<string[]>([])
+    const [filterRoles, setFilterRoles] = useState<string[]>([])
+    const [filterBrigadistas, setFilterBrigadistas] = useState<string[]>([])
 
     // --- Event Form ---
     const [showEventForm, setShowEventForm] = useState(false)
@@ -263,7 +266,9 @@ export default function RegistroDashboard() {
         const matchesEvent = filterEvents.length === 0 || filterEvents.includes(c.eventId)
         const matchesColonia = filterColonias.length === 0 || filterColonias.includes(c.colonia || '')
         const matchesSeccional = filterSeccionales.length === 0 || filterSeccionales.includes(c.seccional || '')
-        return matchesSearch && matchesEvent && matchesColonia && matchesSeccional
+        const matchesRole = filterRoles.length === 0 || (c.roles && c.roles.some((r: string) => filterRoles.includes(r)))
+        const matchesBrigadista = filterBrigadistas.length === 0 || filterBrigadistas.includes(c.brigadista || '')
+        return matchesSearch && matchesEvent && matchesColonia && matchesSeccional && matchesRole && matchesBrigadista
     })
 
     const requestSort = (key: keyof ContactItem) => {
@@ -296,6 +301,8 @@ export default function RegistroDashboard() {
 
     const uniqueColonias = Array.from(new Set(contacts.map(c => c.colonia).filter(Boolean))) as string[]
     const uniqueSeccionales = Array.from(new Set(contacts.map(c => c.seccional).filter(Boolean))) as string[]
+    const uniqueBrigadistas = Array.from(new Set(contacts.map(c => c.brigadista).filter(Boolean))) as string[]
+    const allRoles = ['Protagonista del cambio verdadero', 'Activista digital', 'Defensa del voto']
     const contactsByEvent = events.map(e => ({
         ...e,
         count: contacts.filter(c => c.eventId === e.id).length,
@@ -632,6 +639,22 @@ export default function RegistroDashboard() {
                                             onChange={setFilterSeccionales}
                                         />
                                     )}
+
+                                    <MultiSelect 
+                                        placeholder="Todos los roles"
+                                        options={allRoles.map(r => ({ label: r, value: r }))}
+                                        selected={filterRoles}
+                                        onChange={setFilterRoles}
+                                    />
+
+                                    {uniqueBrigadistas.length > 0 && (
+                                        <MultiSelect 
+                                            placeholder="Todos los brigadistas"
+                                            options={uniqueBrigadistas.map(b => ({ label: b, value: b }))}
+                                            selected={filterBrigadistas}
+                                            onChange={setFilterBrigadistas}
+                                        />
+                                    )}
                                 </div>
                                 <button onClick={exportCSV} className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm flex items-center gap-2 w-full md:w-auto justify-center">
                                     📥 Exportar a Google Contacts
@@ -663,6 +686,9 @@ export default function RegistroDashboard() {
                                             </th>
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('eventName')}>
                                                 Evento {sortConfig.key === 'eventName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                                                Rol
                                             </th>
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('timestamp')}>
                                                 Fecha {sortConfig.key === 'timestamp' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
@@ -736,6 +762,19 @@ export default function RegistroDashboard() {
                                                     />
                                                 </td>
                                                 <td className="px-4 py-2 text-gray-500 text-xs">{c.eventName}</td>
+                                                <td className="px-4 py-2 text-xs">
+                                                    {c.roles && c.roles.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {c.roles.map((r: string) => (
+                                                                <span key={r} className="px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded-md font-medium text-[0.6rem] border border-purple-100">
+                                                                    {r === 'Protagonista del cambio verdadero' ? 'Protagonista' : r === 'Activista digital' ? 'Activista' : r === 'Defensa del voto' ? 'Def. Voto' : r}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-300">-</span>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-2 text-gray-400 text-xs">
                                                     {c.timestamp?.toDate?.()?.toLocaleDateString('es-MX')}
                                                 </td>
