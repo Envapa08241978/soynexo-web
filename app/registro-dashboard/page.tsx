@@ -161,6 +161,8 @@ export default function RegistroDashboard() {
     const [broadcastEventFilters, setBroadcastEventFilters] = useState<string[]>([])
     const [broadcastColoniaFilters, setBroadcastColoniaFilters] = useState<string[]>([])
     const [broadcastSeccionalFilters, setBroadcastSeccionalFilters] = useState<string[]>([])
+    const [broadcastRoleFilters, setBroadcastRoleFilters] = useState<string[]>([])
+    const [broadcastBrigadistaFilters, setBroadcastBrigadistaFilters] = useState<string[]>([])
     const [sentContacts, setSentContacts] = useState<Set<string>>(new Set())
     const [broadcastImage, setBroadcastImage] = useState('')
     const [isUploadingBroadcastImage, setIsUploadingBroadcastImage] = useState(false)
@@ -1260,7 +1262,7 @@ export default function RegistroDashboard() {
 
                             <h4 className="font-bold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2">🎯 Seleccionar Destinatarios</h4>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 relative z-10">
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 relative z-10">
                                 <div>
                                     <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Evento de Registro</label>
                                     <MultiSelect 
@@ -1288,6 +1290,24 @@ export default function RegistroDashboard() {
                                         onChange={(val) => { setBroadcastSeccionalFilters(val); setSentContacts(new Set()) }}
                                     />
                                 </div>
+                                <div>
+                                    <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Rol</label>
+                                    <MultiSelect 
+                                        placeholder="Todos los roles"
+                                        options={allRoles.map(r => ({ label: r, value: r }))}
+                                        selected={broadcastRoleFilters}
+                                        onChange={(val) => { setBroadcastRoleFilters(val); setSentContacts(new Set()) }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Por Brigadista</label>
+                                    <MultiSelect 
+                                        placeholder="Todos los brigadistas"
+                                        options={uniqueBrigadistas.map(b => ({ label: b, value: b }))}
+                                        selected={broadcastBrigadistaFilters}
+                                        onChange={(val) => { setBroadcastBrigadistaFilters(val); setSentContacts(new Set()) }}
+                                    />
+                                </div>
                             </div>
 
                             {/* Execution */}
@@ -1296,7 +1316,9 @@ export default function RegistroDashboard() {
                                     const matchEvent = broadcastEventFilters.length === 0 || broadcastEventFilters.includes(c.eventId);
                                     const matchColonia = broadcastColoniaFilters.length === 0 || broadcastColoniaFilters.includes(c.colonia || '');
                                     const matchSeccional = broadcastSeccionalFilters.length === 0 || broadcastSeccionalFilters.includes(c.seccional || '');
-                                    return matchEvent && matchColonia && matchSeccional;
+                                    const matchRole = broadcastRoleFilters.length === 0 || (c.roles && c.roles.some((r: string) => broadcastRoleFilters.includes(r)));
+                                    const matchBrigadista = broadcastBrigadistaFilters.length === 0 || broadcastBrigadistaFilters.includes(c.brigadista || '');
+                                    return matchEvent && matchColonia && matchSeccional && matchRole && matchBrigadista;
                                 });
                                 const sentCount = list.filter(c => sentContacts.has(c.id)).length
                                 return (
