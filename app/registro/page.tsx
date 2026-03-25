@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, Suspense } from 'react'
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc, where, getDocs } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { db, storage } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -359,6 +359,20 @@ END:VCARD`;
 
         setIsSubmittingRSVP(true)
         try {
+            // Check for duplicate phone number
+            const dupQuery = query(
+                collection(db, 'campaigns', 'main_campaign', 'contacts'),
+                where('phone', '==', cleanPhone)
+            )
+            const dupSnap = await getDocs(dupQuery)
+            if (!dupSnap.empty) {
+                const existing = dupSnap.docs[0].data()
+                const brigInfo = existing.brigadista ? ` (Brigadista: ${existing.brigadista})` : ''
+                setUploadError(`Este número ya está registrado a nombre de "${existing.name}"${brigInfo}. No se permiten duplicados.`)
+                setIsSubmittingRSVP(false)
+                return
+            }
+
             await addDoc(collection(db, 'campaigns', 'main_campaign', 'contacts'), {
                 name: rsvpName.trim(),
                 phone: cleanPhone,
