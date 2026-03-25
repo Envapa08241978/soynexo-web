@@ -18,6 +18,7 @@ interface ContactItem {
     colonia?: string
     calle?: string
     numExt?: string
+    brigadista?: string
     eventId: string
     eventName: string
     timestamp: any
@@ -382,7 +383,7 @@ export default function RegistroDashboard() {
         }
     }
 
-    const updateContactFields = async (contactId: string, fields: { name?: string, phone?: string, calle?: string, numExt?: string, seccional?: string }) => {
+    const updateContactFields = async (contactId: string, fields: { name?: string, phone?: string, calle?: string, numExt?: string, seccional?: string, brigadista?: string }) => {
         try {
             await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', contactId), fields)
             alert('¡Guardado correctamente! 💾')
@@ -607,6 +608,9 @@ export default function RegistroDashboard() {
                                             <th className="px-4 py-4 w-32 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('seccional')}>
                                                 Seccional {sortConfig.key === 'seccional' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </th>
+                                            <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                                Brigadista
+                                            </th>
                                             <th className="px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => requestSort('eventName')}>
                                                 Evento {sortConfig.key === 'eventName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </th>
@@ -672,6 +676,15 @@ export default function RegistroDashboard() {
                                                         className="w-full text-sm p-2 border border-gray-200 rounded-lg font-bold text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors text-center min-w-[60px] max-w-[80px]"
                                                     />
                                                 </td>
+                                                <td className="px-4 py-2">
+                                                    <input 
+                                                        id={`brig-${c.id}`}
+                                                        type="text" 
+                                                        defaultValue={c.brigadista || ''}
+                                                        placeholder="Brigadista"
+                                                        className="w-full text-sm p-2 border border-gray-200 rounded-lg font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors min-w-[120px]"
+                                                    />
+                                                </td>
                                                 <td className="px-4 py-2 text-gray-500 text-xs">{c.eventName}</td>
                                                 <td className="px-4 py-2 text-gray-400 text-xs">
                                                     {c.timestamp?.toDate?.()?.toLocaleDateString('es-MX')}
@@ -685,7 +698,8 @@ export default function RegistroDashboard() {
                                                                 const calle = (document.getElementById(`calle-${c.id}`) as HTMLInputElement)?.value || '';
                                                                 const numExt = (document.getElementById(`numext-${c.id}`) as HTMLInputElement)?.value || '';
                                                                 const seccional = (document.getElementById(`sec-${c.id}`) as HTMLInputElement)?.value || '';
-                                                                await updateContactFields(c.id, { name, phone, calle, numExt, seccional });
+                                                                const brigadista = (document.getElementById(`brig-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                await updateContactFields(c.id, { name, phone, calle, numExt, seccional, brigadista });
                                                             }}
                                                             className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95"
                                                             title="Guardar cambios"
