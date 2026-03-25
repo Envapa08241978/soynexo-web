@@ -382,9 +382,9 @@ export default function RegistroDashboard() {
         }
     }
 
-    const updateContactFields = async (contactId: string, seccional: string, distrito: string) => {
+    const updateContactFields = async (contactId: string, fields: { name?: string, calle?: string, numExt?: string, seccional?: string }) => {
         try {
-            await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', contactId), { seccional, distrito })
+            await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', contactId), fields)
             alert('¡Guardado correctamente! 💾')
         } catch (error) {
             console.error(`Error updating contact:`, error)
@@ -573,15 +573,6 @@ export default function RegistroDashboard() {
                                         onChange={setFilterEvents}
                                     />
 
-                                    {uniqueColonias.length > 0 && (
-                                        <MultiSelect 
-                                            placeholder="Todas las colonias"
-                                            options={uniqueColonias.map(c => ({ label: c, value: c }))}
-                                            selected={filterColonias}
-                                            onChange={setFilterColonias}
-                                        />
-                                    )}
-
                                     {uniqueSeccionales.length > 0 && (
                                         <MultiSelect 
                                             placeholder="Todos los seccionales"
@@ -625,51 +616,65 @@ export default function RegistroDashboard() {
                                     <tbody className="divide-y divide-gray-50">
                                         {sortedContacts.map(c => (
                                             <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-3 font-bold text-gray-700">{c.name}</td>
-                                                <td className="px-6 py-3 text-gray-600 text-sm">{c.calle || c.colonia || '-'}</td>
-                                                <td className="px-6 py-3 text-gray-600 text-sm font-bold">{c.numExt || '-'}</td>
-                                                <td className="px-4 py-3 text-gray-600 text-sm font-bold">{c.seccional || '-'}</td>
-                                                <td className="px-6 py-3 text-gray-500 text-xs">{c.eventName}</td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="flex flex-col gap-1 w-full max-w-[100px]">
-                                                            <input 
-                                                                id={`sec-${c.id}`}
-                                                                type="text" 
-                                                                placeholder="Seccional"
-                                                                defaultValue={c.seccional || ''} 
-                                                                className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors"
-                                                                title="Número de Seccional"
-                                                            />
-                                                            <input 
-                                                                id={`dist-${c.id}`}
-                                                                type="text" 
-                                                                placeholder="Distrito Fed."
-                                                                defaultValue={c.distrito || ''} 
-                                                                className="w-full text-xs p-1.5 border border-gray-200 rounded font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors"
-                                                                title="Distrito Federal"
-                                                            />
-                                                        </div>
+                                                <td className="px-4 py-2">
+                                                    <input 
+                                                        id={`name-${c.id}`}
+                                                        type="text" 
+                                                        defaultValue={c.name || ''}
+                                                        className="w-full text-sm p-2 border border-gray-200 rounded-lg font-bold text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors min-w-[140px]"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    <input 
+                                                        id={`calle-${c.id}`}
+                                                        type="text" 
+                                                        defaultValue={c.calle || c.colonia || ''}
+                                                        placeholder="Calle"
+                                                        className="w-full text-sm p-2 border border-gray-200 rounded-lg font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors min-w-[120px]"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    <input 
+                                                        id={`numext-${c.id}`}
+                                                        type="text" 
+                                                        defaultValue={c.numExt || ''}
+                                                        placeholder="#"
+                                                        className="w-full text-sm p-2 border border-gray-200 rounded-lg font-bold text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors text-center min-w-[60px] max-w-[80px]"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    <input 
+                                                        id={`sec-${c.id}`}
+                                                        type="text" 
+                                                        defaultValue={c.seccional || ''}
+                                                        placeholder="Secc."
+                                                        className="w-full text-sm p-2 border border-gray-200 rounded-lg font-bold text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors text-center min-w-[60px] max-w-[80px]"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-2 text-gray-500 text-xs">{c.eventName}</td>
+                                                <td className="px-4 py-2 text-gray-400 text-xs">
+                                                    {c.timestamp?.toDate?.()?.toLocaleDateString('es-MX')}
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    <div className="flex items-center gap-1 justify-center">
                                                         <button 
                                                             onClick={async () => {
-                                                                const sec = (document.getElementById(`sec-${c.id}`) as HTMLInputElement)?.value || '';
-                                                                const dist = (document.getElementById(`dist-${c.id}`) as HTMLInputElement)?.value || '';
-                                                                await updateContactFields(c.id, sec, dist);
+                                                                const name = (document.getElementById(`name-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                const calle = (document.getElementById(`calle-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                const numExt = (document.getElementById(`numext-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                const seccional = (document.getElementById(`sec-${c.id}`) as HTMLInputElement)?.value || '';
+                                                                await updateContactFields(c.id, { name, calle, numExt, seccional });
                                                             }}
-                                                            className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex flex-col items-center justify-center gap-1 active:scale-95"
-                                                            title="Guardar Seccional/Distrito"
+                                                            className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95"
+                                                            title="Guardar cambios"
                                                         >
                                                             <span className="text-sm">💾</span>
                                                         </button>
+                                                        <button onClick={() => deleteContact(c.id)} className="p-2 text-red-300 hover:text-red-500 transition-colors"
+                                                            title="Eliminar contacto">
+                                                            🗑️
+                                                        </button>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-3 text-gray-400 text-xs">
-                                                    {c.timestamp?.toDate?.()?.toLocaleDateString('es-MX')}
-                                                </td>
-                                                <td className="px-6 py-3 text-center">
-                                                    <button onClick={() => deleteContact(c.id)} className="text-red-300 hover:text-red-500 p-2 transition-colors">
-                                                        🗑️
-                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
