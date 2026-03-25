@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { db, storage } from '@/lib/firebase'
-import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, arrayUnion } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import Link from 'next/link'
 import { GoogleMap, useLoadScript, Polygon, Marker, Circle } from '@react-google-maps/api'
+import { QRCodeSVG } from 'qrcode.react'
 
 /* ================================================================
    TYPES
@@ -24,6 +25,14 @@ interface ContactItem {
     timestamp: any
     seccional?: string
     distrito?: string
+}
+
+interface BrigadistaItem {
+    id: string
+    name: string
+    phone: string
+    seccional: string
+    timestamp: any
 }
 
 interface EventItem {
@@ -164,6 +173,11 @@ export default function RegistroDashboard() {
     const [configForm, setConfigForm] = useState<any>(config)
     const [sortConfig, setSortConfig] = useState<{ key: keyof ContactItem | '', direction: 'asc' | 'desc' }>({ key: '', direction: 'desc' })
 
+    // --- Brigadistas ---
+    const [brigadistas, setBrigadistas] = useState<BrigadistaItem[]>([])
+    const [brigForm, setBrigForm] = useState({ name: '', phone: '', seccional: '' })
+    const [isSavingBrig, setIsSavingBrig] = useState(false)
+
     /* ---- Load config ---- */
     useEffect(() => {
         const loadConfig = async () => {
@@ -214,6 +228,16 @@ export default function RegistroDashboard() {
         const ref = collection(db, 'campaigns', 'main_campaign', 'events')
         return onSnapshot(ref, (snap) => {
             setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)))
+        })
+    }, [isAuthenticated])
+
+    /* ---- Real-time brigadistas ---- */
+    useEffect(() => {
+        if (!isAuthenticated) return
+        const brigRef = collection(db, 'campaigns', 'main_campaign', 'brigadistas')
+        const q = query(brigRef, orderBy('timestamp', 'desc'))
+        return onSnapshot(q, (snap) => {
+            setBrigadistas(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)))
         })
     }, [isAuthenticated])
 
@@ -419,6 +443,32 @@ export default function RegistroDashboard() {
             setIsEditingConfig(false)
         } catch (err) { console.error('Save config error:', err) }
         finally { setIsSaving(false) }
+    }
+
+    /* ---- Brigadista CRUD ---- */
+    const addBrigadista = async () => {
+        if (!brigForm.name.trim() || !brigForm.phone.trim() || !brigForm.seccional.trim()) return
+        setIsSavingBrig(true)
+        try {
+            await addDoc(collection(db, 'campaigns', 'main_campaign', 'brigadistas'), {
+                name: brigForm.name.trim(),
+                phone: brigForm.phone.replace(/\D/g, ''),
+                seccional: brigForm.seccional.trim(),
+                timestamp: serverTimestamp(),
+            })
+            setBrigForm({ name: '', phone: '', seccional: '' })
+        } catch (err) { console.error('Add brigadista error:', err) }
+        finally { setIsSavingBrig(false) }
+    }
+
+    const deleteBrigadista = async (id: string) => {
+        if (!confirm('¿Eliminar este brigadista?')) return
+        try { await deleteDoc(doc(db, 'campaigns', 'main_campaign', 'brigadistas', id)) }
+        catch (err) { console.error('Delete brigadista error:', err) }
+    }
+
+    const getBrigadistaQRUrl = (brigId: string) => {
+        return `https://www.soynexo.com/registro?b=${brigId}`
     }
 
     /* ---- Delete contact ---- */
@@ -829,6 +879,33 @@ export default function RegistroDashboard() {
                                             </p>
                                             <p className="text-xs font-medium" style={{ color: `${accent}90` }}>Enlaces requeridos para el éxito</p>
                                         </div>
+
+                                        {/* Brigadistas in this sector */}
+                                        {(() => {
+                                            const sectorNumber = String(selectedSector['Sector Comunitario']);
+                                            const brigsInSector = brigadistas.filter(b => b.seccional === sectorNumber);
+                                            return (
+                                                <div className="p-5 rounded-2xl border border-orange-100 bg-orange-50/30 shadow-sm">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <p className="text-[0.65rem] font-bold text-orange-600 uppercase tracking-wider">🏃 Brigadistas en Seccional {sectorNumber}</p>
+                                                        <span className="text-lg font-black text-orange-600">{brigsInSector.length}</span>
+                                                    </div>
+                                                    {brigsInSector.length > 0 ? (
+                                                        <div className="space-y-2">
+                                                            {brigsInSector.map(b => (
+                                                                <div key={b.id} className="flex items-center justify-between bg-white p-2.5 rounded-xl border border-orange-100 text-sm">
+                                                                    <span className="font-bold text-gray-700">{b.name}</span>
+                                                                    <a href={`https://wa.me/52${b.phone}`} target="_blank" rel="noopener noreferrer"
+                                                                        className="text-green-600 text-xs font-bold hover:underline">📱 {b.phone}</a>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-400 font-medium">No hay brigadistas asignados a este seccional.</p>
+                                                    )}
+                                                </div>
+                                            )
+                                        })()}
 
                                         {/* Progress Match (Live connections) */}
                                         {(() => {
@@ -1262,6 +1339,100 @@ export default function RegistroDashboard() {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Brigadistas Section */}
+                                <div className="pt-6 border-t border-gray-100 mt-6">
+                                    <h4 className="font-bold text-gray-700 mb-4 text-sm flex items-center gap-2">🏃 Brigadistas <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{brigadistas.length}</span></h4>
+                                    
+                                    {/* Add Form */}
+                                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 mb-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                                            <div>
+                                                <label className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest block mb-1">Nombre *</label>
+                                                <input type="text" value={brigForm.name} onChange={e => setBrigForm(p => ({ ...p, name: e.target.value }))}
+                                                    placeholder="Nombre completo"
+                                                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium outline-none focus:border-red-400" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest block mb-1">WhatsApp *</label>
+                                                <input type="tel" value={brigForm.phone} onChange={e => setBrigForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                                                    placeholder="10 dígitos" inputMode="numeric"
+                                                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium outline-none focus:border-red-400 tracking-wider" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest block mb-1">Seccional *</label>
+                                                <input type="text" value={brigForm.seccional} onChange={e => setBrigForm(p => ({ ...p, seccional: e.target.value }))}
+                                                    placeholder="Ej. 1234"
+                                                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold outline-none focus:border-red-400 text-center" />
+                                            </div>
+                                        </div>
+                                        <button onClick={addBrigadista} disabled={isSavingBrig || !brigForm.name.trim() || brigForm.phone.length !== 10 || !brigForm.seccional.trim()}
+                                            className="w-full py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-all active:scale-95 shadow-sm"
+                                            style={{ background: accent }}>
+                                            {isSavingBrig ? 'Guardando...' : '+ Agregar Brigadista'}
+                                        </button>
+                                    </div>
+
+                                    {/* Brigadistas List */}
+                                    {brigadistas.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {brigadistas.map(b => (
+                                                <div key={b.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex-1">
+                                                            <p className="font-bold text-gray-800">{b.name}</p>
+                                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                                <a href={`https://wa.me/52${b.phone}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">📱 {b.phone}</a>
+                                                                <span className="mx-2 text-gray-300">|</span>
+                                                                Seccional <strong>{b.seccional}</strong>
+                                                            </p>
+                                                            <p className="text-[0.6rem] text-gray-400 mt-2 font-mono break-all bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">{getBrigadistaQRUrl(b.id)}</p>
+                                                        </div>
+                                                        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                                                            <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+                                                                <QRCodeSVG value={getBrigadistaQRUrl(b.id)} size={80} level="H" fgColor="#1f2937" />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const svg = document.querySelector(`#qr-brig-${b.id} svg`) as SVGSVGElement;
+                                                                    if (!svg) {
+                                                                        // Fallback: open QR URL for manual screenshot
+                                                                        window.open(getBrigadistaQRUrl(b.id), '_blank');
+                                                                        return;
+                                                                    }
+                                                                    const canvas = document.createElement('canvas');
+                                                                    const ctx = canvas.getContext('2d');
+                                                                    const data = new XMLSerializer().serializeToString(svg);
+                                                                    const img = new Image();
+                                                                    img.onload = () => {
+                                                                        canvas.width = 400; canvas.height = 400;
+                                                                        ctx?.drawImage(img, 0, 0, 400, 400);
+                                                                        const a = document.createElement('a');
+                                                                        a.download = `QR-${b.name.replace(/\s+/g, '_')}.png`;
+                                                                        a.href = canvas.toDataURL('image/png');
+                                                                        a.click();
+                                                                    };
+                                                                    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(data)));
+                                                                }}
+                                                                className="text-[0.6rem] font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                                                            >
+                                                                ⬇️ Descargar QR
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-end mt-2 pt-2 border-t border-gray-50" id={`qr-brig-${b.id}`}>
+                                                        <div className="hidden"><QRCodeSVG value={getBrigadistaQRUrl(b.id)} size={400} level="H" fgColor="#1f2937" /></div>
+                                                        <button onClick={() => deleteBrigadista(b.id)} className="text-xs text-red-400 hover:text-red-600 font-bold transition-colors">
+                                                            🗑️ Eliminar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-center py-8 text-gray-400 text-sm font-medium">No hay brigadistas registrados aún.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>

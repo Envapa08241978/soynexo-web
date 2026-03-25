@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { db, storage } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
 import { analyzeImageContent, validateFileBasics } from '@/lib/contentModeration'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 /* ================================================================
    TYPES
@@ -60,7 +61,25 @@ const DEFAULT_EVENT = {
 /* ================================================================
    MAIN COMPONENT
    ================================================================ */
-export default function CitizenEventPage() {
+function CitizenEventPageInner() {
+    // --- Brigadista auto-assignment ---
+    const searchParams = useSearchParams()
+    const brigId = searchParams.get('b') || ''
+    const [brigadistaName, setBrigadistaName] = useState('')
+
+    useEffect(() => {
+        if (!brigId) return
+        const lookupBrigadista = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'campaigns', 'main_campaign', 'brigadistas', brigId))
+                if (snap.exists()) {
+                    setBrigadistaName(snap.data().name || '')
+                }
+            } catch (err) { console.error('Brigadista lookup error:', err) }
+        }
+        lookupBrigadista()
+    }, [brigId])
+
     // --- Config ---
     const [config, setConfig] = useState<any>(DEFAULT_CONFIG)
     const [event, setEvent] = useState<any>(DEFAULT_EVENT)
@@ -346,6 +365,8 @@ END:VCARD`;
                 calle: rsvpCalle.trim(),
                 numExt: rsvpNumExt.trim(),
                 seccional: rsvpSeccional.trim(),
+                ...(brigadistaName ? { brigadista: brigadistaName } : {}),
+                ...(brigId ? { brigadistaId: brigId } : {}),
                 eventId: event.id || '',
                 eventName: event.name || '',
                 timestamp: serverTimestamp(),
@@ -826,5 +847,13 @@ END:VCARD`;
                 </div>
             )}
         </div>
+    )
+}
+
+export default function CitizenEventPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
+            <CitizenEventPageInner />
+        </Suspense>
     )
 }
