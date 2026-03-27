@@ -132,12 +132,28 @@ export default function RegistroDashboard() {
     // --- Map Data ---
     const [mapData, setMapData] = useState<any>(null)
     const [selectedSector, setSelectedSector] = useState<any>(null)
+    const mapRef = useRef<google.maps.Map | null>(null)
 
     const { isLoaded: isMapLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     })
 
     const NAVOJOA_CENTER = { lat: 27.0728, lng: -109.4437 } // Central Navojoa
+
+    const onMapLoad = (map: google.maps.Map) => {
+        mapRef.current = map
+    }
+
+    const selectAndZoomSector = (sector: any) => {
+        setSelectedSector(sector)
+        if (sector?.geometry && sector.geometry.length > 0 && mapRef.current) {
+            const bounds = new google.maps.LatLngBounds()
+            sector.geometry.forEach((coord: any) => {
+                bounds.extend({ lat: coord.lat, lng: coord.lng })
+            })
+            mapRef.current.fitBounds(bounds, 40) // 40px padding
+        }
+    }
 
     // --- Filters ---
     const [searchQuery, setSearchQuery] = useState('')
@@ -878,6 +894,7 @@ export default function RegistroDashboard() {
                                         mapContainerStyle={{ width: '100%', height: '100%' }}
                                         center={NAVOJOA_CENTER}
                                         zoom={13}
+                                        onLoad={onMapLoad}
                                         options={{
                                             styles: [
                                                 { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
@@ -909,7 +926,7 @@ export default function RegistroDashboard() {
                                                         strokeWeight: isSelected ? 3 : 1,
                                                         zIndex: isSelected ? 10 : 1
                                                     }}
-                                                    onClick={() => setSelectedSector(t)}
+                                                    onClick={() => selectAndZoomSector(t)}
                                                 />
                                             )
                                         })}
@@ -935,7 +952,8 @@ export default function RegistroDashboard() {
                                         value={selectedSector ? String(selectedSector['Sector Comunitario']) : ''}
                                         onChange={(e) => {
                                             const sec = mapData?.targets?.find((t: any) => String(t['Sector Comunitario']) === e.target.value)
-                                            setSelectedSector(sec)
+                                            if (sec) selectAndZoomSector(sec)
+                                            else setSelectedSector(null)
                                         }}
                                     >
                                         <option value="">-- Vista General --</option>
