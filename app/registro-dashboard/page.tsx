@@ -103,7 +103,7 @@ const MultiSelect = ({ options, selected, onChange, placeholder }: { options: {l
     )
 }
 
-const NAVOJOA_CENTER = { lat: 27.0728, lng: -109.4437 } as const
+const SONORA_CENTER = { lat: 29.07, lng: -110.96 } as const
 
 export default function RegistroDashboard() {
     // --- Auth ---
@@ -887,8 +887,8 @@ export default function RegistroDashboard() {
                                 {isMapLoaded && mapData ? (
                                     <GoogleMap
                                         mapContainerStyle={{ width: '100%', height: '100%' }}
-                                        center={NAVOJOA_CENTER}
-                                        zoom={12}
+                                        center={SONORA_CENTER}
+                                        zoom={7}
                                         onLoad={onMapLoad}
                                         options={{
                                             styles: [
