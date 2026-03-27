@@ -22,6 +22,7 @@ interface ContactItem {
     brigadista?: string
     roles?: string[]
     eventId: string
+    eventIds?: string[]
     eventName: string
     timestamp: any
     seccional?: string
@@ -265,7 +266,7 @@ export default function RegistroDashboard() {
     const filteredContacts = contacts.filter(c => {
         const search = searchQuery.toLowerCase()
         const matchesSearch = !search || c.name?.toLowerCase().includes(search) || c.phone?.includes(search) || c.cp?.includes(search)
-        const matchesEvent = filterEvents.length === 0 || filterEvents.includes(c.eventId)
+        const matchesEvent = filterEvents.length === 0 || filterEvents.includes(c.eventId) || (c.eventIds && c.eventIds.some((id: string) => filterEvents.includes(id)))
         const matchesColonia = filterColonias.length === 0 || filterColonias.includes(c.colonia || '')
         const matchesSeccional = filterSeccionales.length === 0 || filterSeccionales.includes(c.seccional || '')
         const matchesRole = filterRoles.length === 0 || (c.roles && c.roles.some((r: string) => filterRoles.includes(r)))
@@ -307,7 +308,7 @@ export default function RegistroDashboard() {
     const allRoles = ['Protagonista del cambio verdadero', 'Activista digital', 'Defensa del voto']
     const contactsByEvent = events.map(e => ({
         ...e,
-        count: contacts.filter(c => c.eventId === e.id).length,
+        count: contacts.filter(c => c.eventId === e.id || (c.eventIds && c.eventIds.includes(e.id))).length,
     }))
 
     /* ---- Export (Browser based to avoid missing API) ---- */
@@ -1313,7 +1314,7 @@ export default function RegistroDashboard() {
                             {/* Execution */}
                             {(() => {
                                 const list = contacts.filter(c => {
-                                    const matchEvent = broadcastEventFilters.length === 0 || broadcastEventFilters.includes(c.eventId);
+                                    const matchEvent = broadcastEventFilters.length === 0 || broadcastEventFilters.includes(c.eventId) || (c.eventIds && c.eventIds.some((id: string) => broadcastEventFilters.includes(id)));
                                     const matchColonia = broadcastColoniaFilters.length === 0 || broadcastColoniaFilters.includes(c.colonia || '');
                                     const matchSeccional = broadcastSeccionalFilters.length === 0 || broadcastSeccionalFilters.includes(c.seccional || '');
                                     const matchRole = broadcastRoleFilters.length === 0 || (c.roles && c.roles.some((r: string) => broadcastRoleFilters.includes(r)));

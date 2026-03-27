@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, Suspense } from 'react'
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc, where, getDocs } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, deleteDoc, where, getDocs, updateDoc, arrayUnion } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { db, storage } from '@/lib/firebase'
 import { QRCodeSVG } from 'qrcode.react'
@@ -367,26 +367,46 @@ END:VCARD`;
             )
             const dupSnap = await getDocs(dupQuery)
             if (!dupSnap.empty) {
-                const existing = dupSnap.docs[0].data()
-                const brigInfo = existing.brigadista ? ` (Brigadista: ${existing.brigadista})` : ''
-                setUploadError(`Este número ya está registrado a nombre de "${existing.name}"${brigInfo}. No se permiten duplicados.`)
-                setIsSubmittingRSVP(false)
-                return
-            }
+                const existingDoc = dupSnap.docs[0]
+                const existing = existingDoc.data()
+                const existingEventIds = existing.eventIds || (existing.eventId ? [existing.eventId] : [])
+                const currentEventId = event.id || ''
 
-            await addDoc(collection(db, 'campaigns', 'main_campaign', 'contacts'), {
-                name: rsvpName.trim(),
-                phone: cleanPhone,
-                calle: rsvpCalle.trim(),
-                numExt: rsvpNumExt.trim(),
-                seccional: rsvpSeccional.trim(),
-                roles: rsvpRoles,
-                ...(brigadistaName ? { brigadista: brigadistaName } : {}),
-                ...(brigId ? { brigadistaId: brigId } : {}),
-                eventId: event.id || '',
-                eventName: event.name || '',
-                timestamp: serverTimestamp(),
-            })
+                if (existingEventIds.includes(currentEventId) || existing.eventId === currentEventId) {
+                    setUploadError(`Este número de WhatsApp ya se encuentra registrado para este evento.`)
+                    setIsSubmittingRSVP(false)
+                    return
+                }
+
+                // Actualizar registro existente agregando este nuevo evento
+                await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', existingDoc.id), {
+                    name: rsvpName.trim(), 
+                    calle: rsvpCalle.trim(),
+                    numExt: rsvpNumExt.trim(),
+                    seccional: rsvpSeccional.trim(),
+                    roles: rsvpRoles,
+                    ...(brigadistaName && !existing.brigadista ? { brigadista: brigadistaName } : {}),
+                    ...(brigId && !existing.brigadistaId ? { brigadistaId: brigId } : {}),
+                    eventIds: arrayUnion(currentEventId),
+                    eventName: event.name || existing.eventName || '',
+                    timestamp: serverTimestamp(),
+                })
+            } else {
+                await addDoc(collection(db, 'campaigns', 'main_campaign', 'contacts'), {
+                    name: rsvpName.trim(),
+                    phone: cleanPhone,
+                    calle: rsvpCalle.trim(),
+                    numExt: rsvpNumExt.trim(),
+                    seccional: rsvpSeccional.trim(),
+                    roles: rsvpRoles,
+                    ...(brigadistaName ? { brigadista: brigadistaName } : {}),
+                    ...(brigId ? { brigadistaId: brigId } : {}),
+                    eventId: event.id || '',
+                    eventIds: [event.id || ''],
+                    eventName: event.name || '',
+                    timestamp: serverTimestamp(),
+                })
+            }
 
             // Auto download contact to their phone
             setTimeout(() => downloadVCard(), 500);
@@ -699,7 +719,7 @@ END:VCARD`;
             {showRSVP && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
                     onClick={() => setShowRSVP(false)}>
-                    <div className="rounded-3xl p-6 w-full max-w-sm bg-white shadow-2xl relative overflow-hidden"
+                    <div className="rounded-3xl p-4 w-full max-w-sm bg-white shadow-2xl relative overflow-hidden"
                         onClick={(e) => e.stopPropagation()}>
                         <div className="absolute top-0 left-0 w-full h-1.5" style={{ background: accent }}></div>
                         
@@ -710,51 +730,51 @@ END:VCARD`;
                         
                         <p className="text-sm text-gray-500 font-medium mb-6">Ingresa tus datos reales para habilitar el cruce demográfico de la zona.</p>
 
-                        <div className="space-y-4">
+                        <div className="space-y-2.5">
                             <div>
-                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Nombre completo *</label>
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-0.5">Nombre completo *</label>
                                 <input type="text" value={rsvpName} onChange={(e) => setRsvpName(e.target.value)}
                                     placeholder="Ej. María García" autoFocus
-                                    className="w-full px-4 py-3.5 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800" />
+                                    className="w-full px-3 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800" />
                             </div>
 
                             <div>
-                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">WhatsApp *</label>
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-0.5">WhatsApp *</label>
                                 <div className="flex items-center gap-2">
-                                    <span className="bg-gray-100 text-gray-500 font-bold px-3 py-3.5 rounded-xl border border-gray-200 text-sm flex-shrink-0">🇲🇽 +52</span>
+                                    <span className="bg-gray-100 text-gray-500 font-bold px-3 py-2 rounded-xl border border-gray-200 text-sm flex-shrink-0">🇲🇽 +52</span>
                                     <input type="tel" value={rsvpPhone} onChange={(e) => setRsvpPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                                         placeholder="10 dígitos" inputMode="numeric" maxLength={10}
-                                        className="flex-1 px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800 tracking-wider" />
+                                        className="flex-1 px-3 py-2 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800 tracking-wider" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Calle *</label>
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-0.5">Calle *</label>
                                 <input type="text" value={rsvpCalle} onChange={(e) => setRsvpCalle(e.target.value)}
                                     placeholder="Ej. Av. Reforma"
-                                    className="w-full px-4 py-3.5 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800" />
+                                    className="w-full px-3 py-2 rounded-xl text-sm font-medium border border-gray-200 bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-colors text-gray-800" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Número Exterior *</label>
+                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-0.5">Número Exterior *</label>
                                     <input type="text" value={rsvpNumExt} onChange={(e) => setRsvpNumExt(e.target.value)}
                                         placeholder="Ej. 123"
-                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
+                                        className="w-full px-3 py-2 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
                                 </div>
                                 <div>
-                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1">Seccional *</label>
+                                    <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-0.5">Seccional *</label>
                                     <input type="text" value={rsvpSeccional} onChange={(e) => setRsvpSeccional(e.target.value)}
                                         placeholder="Ej. 1234"
-                                        className="w-full px-4 py-3.5 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
+                                        className="w-full px-3 py-2 rounded-xl text-sm font-bold border border-gray-200 bg-gray-50 outline-none focus:border-red-400 text-center text-gray-800 focus:bg-white" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-2">Le gustaría ser parte de nuestro movimiento como:</label>
-                                <div className="space-y-2">
+                                <label className="text-[0.65rem] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Le gustaría ser parte de nuestro movimiento como:</label>
+                                <div className="space-y-1.5">
                                     {['Protagonista del cambio verdadero', 'Activista digital', 'Defensa del voto'].map(role => (
-                                        <label key={role} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                        <label key={role} className={`flex items-center gap-3 p-2 rounded-xl border cursor-pointer transition-all ${
                                             rsvpRoles.includes(role)
                                                 ? 'border-red-400 bg-red-50/50'
                                                 : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
@@ -769,9 +789,9 @@ END:VCARD`;
                             </div>
                         </div>
 
-                        <div className="mt-8">
+                        <div className="mt-6">
                             <button onClick={handleRSVPSubmit} disabled={isSubmittingRSVP || !rsvpName.trim() || rsvpPhone.replace(/\D/g, '').length !== 10 || !rsvpCalle.trim() || !rsvpNumExt.trim() || !rsvpSeccional.trim()} data-btn
-                                className="w-full py-4 rounded-xl text-sm font-black text-white shadow-lg disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
+                                className="w-full py-3 rounded-xl text-sm font-black text-white shadow-lg disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
                                 style={{ background: accent }}>
                                 {isSubmittingRSVP ? 'VERIFICANDO...' : 'REGISTRAR MI ASISTENCIA ✅'}
                             </button>
