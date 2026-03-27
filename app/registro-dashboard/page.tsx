@@ -571,7 +571,7 @@ export default function RegistroDashboard() {
                 </div>
             </header>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+            <div className="w-full mx-auto px-4 sm:px-8 xl:px-12 pt-6">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                     <div className="rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden bg-white">
