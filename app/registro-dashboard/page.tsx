@@ -932,6 +932,7 @@ export default function RegistroDashboard() {
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Selecciona Sector Comunitario</label>
                                     <select
                                         className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 outline-none font-bold text-gray-700 text-sm focus:border-red-500 transition-colors cursor-pointer shadow-sm"
+                                        value={selectedSector ? String(selectedSector['Sector Comunitario']) : ''}
                                         onChange={(e) => {
                                             const sec = mapData?.targets?.find((t: any) => String(t['Sector Comunitario']) === e.target.value)
                                             setSelectedSector(sec)
