@@ -142,6 +142,20 @@ export default function RegistroDashboard() {
 
     const onMapLoad = (map: google.maps.Map) => {
         mapRef.current = map
+        // Fit all sectors on first load so every sector is visible
+        if (mapData?.targets && mapData.targets.length > 0) {
+            const bounds = new google.maps.LatLngBounds()
+            let hasCoords = false
+            mapData.targets.forEach((t: any) => {
+                t.geometry?.forEach((coord: any) => {
+                    bounds.extend({ lat: coord.lat, lng: coord.lng })
+                    hasCoords = true
+                })
+            })
+            if (hasCoords) {
+                map.fitBounds(bounds, 40)
+            }
+        }
     }
 
     const selectAndZoomSector = (sector: any) => {
@@ -886,7 +900,7 @@ export default function RegistroDashboard() {
                                     <GoogleMap
                                         mapContainerStyle={{ width: '100%', height: '100%' }}
                                         center={NAVOJOA_CENTER}
-                                        zoom={13}
+                                        zoom={12}
                                         onLoad={onMapLoad}
                                         options={{
                                             styles: [
@@ -894,6 +908,7 @@ export default function RegistroDashboard() {
                                             ],
                                             disableDefaultUI: false,
                                             mapTypeControl: false,
+                                            gestureHandling: 'greedy',
                                         }}
                                     >
                                         {/* Render Polygons */}
