@@ -137,8 +137,18 @@ function CitizenEventPageInner() {
                     const data = configDoc.data()
                     setConfig((prev: any) => ({ ...prev, ...data }))
 
-                    // Load active event
-                    if (data.activeEventId) {
+                    // Si es registro por URL de brigadista, NO cargar evento activo, usar uno de "Territorio"
+                    if (brigId) {
+                        setEvent({
+                            id: 'registro-territorio',
+                            name: 'Registro en Territorio',
+                            date: new Date().toISOString(),
+                            location: 'Trabajo de Campo',
+                            description: 'Registro ciudadano en terrritorio',
+                            time: ''
+                        })
+                    } else if (data.activeEventId) {
+                        // Load active event solo si NO es brigadista
                         const eventDoc = await getDoc(doc(db, 'campaigns', 'main_campaign', 'events', data.activeEventId))
                         if (eventDoc.exists()) {
                             setEvent({ id: eventDoc.id, ...eventDoc.data() })
@@ -372,13 +382,20 @@ END:VCARD`;
                 const existingEventIds = existing.eventIds || (existing.eventId ? [existing.eventId] : [])
                 const currentEventId = event.id || ''
 
+                // Bloqueo 4: Si intenta registrar a alguien que ya tiene otro brigadista distinto
+                if (existing.brigadistaId && brigId !== '' && existing.brigadistaId !== brigId) {
+                    setUploadError(`Este número ya está vinculado al brigadista ${existing.brigadista || existing.brigadistaId}.`)
+                    setIsSubmittingRSVP(false)
+                    return
+                }
+
                 if (existingEventIds.includes(currentEventId) || existing.eventId === currentEventId) {
                     setUploadError(`Este número de WhatsApp ya se encuentra registrado para este evento.`)
                     setIsSubmittingRSVP(false)
                     return
                 }
 
-                // Actualizar registro existente agregando este nuevo evento
+                // Actualizar registro existente agregando este nuevo evento (y su nombre)
                 await updateDoc(doc(db, 'campaigns', 'main_campaign', 'contacts', existingDoc.id), {
                     name: rsvpName.trim(), 
                     calle: rsvpCalle.trim(),
@@ -388,6 +405,7 @@ END:VCARD`;
                     ...(brigadistaName && !existing.brigadista ? { brigadista: brigadistaName } : {}),
                     ...(brigId && !existing.brigadistaId ? { brigadistaId: brigId } : {}),
                     eventIds: arrayUnion(currentEventId),
+                    eventNames: arrayUnion(event.name || ''),
                     eventName: event.name || existing.eventName || '',
                     timestamp: serverTimestamp(),
                 })
@@ -404,6 +422,7 @@ END:VCARD`;
                     eventId: event.id || '',
                     eventIds: [event.id || ''],
                     eventName: event.name || '',
+                    eventNames: [event.name || ''],
                     timestamp: serverTimestamp(),
                 })
             }

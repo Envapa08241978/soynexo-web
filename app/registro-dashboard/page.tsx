@@ -24,6 +24,7 @@ interface ContactItem {
     eventId: string
     eventIds?: string[]
     eventName: string
+    eventNames?: string[]
     timestamp: any
     seccional?: string
     distrito?: string
@@ -764,7 +765,24 @@ export default function RegistroDashboard() {
                                                         className="w-full text-sm p-2 border border-gray-200 rounded-lg font-medium text-gray-700 outline-none focus:border-red-400 bg-gray-50 focus:bg-white transition-colors min-w-[120px]"
                                                     />
                                                 </td>
-                                                <td className="px-4 py-2 text-gray-500 text-xs">{c.eventName}</td>
+                                                <td className="px-4 py-2 text-gray-500 text-xs text-center">
+                                                    {c.eventNames && c.eventNames.length > 1 ? (
+                                                        <div className="group relative cursor-help inline-block">
+                                                            <span className="px-2 py-1 bg-blue-50 text-blue-700 font-bold border border-blue-200 rounded-lg shadow-sm">
+                                                                {c.eventNames.length} Eventos
+                                                            </span>
+                                                            <div className="hidden group-hover:block absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-gray-800 text-white text-xs rounded-xl p-3 shadow-xl pointer-events-none text-left">
+                                                                <div className="font-bold mb-1 border-b border-gray-600 pb-1 text-blue-300">Eventos asistidos:</div>
+                                                                <ul className="list-disc pl-3 mt-1 text-gray-200">
+                                                                    {c.eventNames.map((n, idx) => <li key={idx} className="mb-0.5 leading-tight">{n}</li>)}
+                                                                </ul>
+                                                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        c.eventName
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-2 text-xs">
                                                     {c.roles && c.roles.length > 0 ? (
                                                         <div className="flex flex-wrap gap-1">
