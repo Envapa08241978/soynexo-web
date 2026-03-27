@@ -142,27 +142,10 @@ export default function RegistroDashboard() {
 
     const onMapLoad = (map: google.maps.Map) => {
         mapRef.current = map
-        // Fit all sectors on initial load
-        if (mapData?.targets && mapData.targets.length > 0) {
-            const bounds = new google.maps.LatLngBounds()
-            mapData.targets.forEach((t: any) => {
-                t.geometry?.forEach((coord: any) => {
-                    bounds.extend({ lat: coord.lat, lng: coord.lng })
-                })
-            })
-            map.fitBounds(bounds, 40)
-        }
     }
 
     const selectAndZoomSector = (sector: any) => {
         setSelectedSector(sector)
-        if (sector?.geometry && sector.geometry.length > 0 && mapRef.current) {
-            const bounds = new google.maps.LatLngBounds()
-            sector.geometry.forEach((coord: any) => {
-                bounds.extend({ lat: coord.lat, lng: coord.lng })
-            })
-            mapRef.current.fitBounds(bounds, 40) // 40px padding
-        }
     }
 
     // --- Filters ---
