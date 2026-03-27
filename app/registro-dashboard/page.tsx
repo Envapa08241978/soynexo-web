@@ -329,8 +329,36 @@ export default function RegistroDashboard() {
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
         const link = document.createElement('a')
         link.href = URL.createObjectURL(blob)
-        link.download = `directorio-comunitario.csv`
+        link.download = `directorio-google-contacts.csv`
         link.click()
+    }
+
+    const exportToExcel = () => {
+        // UTF-8 BOM helps Excel recognize encoding + accents properly
+        const BOM = "\uFEFF";
+        const headers = ['Nombre', 'WhatsApp', 'Calle', 'Num Ext', 'Seccional', 'Brigadista', 'Eventos', 'Roles', 'Fecha de Registro'].join(',');
+        
+        const rows = filteredContacts.map(c => {
+            const dateStr = c.timestamp?.toDate ? c.timestamp.toDate().toLocaleDateString('es-MX') : new Date(c.timestamp).toLocaleDateString('es-MX');
+            const safeName = `"${(c.name || '').replace(/"/g, '""')}"`;
+            const safePhone = `"${c.phone || ''}"`;
+            const safeCalle = `"${(c.calle || c.colonia || '').replace(/"/g, '""')}"`;
+            const safeNumExt = `"${(c.numExt || '').replace(/"/g, '""')}"`;
+            const safeSeccional = `"${(c.seccional || '').replace(/"/g, '""')}"`;
+            const safeBrigadista = `"${(c.brigadista || '').replace(/"/g, '""')}"`;
+            const safeEvents = `"${(c.eventNames?.join('; ') || c.eventName || '').replace(/"/g, '""')}"`;
+            const safeRoles = `"${(c.roles?.join('; ') || '').replace(/"/g, '""')}"`;
+            const safeDate = `"${dateStr}"`;
+
+            return [safeName, safePhone, safeCalle, safeNumExt, safeSeccional, safeBrigadista, safeEvents, safeRoles, safeDate].join(',');
+        });
+
+        const csvContent = BOM + [headers, ...rows].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `directorio-general-excel.csv`;
+        link.click();
     }
 
 
@@ -660,9 +688,14 @@ export default function RegistroDashboard() {
                                         />
                                     )}
                                 </div>
-                                <button onClick={exportCSV} className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm flex items-center gap-2 w-full md:w-auto justify-center">
-                                    📥 Exportar a Google Contacts
-                                </button>
+                                <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0 w-full md:w-auto">
+                                    <button onClick={exportToExcel} className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center justify-center gap-2">
+                                        📊 Exportar a Excel
+                                    </button>
+                                    <button onClick={exportCSV} className="px-4 py-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 shadow-sm flex items-center justify-center gap-2">
+                                        📥 a Contacts
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Table */}
