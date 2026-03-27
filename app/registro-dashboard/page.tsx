@@ -102,6 +102,9 @@ const MultiSelect = ({ options, selected, onChange, placeholder }: { options: {l
         </div>
     )
 }
+
+const NAVOJOA_CENTER = { lat: 27.0728, lng: -109.4437 } as const
+
 export default function RegistroDashboard() {
     // --- Auth ---
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -138,7 +141,6 @@ export default function RegistroDashboard() {
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     })
 
-    const NAVOJOA_CENTER = { lat: 27.0728, lng: -109.4437 } // Central Navojoa
 
     const onMapLoad = (map: google.maps.Map) => {
         mapRef.current = map
